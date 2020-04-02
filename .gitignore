@@ -2,7 +2,6 @@
 .*.swp
 *.obj
 rom
-test
 *.img
 *.com
 *.exe
