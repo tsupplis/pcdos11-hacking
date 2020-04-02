@@ -21,7 +21,7 @@ TRUE    EQU     NOT FALSE
 IBMVER  EQU     TRUE    ;Switch to build IBM version of Command
 MSVER   EQU     FALSE   ;Switch to build MS-DOS version of Command
 
-HIGHMEM EQU     TRUE    ;Run resident part above transient (high memory)
+HIGHMEM EQU     FALSE    ;Run resident part above transient (high memory)
 
 LINPERPAG       EQU     23
 NORMPERLIN      EQU     1
@@ -153,7 +153,13 @@ DATARES ENDS
 
 TRANDATA        SEGMENT BYTE
         ORG     0
-ZERO    EQU     $
+ZERO    =       $
+IF MSVER
+VERSTR  DB      "MS-DOS Version 1.25A",13,10,"$"
+ENDIF
+IF IBMVER
+VERSTR  DB      "IBM PC-DOS Version 1.10A",13,10,"$"
+ENDIF
 BADNAM  DB      "Bad command or file name",13,10,"$"
 MISNAM  DB      "Missing file name$"
 RENERR  DB      "Duplicate file name or "
@@ -198,6 +204,10 @@ COMTAB  DB      4,"DIR",1
         DW      OFFSET TRANGROUP:PAUSE
         DB      5,"DATE",0
         DW      OFFSET TRANGROUP:DATE
+        DB      4,"VER",0
+        DW      OFFSET TRANGROUP:VER
+        DB      4,"CLS",0
+        DW      OFFSET TRANGROUP:CLS
         DB      5,"TIME",0
         DW      OFFSET TRANGROUP:TIME
         DB      0               ;Terminate command table
@@ -590,16 +600,17 @@ DRV0:
 
 
         IF MSVER
-HEADER  DB      13,10,"Command v. 1.17"
+HEADER  DB      13,10,13,10,"Microsoft DOS",13,10
         IF      HIGHMEM
-        DB      "H"
+        DB      "Version 1.25AH (C)Copyright Microsoft 1981, 1982, 2020",13,10,"$"
+        ELSE
+        DB      "Version 1.25A (C)Copyright Microsoft 1981, 1982, 2020",13,10,"$"
         ENDIF
-        DB      13,10,"$"
         ENDIF
 
         IF IBMVER
 HEADER  DB      13,10,13,10,"The IBM Personal Computer DOS",13,10
-        DB      "Version 1.10 (C)Copyright IBM Corp 1981, 1982",13,10,"$"
+        DB      "Version 1.10A (C)Copyright IBM Corp 1981, 1982, 2020",13,10,"$"
         DB      "Licensed Material - Program Property of IBM"
         ENDIF
 
@@ -1875,6 +1886,36 @@ DATERR:
         MOV     AH,PRINTBUF
         INT     33
         JMP     GETDAT
+
+; CLS command
+
+CLS:
+        MOV     AX,3
+        INT     10H
+        RET
+
+; VER command
+
+VER:
+        IF MSVER
+        IF      HIGHMEM
+        PUSH    DS
+        PUSH    CS
+        POP     DS
+        ENDIF
+        MOV     DX,OFFSET TRANGROUP:VERSTR
+        MOV     AH,PRINTBUF
+        INT     33
+        IF      HIGHMEM
+        POP     DS
+        ENDIF
+        ENDIF
+        IF IBMVER
+        MOV     DX,OFFSET TRANGROUP:VERSTR
+        MOV     AH,PRINTBUF
+        INT     33
+        ENDIF
+        RET
 
 ; TIME gets and sets the time
 
