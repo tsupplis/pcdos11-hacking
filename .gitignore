@@ -1,0 +1,10 @@
+.D*
+.*.swp
+*.obj
+rom
+test
+*.img
+*.com
+*.exe
+*.crf
+*.lst
