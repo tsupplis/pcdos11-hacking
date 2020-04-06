@@ -2,13 +2,16 @@
 
 ## configs
 
-- msdosenh.asm: slightly enhanced pc-dos 1.1 command.com marked as 1.25A
+- msdosenh.asm: slightly enhanced pc-dos 1.1 command.com marked as 1.25A/1.17A
     - VER command
-- sdosorg.asm: pc-dos 1.1 command.com rebuilt
+    - Addition of command.com searchi on A: after default drive search failed
+- msdosorg.asm: ms-dos 1.25 command 1.17 vanilla command.com rebuilt
+    - Addition of FCB Drive 0'ing from Zenith before opening command.com
 - pcdosenh.asm: slightly enhanced pc-dos 1.1 command.com marked as 1.10A
     - VER command
     - CLS command (BIOS)
 - pcdosorg.asm: pc-dos 1.1 command.com rebuilt 
+    - checked against pc-dos 1.1 distribution
     - SHA256(pcdosorg.com)= 84034261608f7b9d38a6b81b6896bb5cc45dc5ebfae0b0927081f86f354aa571
 
 ## build/test dependencies

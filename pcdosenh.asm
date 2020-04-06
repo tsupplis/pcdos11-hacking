@@ -155,7 +155,7 @@ TRANDATA        SEGMENT BYTE
         ORG     0
 ZERO    =       $
 IF MSVER
-VERSTR  DB      "MS-DOS Version 1.25A",13,10,"$"
+VERSTR  DB      "MS-DOS Version 1.25A Command Version 1.17A",13,10,"$"
 ENDIF
 IF IBMVER
 VERSTR  DB      "IBM PC-DOS Version 1.10A",13,10,"$"
@@ -463,12 +463,23 @@ LOADCOM:
         MOV     AH,SETDMA
         INT     33
         POP     DS
-        ; ZDOS 
-        ; MOV     [COMFCB], 0
+        IFDEF MSVER             ;ZDOS Addition
+        MOV     AL, 0
+        MOV     [COMFCB], AL
+        ENDIF
         MOV     DX,OFFSET RESGROUP:COMFCB
         MOV     AH,OPEN
         INT     33              ;Open COMMAND.COM
         OR      AL,AL
+        JZ      READCOM
+        IFDEF MSVER             ;ZDOS Addition Try A
+        MOV     AL, 1
+        MOV     [COMFCB], AL
+        MOV     DX,OFFSET RESGROUP:COMFCB
+        MOV     AH,OPEN
+        INT     33              ;Open COMMAND.COM
+        OR      AL,AL
+        ENDIF
         JZ      READCOM
         MOV     DX,OFFSET RESGROUP:NEEDCOM
 PROMPTCOM:
@@ -487,7 +498,7 @@ READCOM:
         NOP
         ENDIF
         IF MSVER
-        MOV     [COMFCB],0             ;Use default drive
+        MOV     [COMFCB], AL             ;Use default drive
         ENDIF
         INC     AX
         MOV     WORD PTR[COMFCB+RECLEN],AX
