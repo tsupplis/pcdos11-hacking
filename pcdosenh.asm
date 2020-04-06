@@ -18,7 +18,6 @@
 FALSE   EQU     0
 TRUE    EQU     NOT FALSE
 
-IBMHACK EQU     TRUE
 IBMVER  EQU     TRUE    ;Switch to build IBM version of Command
 MSVER   EQU     FALSE   ;Switch to build MS-DOS version of Command
 
@@ -207,8 +206,10 @@ COMTAB  DB      4,"DIR",1
         DW      OFFSET TRANGROUP:DATE
         DB      4,"VER",0
         DW      OFFSET TRANGROUP:VER
+        IF IBMVER
         DB      4,"CLS",0
         DW      OFFSET TRANGROUP:CLS
+        ENDIF
         DB      5,"TIME",0
         DW      OFFSET TRANGROUP:TIME
         DB      0               ;Terminate command table
@@ -478,11 +479,12 @@ READCOM:
         MOV     WORD PTR[COMFCB+RR],OFFSET RESGROUP:TRANSTART
         XOR     AX,AX
         MOV     WORD PTR[COMFCB+RR+2],AX
-        IF IBMHACK
+        IF IBMVER
         NOP
         NOP
         NOP
-        ELSE
+        ENDIF
+        IF MSVER
         MOV     [COMFCB],AL             ;Use default drive
         ENDIF
         INC     AX
@@ -1895,11 +1897,12 @@ DATERR:
         JMP     GETDAT
 
 ; CLS command
-
+        IF IBMVER
 CLS:
         MOV     AX,3
         INT     10H
         RET
+        ENDIF
 
 ; VER command
 

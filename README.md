@@ -1,9 +1,15 @@
-# msdos11-hacking: playing with command.com
+# PC-DOS 1.1 hacking: playing with command.com
 
 ## configs
 
-- pcdosenh.asm: slightly enhanced pc-dos 1.1 command.com
-- pcdosorg.asm: pc-dos 1.1 command.com rebuilt
+- msdosenh.asm: slightly enhanced pc-dos 1.1 command.com marked as 1.25A
+    - VER command
+- sdosorg.asm: pc-dos 1.1 command.com rebuilt
+- pcdosenh.asm: slightly enhanced pc-dos 1.1 command.com marked as 1.10A
+    - VER command
+    - CLS command (BIOS)
+- pcdosorg.asm: pc-dos 1.1 command.com rebuilt 
+    - SHA256(pcdosorg.com)= 84034261608f7b9d38a6b81b6896bb5cc45dc5ebfae0b0927081f86f354aa571
 
 ## build/test dependencies
 

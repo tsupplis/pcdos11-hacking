@@ -1,7 +1,8 @@
 ibm
 vm_*
 .D*
-orig
+msorg
+pcorg
 .*.swp
 *.obj
 rom
@@ -11,3 +12,5 @@ rom
 *.map
 *.crf
 *.lst
+msdosorg.asm
+msdosenh.asm
