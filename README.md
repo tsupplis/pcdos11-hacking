@@ -11,13 +11,18 @@
     - VER command
     - CLS command (BIOS)
 - pcdosorg: PC-DOS 1.1 command.com rebuilt 
-    - checked against PC-DOS 1.1 distribution
+    - Checked against PC-DOS 1.1 distribution
     - SHA256(pcdosorg.com)= 84034261608f7b9d38a6b81b6896bb5cc45dc5ebfae0b0927081f86f354aa571
 
 ## TODO: Other little changes
 
 - pcdosenh:
     - Search path on A: if default drive seach fails
+    - Investigate further other MS-DOS 1.25 variations
+        - Compaq style ~ PC-DOS
+        - Zenith (Seems to be tagged 0.19)
+        - Corona
+        = CDP
 
 ## Build/Test Dependencies
 
