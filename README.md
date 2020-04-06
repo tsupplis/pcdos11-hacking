@@ -15,7 +15,7 @@ https://github.com/microsoft/MS-DOS/blob/master/v1.25/source/COMMAND.ASM
 
 - msdosenh: slightly enhanced PC-DOS 1.1 command.com marked as 1.25A/1.17A
     - VER command
-    - Addition of command.com searchi on A: after default drive search failed
+    - Addition of command.com search on A: after default drive search failed
 - msdosorg: MS-DOS 1.25 command 1.17 vanilla command.com rebuilt
     - Addition of FCB Drive 0'ing from Zenith ZDOS before opening command.com
 - pcdosenh: slightly enhanced PC-DOS 1.1 command.com marked as 1.10A
@@ -38,8 +38,8 @@ https://github.com/microsoft/MS-DOS/blob/master/v1.25/source/COMMAND.ASM
 - pce emulator (test)
 - emu2 (for build from macosx/linux)
 - pc-dos 1.1 floppy image (for test if available)
-- exe2bin.exe
-- ibm assembler 2.0 or masm >= 3.0 (masm.exe link.exe)
+- exe2bin.exe (any DOW will do)
+- ibm assembler 2.0 or masm >= 3.0 or compatible (masm.exe link.exe)
 
 ### DOS
 
