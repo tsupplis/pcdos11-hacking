@@ -8,8 +8,10 @@ pcorg
 rom
 *.img
 *.com
-*.exe
 *.map
+masm.exe
+pcdos*.exe
+msdos*.exe
 *.crf
 *.lst
 msdosorg.asm

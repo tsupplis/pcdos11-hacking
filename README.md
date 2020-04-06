@@ -84,13 +84,15 @@ the default drive (Microsoft) or on drive A: (IBM).
 - pce emulator (test)
 - emu2 (for build from macosx/linux)
 - pc-dos 1.1 floppy image (for test if available)
-- exe2bin.exe (any DOW will do)
-- IBM assembler 2.0 or Microsoft masm >= 3.0 or compatible (masm.exe link.exe)
+- exe2bin.exe from https://github.com/microsoft/MS-DOS/blob/master/v1.25/bin/EXE2BIN.EXE
+- link.exe from https://github.com/microsoft/MS-DOS/blob/master/v1.25/bin/LINK.EXE
+- IBM assembler 2.0 or Microsoft masm >= 3.0 or compatible (masm.exe)
 
 ### DOS
 
-- exe2bin.exe
-- IBM assembler 2.0 or Microsoft masm >= 3.0 or compatible (masm.exe,link.exe)
+- exe2bin.exe from https://github.com/microsoft/MS-DOS/blob/master/v1.25/bin/EXE2BIN.EXE
+- link.exe from https://github.com/microsoft/MS-DOS/blob/master/v1.25/bin/LINK.EXE
+- IBM assembler 2.0 or Microsoft masm >= 3.0 or compatible (masm.exe)
 
 ## Build
 
