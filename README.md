@@ -39,12 +39,12 @@ https://github.com/microsoft/MS-DOS/blob/master/v1.25/source/COMMAND.ASM
 - emu2 (for build from macosx/linux)
 - pc-dos 1.1 floppy image (for test if available)
 - exe2bin.exe (any DOW will do)
-- ibm assembler 2.0 or masm >= 3.0 or compatible (masm.exe link.exe)
+- IBM assembler 2.0 or Microsoft masm >= 3.0 or compatible (masm.exe link.exe)
 
 ### DOS
 
 - exe2bin.exe
-- IBM assembler 2.0 or Microsoft masm >= 3.0 (masm.exe,link.exe)
+- IBM assembler 2.0 or Microsoft masm >= 3.0 or compatible (masm.exe,link.exe)
 
 ## Build
 
