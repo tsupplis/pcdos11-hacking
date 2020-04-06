@@ -68,7 +68,8 @@ the default drive (Microsoft) or on drive A: (IBM).
     - VER command
     - CLS command (BIOS)
 - pcdosorg: PC-DOS 1.1 command.com rebuilt 
-    - Checked against PC-DOS 1.1 distribution https://github.com/microsoft/MS-DOS/blob/master/v1.25/bin/COMMAND.COM
+    - Checked against PC-DOS 1.1 distribution 
+    - https://github.com/microsoft/MS-DOS/blob/master/v1.25/bin/COMMAND.COM
     - SHA256(pcdosorg.com)= 84034261608f7b9d38a6b81b6896bb5cc45dc5ebfae0b0927081f86f354aa571
 
 ## TODO: Other little changes
