@@ -1,4 +1,4 @@
-# PC-DOS 1.1 hacking: Playing with command.com
+# PC-DOS 1.1 Hacking - Playing with command.com
 
 ## Sources
 
