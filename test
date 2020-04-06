@@ -1,2 +1,2 @@
 #!/bin/bash
-exec pce-ibmpc -c dos.cfg -g "vga" -r
+exec pce-ibmpc -c pcdos.cfg -g "vga" -r

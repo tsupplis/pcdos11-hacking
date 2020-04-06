@@ -1,9 +1,11 @@
 .D*
+orig
 .*.swp
 *.obj
 rom
 *.img
 *.com
 *.exe
+*.map
 *.crf
 *.lst

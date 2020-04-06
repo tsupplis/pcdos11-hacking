@@ -18,6 +18,7 @@
 FALSE   EQU     0
 TRUE    EQU     NOT FALSE
 
+IBMHACK EQU     TRUE
 IBMVER  EQU     TRUE    ;Switch to build IBM version of Command
 MSVER   EQU     FALSE   ;Switch to build MS-DOS version of Command
 
@@ -477,7 +478,13 @@ READCOM:
         MOV     WORD PTR[COMFCB+RR],OFFSET RESGROUP:TRANSTART
         XOR     AX,AX
         MOV     WORD PTR[COMFCB+RR+2],AX
+        IF IBMHACK
+        NOP
+        NOP
+        NOP
+        ELSE
         MOV     [COMFCB],AL             ;Use default drive
+        ENDIF
         INC     AX
         MOV     WORD PTR[COMFCB+RECLEN],AX
         MOV     CX,COMLEN
