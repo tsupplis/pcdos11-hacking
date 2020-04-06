@@ -463,6 +463,8 @@ LOADCOM:
         MOV     AH,SETDMA
         INT     33
         POP     DS
+        ; ZDOS 
+        ; MOV     [COMFCB], 0
         MOV     DX,OFFSET RESGROUP:COMFCB
         MOV     AH,OPEN
         INT     33              ;Open COMMAND.COM
@@ -485,7 +487,7 @@ READCOM:
         NOP
         ENDIF
         IF MSVER
-        MOV     [COMFCB],AL             ;Use default drive
+        MOV     [COMFCB],0             ;Use default drive
         ENDIF
         INC     AX
         MOV     WORD PTR[COMFCB+RECLEN],AX
