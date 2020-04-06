@@ -1,5 +1,11 @@
 # PC-DOS 1.1 hacking: Playing with command.com
 
+## Sources
+
+The expriment started form the vintage code opened by Microsoft:
+
+https://github.com/microsoft/MS-DOS/blob/master/v1.25/source/COMMAND.ASM
+
 ## Configs
 
 - msdosenh: slightly enhanced PC-DOS 1.1 command.com marked as 1.25A/1.17A
@@ -19,10 +25,6 @@
 - pcdosenh:
     - Search path on A: if default drive seach fails
     - Investigate further other MS-DOS 1.25 variations
-        - Compaq style ~ PC-DOS
-        - Zenith (Seems to be tagged 0.19)
-        - Corona
-        = CDP
 
 ## Build/Test Dependencies
 
