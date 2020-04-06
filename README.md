@@ -2,7 +2,7 @@
 
 ## Sources
 
-The experiment started form the vintage code opened by Microsoft:
+The experiment started from the vintage MS-DOS code opened by Microsoft:
 
 https://github.com/microsoft/MS-DOS/blob/master/v1.25/source/COMMAND.ASM
 
@@ -37,7 +37,7 @@ https://github.com/microsoft/MS-DOS/blob/master/v1.25/source/COMMAND.ASM
 
 - pce emulator (test)
 - emu2 (for build from macosx/linux)
-- pc-dos 1.1 floppy image 
+- pc-dos 1.1 floppy image (for test if available)
 - exe2bin.exe
 - ibm assembler 2.0 or masm >= 3.0 (masm.exe link.exe)
 
