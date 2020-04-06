@@ -1,6 +1,6 @@
-all: dos.img
+all: pcdos.img
 
-dos.img: command.com orig/pcdos.img
+pcdos.img: command.com orig/pcdos.img
 	cp orig/pcdos.img pcdos.img
 	mcopy  -o -i pcdos.img command.com ::COMMAND.COM
 	mdir -w -i pcdos.img
