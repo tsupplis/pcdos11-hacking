@@ -2,7 +2,7 @@
 
 ## Sources
 
-The expriment started form the vintage code opened by Microsoft:
+The experiment started form the vintage code opened by Microsoft:
 
 https://github.com/microsoft/MS-DOS/blob/master/v1.25/source/COMMAND.ASM
 
