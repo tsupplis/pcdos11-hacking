@@ -1,0 +1,31 @@
+all: pcdosenh.com pcdosorg.com 
+	    
+pcdosorg.com: pcdosorg.exe
+	exe2bin.exe pcdosorg.exe pcdosorg.com
+
+pcdosorg.exe: pcdosorg.obj
+	link.exe pcdosorg,pcdosorg,pcdosorg,pcdosorg,
+
+pcdosorg.obj: pcdosorg.asm
+	masm.exe pcdosorg,pcdosorg,pcdosorg,pcdosorg, 
+
+pcdosenh.com: pcdosenh.exe
+	exe2bin.exe pcdosenh.exe pcdosenh.com
+
+pcdosenh.exe: pcdosenh.obj
+	link.exe pcdosenh,pcdosenh,pcdosenh,pcdosenh,
+
+pcdosenh.obj: pcdosenh.asm
+	masm.exe pcdosenh,pcdosenh,pcdosenh,pcdosenh,
+
+clean:
+	del pcdosorg.exe 
+    del pcdosorg.obj 
+    del pcdosorg.com
+	del pcdosenh.exe 
+    del pcdosenh.obj 
+    del pcdosenh.com
+	del *.crf 
+    del *.err 
+    del *.lst 
+    del *.map
