@@ -3,7 +3,7 @@
 ## configs
 
 - pcdosenh.asm: slightly enhanced pc-dos 1.1 command.com
-- pcdosorig.asm: pc-dos 1.1 command.com rebuilt
+- pcdosorg.asm: pc-dos 1.1 command.com rebuilt
 
 ## build/test dependencies
 
