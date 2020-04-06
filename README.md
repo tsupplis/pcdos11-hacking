@@ -22,10 +22,10 @@ There is a first failure on EQU symbol redefined. This prevents compilation.
 > ZERO    =       $
 ```
 
-To get to Parity with the official binaries:
+To get to the official PC-DOS binary production:
 
 A triple NOP replaces the MS instruction MOV [COMFCB],AL. This change fixes reload from command.com
-on drive A:
+on drive A: by not overriding the first FCB byte with 0 (Default drive).
 
 ```
 469a474,479
@@ -47,10 +47,12 @@ IBMVER is set to TRUE
 A third small change has been added in MSVER mode, before opening the command.com file. To be checked if
 this is really necessary ...
 
+```
 >         IF MSVER
 >         MOV     AL, 0
 >         MOV     [COMFCB], AL
 >         ENDIF
+```
 
 Those variations beetween IBM and Microsoft seem to be linked to the command.com file being searched on
 the default drive (Microsoft) or on drive A: (IBM).
