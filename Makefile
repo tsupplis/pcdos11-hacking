@@ -1,19 +1,28 @@
-all: pcdos.img
+all: pcdosenh.com pcdosorig.com pcdos.img
 
-pcdos.img: command.com orig/pcdos.img
+pcdos.img: pcdosenh.com orig/pcdos.img
 	cp orig/pcdos.img pcdos.img
-	mcopy  -o -i pcdos.img command.com ::COMMAND.COM
+	mcopy  -o -i pcdos.img pcdosenh.com ::COMMAND.COM
 	mdir -w -i pcdos.img
 
-command.com: command.obj
-	dos link.exe command,command,command,command,
-	dos exe2bin.exe command.exe command.com
-	rm -f command.exe
+pcdosorig.com: pcdosorig.obj
+	emu2 link.exe pcdosorig,pcdosorig,pcdosorig,pcdosorig,
+	emu2 exe2bin.exe pcdosorig.exe pcdosorig.com
+	rm -f pcdosorig.exe
 
-command.obj: command.asm
-	dos masm.exe command,command,command,command,
+pcdosorig.obj: pcdosorig.asm
+	emu2 masm.exe pcdosorig,pcdosorig,pcdosorig,pcdosorig,
+
+pcdosenh.com: pcdosenh.obj
+	emu2 link.exe pcdosenh,pcdosenh,pcdosenh,pcdosenh,
+	emu2 exe2bin.exe pcdosenh.exe pcdosenh.com
+	rm -f pcdosenh.exe
+
+pcdosenh.obj: pcdosenh.asm
+	emu2 masm.exe pcdosenh,pcdosenh,pcdosenh,pcdosenh,
 
 clean:
-	rm -f command.exe command.obj command.com
-	rm -f *.crf *.err *.lst
+	rm -f pcdosorig.exe pcdosorig.obj pcdosorig.com
+	rm -f pcdosenh.exe pcdosenh.obj pcdosenh.com
+	rm -f *.crf *.err *.lst *.map
 	rm -f dos.img 
