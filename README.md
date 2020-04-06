@@ -6,6 +6,11 @@ The expriment started form the vintage code opened by Microsoft:
 
 https://github.com/microsoft/MS-DOS/blob/master/v1.25/source/COMMAND.ASM
 
+## MIT License (In line with Source License):
+
+- https://github.com/tsupplis/pcdos11-hacking/blob/master/LICENSE.md
+- https://github.com/microsoft/MS-DOS/blob/master/LICENSE.md
+
 ## Configs
 
 - msdosenh: slightly enhanced PC-DOS 1.1 command.com marked as 1.25A/1.17A
