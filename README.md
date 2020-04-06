@@ -11,6 +11,50 @@ https://github.com/microsoft/MS-DOS/blob/master/v1.25/source/COMMAND.ASM
 - https://github.com/tsupplis/pcdos11-hacking/blob/master/LICENSE.md
 - https://github.com/microsoft/MS-DOS/blob/master/LICENSE.md
 
+## First Contact
+
+There is a first failure on EQU symbol redefined. This prevents compilation.
+
+```
+156c156
+< ZERO    EQU     $
+---
+> ZERO    =       $
+```
+
+To get to Parity with the official binaries:
+
+A triple NOP replaces the MS instruction MOV [COMFCB],AL. This change fixes reload from command.com
+on drive A:
+
+```
+469a474,479
+>         IF IBMVER
+>         NOP
+>         NOP
+>         NOP
+>         ENDIF
+>         IF MSVER
+470a481
+>         ENDIF
+2166d2176
+< 
+```
+
+The 2 previous changes allow recreation of the PC-DOS exact command.com, when MSVER is set to FALSE and
+IBMVER is set to TRUE
+
+A third small change has been added in MSVER mode, before opening the command.com file. To be checked if
+this is really necessary ...
+
+>         IF MSVER
+>         MOV     AL, 0
+>         MOV     [COMFCB], AL
+>         ENDIF
+
+Those variations beetween IBM and Microsoft seem to be linked to the command.com file being searched on
+the default drive (Microsoft) or on drive A: (IBM).
+
 ## Configs
 
 - msdosenh: slightly enhanced PC-DOS 1.1 command.com marked as 1.25A/1.17A
