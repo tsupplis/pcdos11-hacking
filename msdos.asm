@@ -44,7 +44,7 @@
 ; INTBASE+18H:  BIOS DISK WRITE
 ; INTBASE+40H:  Long jump to CALL entry point
 
-        IF      IBM
+        IF      IBMVER
 ESCCH   EQU     0
 CANCEL  EQU     1BH             ;Cancel with ESC
 TOGLINS EQU     TRUE            ;One key toggles insert mode
@@ -165,10 +165,10 @@ SEGBIOS ENDS
 
 ; BOIS entry point definitions
 
-        IF      IBM
+        IF      IBMVER
 BIOSSEG EQU     60H
         ENDIF
-        IF      NOT IBM
+        IF      NOT IBMVER
 BIOSSEG EQU     40H
         ENDIF
 
@@ -219,7 +219,7 @@ CODSTRT EQU     $
 
 ESCCHAR DB      ESCCH   ;Lead-in character for escape sequences
 ESCTAB: 
-        IF      NOT IBM
+        IF      NOT IBMVER
         DB      "S"     ;Copy one char
         DB      "V"     ;Skip one char
         DB      "T"     ;Copy to char
@@ -233,7 +233,7 @@ ESCTAB:
         DB      "R"     ;Escape character
         DB      "R"     ;End of table
         ENDIF
-        IF      IBM
+        IF      IBMVER
         DB      64      ;Crtl-Z - F6
         DB      77      ;Copy one char - -->
         DB      59      ;Copy one char - F1
@@ -250,7 +250,7 @@ ESCTAB:
         ENDIF
 
 ESCTABLEN EQU   $-ESCTAB
-        IF      NOT IBM
+        IF      NOT IBMVER
 HEADER  DB      13,10,"MS-DOS version 1.25"
         IF      HIGHMEM
         DB      "H"
@@ -529,7 +529,7 @@ CRET:
         RET
 
 IOCHK:
-        IF      IBM
+        IF      IBMVER
         CMP     BH,NUMDEV       ;Is it the first device?
         JNZ     NOTCOM1
         MOV     BH,2            ;Make it the same as AUX
@@ -2982,7 +2982,7 @@ ESCFUNC DW      GETCH
         DW      SKIPONE
         DW      COPYONE
 
-        IF      IBM
+        IF      IBMVER
         DW      COPYONE
         DW      CTRLZ
 CTRLZ:
@@ -3315,12 +3315,12 @@ CHK:
         CMP     AL,"]"
         JZ      RET21
 
-        IF      IBM
+        IF      IBMVER
 DELIM:
         ENDIF
         CMP     AL,":"          ;Allow ":" as separator in IBM version
         JZ      RET21
-        IF      NOT IBM
+        IF      NOT IBMVER
 DELIM:
         ENDIF
 
@@ -3636,10 +3636,10 @@ CONSTANTS       SEGMENT BYTE
 CONSTRT EQU     $               ;Start of constants segment
 
 IONAME:
-        IF      NOT IBM
+        IF      NOT IBMVER
         DB      "PRN ","LST ","NUL ","AUX ","CON "
         ENDIF
-        IF      IBM
+        IF      IBMVER
         DB      "COM1","PRN ","LPT1","NUL ","AUX ","CON "
         ENDIF
 DIVMES  DB      13,10,"Divide overflow",13,10,"$"
@@ -3960,7 +3960,7 @@ SETEND:
         MOV     WORD PTR DS:[INTBASE+18H],OFFSET BIOSWRITE
         MOV     WORD PTR DS:[EXIT],100H
         MOV     WORD PTR DS:[EXIT+2],DX
-        IF      NOT IBM
+        IF      NOT IBMVER
         MOV     SI,OFFSET DOSGROUP:HEADER
         CALL    OUTMES
         ENDIF

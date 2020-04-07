@@ -1,15 +1,6 @@
 all: pcdosenh.com pcdosorg.com pcdos.img \
      msdosenh.com msdosorg.com msdos.img \
-     ibmdos.com ibmbios.com
-
-ibmbios.com: ibmbios.exe
-	emu2 exe2bin.exe ibmbios.exe ibmbios.com
-
-ibmbios.exe: ibmbios.obj
-	emu2 link.exe ibmbios,ibmbios,ibmbios,ibmbios,
-
-ibmbios.obj: ibmbios.asm
-	emu2 masm.exe ibmbios,ibmbios,ibmbios,ibmbios,
+     ibmdos.com 
 
 ibmdos.com: ibmdos.exe
 	emu2 exe2bin.exe ibmdos.exe ibmdos.com
@@ -17,8 +8,8 @@ ibmdos.com: ibmdos.exe
 ibmdos.exe: ibmdos.obj
 	emu2 link.exe ibmdos,ibmdos,ibmdos,ibmdos,
 
-ibmdos.obj: ibmdos.asm
-	emu2 masm.exe ibmdos,ibmdos,ibmdos,ibmdos,
+ibmdos.obj: ibmdos.asm msdos.asm
+	emu2 masm.exe ibmdos,ibmdos,ibmdos,ibmdos, || rm -f ibmdos.obj
 
 msdos.img: msdosenh.com msorg/msdos.img
 	cp msorg/msdos.img msdos.img
@@ -32,7 +23,7 @@ msdosorg.exe: msdosorg.obj
 	emu2 link.exe msdosorg,msdosorg,msdosorg,msdosorg,
 
 msdosorg.obj: msdosorg.asm
-	emu2 masm.exe msdosorg,msdosorg,msdosorg,msdosorg,
+	emu2 masm.exe msdosorg,msdosorg,msdosorg,msdosorg, || rm -f madosorg.obj
 
 msdosenh.com: msdosenh.exe
 	emu2 exe2bin.exe msdosenh.exe msdosenh.com
@@ -41,7 +32,7 @@ msdosenh.exe: msdosenh.obj
 	emu2 link.exe msdosenh,msdosenh,msdosenh,msdosenh,
 
 msdosenh.obj: msdosenh.asm
-	emu2 masm.exe msdosenh,msdosenh,msdosenh,msdosenh,
+	emu2 masm.exe msdosenh,msdosenh,msdosenh,msdosenh, || rm -f msdosenh.obj
 
 msdosenh.asm: pcdosenh.asm
 	cat pcdosenh.asm|sed -e 's/IBMVER \([ ]*\)EQU \([ ]*\)TRUE/IBMVER\1 EQU\2 FALSE/g' \
@@ -63,19 +54,18 @@ pcdosorg.exe: pcdosorg.obj
 	emu2 link.exe pcdosorg,pcdosorg,pcdosorg,pcdosorg,
 
 pcdosorg.obj: pcdosorg.asm
-	emu2 masm.exe pcdosorg,pcdosorg,pcdosorg,pcdosorg, 
+	emu2 masm.exe pcdosorg,pcdosorg,pcdosorg,pcdosorg,  || rm -f pcdosenh.obj
 
 pcdosenh.com: pcdosenh.exe
 	emu2 exe2bin.exe pcdosenh.exe pcdosenh.com
 
 pcdosenh.exe: pcdosenh.obj
-	emu2 link.exe pcdosenh,pcdosenh,pcdosenh,pcdosenh,
+	emu2 link.exe pcdosenh,pcdosenh,pcdosenh,pcdosenh, 
 
 pcdosenh.obj: pcdosenh.asm
-	emu2 masm.exe pcdosenh,pcdosenh,pcdosenh,pcdosenh,
+	emu2 masm.exe pcdosenh,pcdosenh,pcdosenh,pcdosenh, || rm -f pcdosenh.obj
 
 clean:
-	rm -f ibmbios.exe ibmbios.obj ibmbios.com
 	rm -f ibmdos.exe ibmdos.obj ibmdos.com
 	rm -f msdosorg.asm msdosenh.asm
 	rm -f pcdosorg.exe pcdosorg.obj pcdosorg.com
