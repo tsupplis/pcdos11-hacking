@@ -10,6 +10,7 @@ rom
 *.com
 *.map
 masm.exe
+ibm*.exe
 pcdos*.exe
 msdos*.exe
 *.crf

@@ -77,6 +77,7 @@ the default drive (Microsoft) or on drive A: (IBM).
 - pcdosenh:
     - Search path on A: if default drive seach fails
     - Investigate further other MS-DOS 1.25 variations
+- bios and dos
 
 ## Build/Test Dependencies
 

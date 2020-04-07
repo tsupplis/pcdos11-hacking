@@ -1,5 +1,24 @@
 all: pcdosenh.com pcdosorg.com pcdos.img \
-     msdosenh.com msdosorg.com msdos.img
+     msdosenh.com msdosorg.com msdos.img \
+     ibmdos.com ibmbios.com
+
+ibmbios.com: ibmbios.exe
+	emu2 exe2bin.exe ibmbios.exe ibmbios.com
+
+ibmbios.exe: ibmbios.obj
+	emu2 link.exe ibmbios,ibmbios,ibmbios,ibmbios,
+
+ibmbios.obj: ibmbios.asm
+	emu2 masm.exe ibmbios,ibmbios,ibmbios,ibmbios,
+
+ibmdos.com: ibmdos.exe
+	emu2 exe2bin.exe ibmdos.exe ibmdos.com
+
+ibmdos.exe: ibmdos.obj
+	emu2 link.exe ibmdos,ibmdos,ibmdos,ibmdos,
+
+ibmdos.obj: ibmdos.asm
+	emu2 masm.exe ibmdos,ibmdos,ibmdos,ibmdos,
 
 msdos.img: msdosenh.com msorg/msdos.img
 	cp msorg/msdos.img msdos.img
@@ -56,6 +75,8 @@ pcdosenh.obj: pcdosenh.asm
 	emu2 masm.exe pcdosenh,pcdosenh,pcdosenh,pcdosenh,
 
 clean:
+	rm -f ibmbios.exe ibmbios.obj ibmbios.com
+	rm -f ibmdos.exe ibmdos.obj ibmdos.com
 	rm -f msdosorg.asm msdosenh.asm
 	rm -f pcdosorg.exe pcdosorg.obj pcdosorg.com
 	rm -f pcdosenh.exe pcdosenh.obj pcdosenh.com
