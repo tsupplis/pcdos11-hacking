@@ -5,6 +5,10 @@ msorg
 pcorg
 .*.swp
 *.obj
+*.prn
+*.hex
+*.PRN
+*.HEX
 rom
 *.img
 ibm*.com

@@ -65,6 +65,18 @@ pcdosenh.exe: pcdosenh.obj
 pcdosenh.obj: pcdosenh.asm
 	emu2 masm.exe pcdosenh,pcdosenh,pcdosenh,pcdosenh, || rm -f pcdosenh.obj
 
+trans.com: trans.asm
+	emu2 qasm.com trans
+	emu2 qhex2bin.com trans
+
+io.com: io.asm
+	emu2 qasm.com io
+	emu2 qhex2bin.com io
+
+hex2bin.com: hex2bin.asm
+	emu2 qasm.com hex2bin
+	emu2 qhex2bin.com hex2bin
+
 clean:
 	rm -f ibmdos.exe ibmdos.obj ibmdos.com
 	rm -f msdosorg.asm msdosenh.asm
@@ -72,5 +84,6 @@ clean:
 	rm -f pcdosenh.exe pcdosenh.obj pcdosenh.com
 	rm -f msdosorg.exe msdosorg.obj msdosorg.com
 	rm -f msdosenh.exe msdosenh.obj msdosenh.com
-	rm -f *.crf *.err *.lst *.map
+	rm -f asm.com hex2bin.com trans.com io.com
+	rm -f *.crf *.err *.lst *.map *.hex *.prn *.HEX *.PRN
 	rm -f pcdos.img msdos.img
