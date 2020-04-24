@@ -135,4 +135,4 @@ The fix is just about changing the JLE into JBE (7E03 -> 7603)
 11AD:0017 7603             JBE     001C
 ```
 
-The masm checked in git is fixed.
+The masm binary checked in git is fixed.
