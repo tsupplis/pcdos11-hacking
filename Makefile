@@ -1,5 +1,5 @@
-all: pcdosenh.com pcdosorg.com pcdos.img \
-     msdosenh.com msdosorg.com msdos.img \
+all: ibmcmdex.com ibmcmd.com pcdos.img \
+     mscmdex.com mscmd.com msdos.img \
      ibmdos.com 
 
 ibmdos.com: ibmdos.exe
@@ -9,61 +9,61 @@ ibmdos.exe: ibmdos.obj
 	emu2 link.exe ibmdos,ibmdos,ibmdos,ibmdos,
 
 ibmdos.obj: ibmdos.asm msdos.asm
-	emu2 masm.exe ibmdos,ibmdos,ibmdos,ibmdos, || rm -f ibmdos.obj
+	emu2 masm.exe ibmdos,ibmdos,ibmdos,ibmdos || rm -f ibmdos.obj
 
-msdos.img: msdosenh.com msorg/msdos.img
+msdos.img: mscmdex.com msorg/msdos.img
 	cp msorg/msdos.img msdos.img
-	mcopy  -o -i msdos.img msdosenh.com ::COMMAND.COM
+	mcopy  -o -i msdos.img mscmdex.com ::COMMAND.COM
 	mdir -w -i msdos.img
 
-msdosorg.com: msdosorg.exe
-	emu2 exe2bin.exe msdosorg.exe msdosorg.com
+mscmd.com: mscmd.exe
+	emu2 exe2bin.exe mscmd.exe mscmd.com
 
-msdosorg.exe: msdosorg.obj
-	emu2 link.exe msdosorg,msdosorg,msdosorg,msdosorg,
+mscmd.exe: mscmd.obj
+	emu2 link.exe mscmd,mscmd,mscmd,mscmd,
 
-msdosorg.obj: msdosorg.asm
-	emu2 masm.exe msdosorg,msdosorg,msdosorg,msdosorg, || rm -f madosorg.obj
+mscmd.obj: mscmd.asm
+	emu2 masm.exe mscmd,mscmd,mscmd,mscmd || rm -f madosorg.obj
 
-msdosenh.com: msdosenh.exe
-	emu2 exe2bin.exe msdosenh.exe msdosenh.com
+mscmdex.com: mscmdex.exe
+	emu2 exe2bin.exe mscmdex.exe mscmdex.com
 
-msdosenh.exe: msdosenh.obj
-	emu2 link.exe msdosenh,msdosenh,msdosenh,msdosenh,
+mscmdex.exe: mscmdex.obj
+	emu2 link.exe mscmdex,mscmdex,mscmdex,mscmdex,
 
-msdosenh.obj: msdosenh.asm
-	emu2 masm.exe msdosenh,msdosenh,msdosenh,msdosenh, || rm -f msdosenh.obj
+mscmdex.obj: mscmdex.asm
+	emu2 masm.exe mscmdex,mscmdex,mscmdex,mscmdex || rm -f mscmdex.obj
 
-msdosenh.asm: pcdosenh.asm
-	cat pcdosenh.asm|sed -e 's/IBMVER \([ ]*\)EQU \([ ]*\)TRUE/IBMVER\1 EQU\2 FALSE/g' \
-		|sed -e 's/MSVER \([ ]*\)EQU \([ ]*\)FALSE/MSVER\1 EQU\2 TRUE/g' > msdosenh.asm
+mscmdex.asm: ibmcmdex.asm
+	cat ibmcmdex.asm|sed -e 's/IBMVER \([ ]*\)EQU \([ ]*\)TRUE/IBMVER\1 EQU\2 FALSE/g' \
+		|sed -e 's/MSVER \([ ]*\)EQU \([ ]*\)FALSE/MSVER\1 EQU\2 TRUE/g' > mscmdex.asm
 	    
-msdosorg.asm: pcdosorg.asm
-	cat pcdosorg.asm|sed -e 's/IBMVER \([ ]*\)EQU \([ ]*\)TRUE/IBMVER\1 EQU\2 FALSE/g' \
-		|sed -e 's/MSVER \([ ]*\)EQU \([ ]*\)FALSE/MSVER\1 EQU\2 TRUE/g' > msdosorg.asm
+mscmd.asm: ibmcmd.asm
+	cat ibmcmd.asm|sed -e 's/IBMVER \([ ]*\)EQU \([ ]*\)TRUE/IBMVER\1 EQU\2 FALSE/g' \
+		|sed -e 's/MSVER \([ ]*\)EQU \([ ]*\)FALSE/MSVER\1 EQU\2 TRUE/g' > mscmd.asm
 	    
-pcdos.img: pcdosenh.com pcorg/pcdos.img
+pcdos.img: ibmcmdex.com pcorg/pcdos.img
 	cp pcorg/pcdos.img pcdos.img
-	mcopy  -o -i pcdos.img pcdosenh.com ::COMMAND.COM
+	mcopy  -o -i pcdos.img ibmcmdex.com ::COMMAND.COM
 	mdir -w -i pcdos.img
 
-pcdosorg.com: pcdosorg.exe
-	emu2 exe2bin.exe pcdosorg.exe pcdosorg.com
+ibmcmd.com: ibmcmd.exe
+	emu2 exe2bin.exe ibmcmd.exe ibmcmd.com
 
-pcdosorg.exe: pcdosorg.obj
-	emu2 link.exe pcdosorg,pcdosorg,pcdosorg,pcdosorg,
+ibmcmd.exe: ibmcmd.obj
+	emu2 link.exe ibmcmd,ibmcmd,ibmcmd,ibmcmd,
 
-pcdosorg.obj: pcdosorg.asm
-	emu2 masm.exe pcdosorg,pcdosorg,pcdosorg,pcdosorg,  || rm -f pcdosenh.obj
+ibmcmd.obj: ibmcmd.asm
+	emu2 masm.exe ibmcmd,ibmcmd,ibmcmd,ibmcmd  || rm -f ibmcmdex.obj
 
-pcdosenh.com: pcdosenh.exe
-	emu2 exe2bin.exe pcdosenh.exe pcdosenh.com
+ibmcmdex.com: ibmcmdex.exe
+	emu2 exe2bin.exe ibmcmdex.exe ibmcmdex.com
 
-pcdosenh.exe: pcdosenh.obj
-	emu2 link.exe pcdosenh,pcdosenh,pcdosenh,pcdosenh, 
+ibmcmdex.exe: ibmcmdex.obj
+	emu2 link.exe ibmcmdex,ibmcmdex,ibmcmdex,ibmcmdex, 
 
-pcdosenh.obj: pcdosenh.asm
-	emu2 masm.exe pcdosenh,pcdosenh,pcdosenh,pcdosenh, || rm -f pcdosenh.obj
+ibmcmdex.obj: ibmcmdex.asm
+	emu2 masm.exe ibmcmdex,ibmcmdex,ibmcmdex,ibmcmdex || rm -f ibmcmdex.obj
 
 trans.com: trans.asm
 	emu2 qasm.com trans
@@ -79,11 +79,11 @@ hex2bin.com: hex2bin.asm
 
 clean:
 	rm -f ibmdos.exe ibmdos.obj ibmdos.com
-	rm -f msdosorg.asm msdosenh.asm
-	rm -f pcdosorg.exe pcdosorg.obj pcdosorg.com
-	rm -f pcdosenh.exe pcdosenh.obj pcdosenh.com
-	rm -f msdosorg.exe msdosorg.obj msdosorg.com
-	rm -f msdosenh.exe msdosenh.obj msdosenh.com
+	rm -f mscmd.asm mscmdex.asm
+	rm -f ibmcmd.exe ibmcmd.obj ibmcmd.com
+	rm -f ibmcmdex.exe ibmcmdex.obj ibmcmdex.com
+	rm -f mscmd.exe mscmd.obj mscmd.com
+	rm -f mscmdex.exe mscmdex.obj mscmdex.com
 	rm -f asm.com hex2bin.com trans.com io.com
 	rm -f *.crf *.err *.lst *.map *.hex *.prn *.HEX *.PRN
 	rm -f pcdos.img msdos.img

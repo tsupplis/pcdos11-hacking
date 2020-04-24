@@ -87,17 +87,54 @@ the default drive (Microsoft) or on drive A: (IBM).
 - emu2 (for build from macosx/linux)
 - pc-dos 1.1 floppy image (for test if available)
 - exe2bin.exe from https://github.com/microsoft/MS-DOS/blob/master/v1.25/bin/EXE2BIN.EXE
-- link.exe from https://github.com/microsoft/MS-DOS/blob/master/v1.25/bin/LINK.EXE
-- IBM assembler 2.0 or Microsoft masm >= 2.0 or compatible (masm.exe)
+- ibm link.exe 1.10 from https://github.com/microsoft/MS-DOS/blob/master/v1.25/bin/LINK.EXE
+- microsoft masm.exe 1.10 (patched, cf below) https://github.com/microsoft/MS-DOS/blob/80ab2fddfdf30f09f0a0a637654cbb3cd5c7baa6/v2.0/bin/MASM.EXE
 
 ### DOS
 
 - exe2bin.exe from https://github.com/microsoft/MS-DOS/blob/master/v1.25/bin/EXE2BIN.EXE
-- link.exe from https://github.com/microsoft/MS-DOS/blob/master/v1.25/bin/LINK.EXE
-- IBM assembler 2.0 or Microsoft masm >= 2.0 or compatible (masm.exe)
+- ibm link.exe from https://github.com/microsoft/MS-DOS/blob/master/v1.25/bin/LINK.EXE
+- microsoft masm.exe 1.10 (patched, cf below) https://github.com/microsoft/MS-DOS/blob/80ab2fddfdf30f09f0a0a637654cbb3cd5c7baa6/v2.0/bin/MASM.EXE
 
 ## Build
 
 - Use Makefile on Linux, macOS
 - Use Makefile.dos on Win32, DOS (builds only PC-DOS configs)
 
+## MASM Fix
+
+The 1.10 version of MASM part of the MS-DOS 2.00 distribution hangs on emulators, including dosbox and emu2. 
+
+There is a detailed explanation at: https://slions.net/threads/debugging-ibm-macro-assembler-version-1-00.33/
+
+The execution of the Faulty code looks like this:
+
+```
+11AD:0000 B83B0F           MOV     AX,0F3B
+11AD:0003 8ED8             MOV     DS,AX
+11AD:0005 8C062400         MOV     [0024],ES
+11AD:0009 FA               CLI
+11AD:000A 8ED0             MOV     SS,AX
+11AD:000C 268B1E0200       MOV     BX,ES:[0002]
+11AD:0011 2BD8             SUB     BX,AX
+11AD:0013 81FB0010         CMP     BX,1000
+11AD:0017 7E03             JLE     001C
+11AD:001C D1E3             SHL     BX,1
+...
+
+The fix is just about changing the JLE into JBE (7E03 -> 7603)
+
+```
+11AD:0000 B83B0F           MOV     AX,0F3B
+11AD:0003 8ED8             MOV     DS,AX
+11AD:0005 8C062400         MOV     [0024],ES
+11AD:0009 FA               CLI
+11AD:000A 8ED0             MOV     SS,AX
+11AD:000C 268B1E0200       MOV     BX,ES:[0002]
+11AD:0011 2BD8             SUB     BX,AX
+11AD:0013 81FB0010         CMP     BX,1000
+11AD:0017 7603             JBE     001C
+11AD:0019 BB0010           MOV     BX,1000
+11AD:001C D1E3             SHL     BX,1
+```
+The masm checked in in git is fixed.

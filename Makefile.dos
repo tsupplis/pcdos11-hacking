@@ -1,31 +1,31 @@
-all: pcdosenh.com pcdosorg.com 
+all: ibmcmdex.com ibmcmd.com 
 	    
-pcdosorg.com: pcdosorg.exe
-	exe2bin.exe pcdosorg.exe pcdosorg.com
+ibmcmd.com: ibmcmd.exe
+	exe2bin.exe ibmcmd.exe ibmcmd.com
 
-pcdosorg.exe: pcdosorg.obj
-	link.exe pcdosorg,pcdosorg,pcdosorg,pcdosorg,
+ibmcmd.exe: ibmcmd.obj
+	link.exe ibmcmd,ibmcmd,ibmcmd,ibmcmd,
 
-pcdosorg.obj: pcdosorg.asm
-	masm.exe pcdosorg,pcdosorg,pcdosorg,pcdosorg, 
+ibmcmd.obj: ibmcmd.asm
+	masm.exe ibmcmd,ibmcmd,ibmcmd,ibmcmd 
 
-pcdosenh.com: pcdosenh.exe
-	exe2bin.exe pcdosenh.exe pcdosenh.com
+ibmcmdex.com: ibmcmdex.exe
+	exe2bin.exe ibmcmdex.exe ibmcmdex.com
 
-pcdosenh.exe: pcdosenh.obj
-	link.exe pcdosenh,pcdosenh,pcdosenh,pcdosenh,
+ibmcmdex.exe: ibmcmdex.obj
+	link.exe ibmcmdex,ibmcmdex,ibmcmdex,ibmcmdex,
 
-pcdosenh.obj: pcdosenh.asm
-	masm.exe pcdosenh,pcdosenh,pcdosenh,pcdosenh,
+ibmcmdex.obj: ibmcmdex.asm
+	masm.exe ibmcmdex,ibmcmdex,ibmcmdex,ibmcmdex
 
 clean:
-	del pcdosorg.exe 
-    del pcdosorg.obj 
-    del pcdosorg.com
-	del pcdosenh.exe 
-    del pcdosenh.obj 
-    del pcdosenh.com
+	del ibmcmd.exe 
+	del ibmcmd.obj 
+	del ibmcmd.com
+	del ibmcmdex.exe 
+	del ibmcmdex.obj 
+	del ibmcmdex.com
 	del *.crf 
-    del *.err 
-    del *.lst 
-    del *.map
+	del *.err 
+	del *.lst 
+	del *.map
