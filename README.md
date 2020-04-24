@@ -120,7 +120,7 @@ The execution of the Faulty code looks like this:
 11AD:0013 81FB0010         CMP     BX,1000
 11AD:0017 7E03             JLE     001C
 11AD:001C D1E3             SHL     BX,1
-...
+```
 
 The fix is just about changing the JLE into JBE (7E03 -> 7603)
 
