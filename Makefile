@@ -14,7 +14,7 @@ ibmdos.obj: ibmdos.asm msdos.asm
 msdos.img: mscmdex.com msorg/msdos.img
 	cp msorg/msdos.img msdos.img
 	mcopy  -o -i msdos.img mscmdex.com ::COMMAND.COM
-	mdir -w -i msdos.img
+	mdir -w -i msdos.img ::
 
 mscmd.com: mscmd.exe
 	emu2 exe2bin.exe mscmd.exe mscmd.com
@@ -45,7 +45,7 @@ mscmd.asm: ibmcmd.asm
 pcdos.img: ibmcmdex.com pcorg/pcdos.img
 	cp pcorg/pcdos.img pcdos.img
 	mcopy  -o -i pcdos.img ibmcmdex.com ::COMMAND.COM
-	mdir -w -i pcdos.img
+	mdir -w -i pcdos.img ::
 
 ibmcmd.com: ibmcmd.exe
 	emu2 exe2bin.exe ibmcmd.exe ibmcmd.com
@@ -72,6 +72,10 @@ trans.com: trans.asm
 io.com: io.asm
 	emu2 qasm.com io
 	emu2 qhex2bin.com io
+
+asm.com: asm.asm
+	emu2 qasm.com asm
+	emu2 qhex2bin.com asm
 
 hex2bin.com: hex2bin.asm
 	emu2 qasm.com hex2bin
