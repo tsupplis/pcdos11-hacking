@@ -1,9 +1,11 @@
 all: ibmcmdex.com ibmcmd.com pcdos.img \
      mscmdex.com mscmd.com msdos.img \
-     ibmdos.com 
+     ibmdos.com asm.com hex2bin.com trans.com # ibmbio.com
 
 ibmdos.com: ibmdos.exe
 	emu2 exe2bin.exe ibmdos.exe ibmdos.com
+	#test "`openssl sha1 ibmdos.com|sed -e 's/.*= //'`" = 'a2ac85bef9d4b9c0a5aa85d00a5aa60a24cae9d2' \
+    #    || (rm -f ibmcmd.com;false)
 
 ibmdos.exe: ibmdos.obj
 	emu2 link.exe ibmdos,ibmdos,ibmdos,ibmdos,
@@ -49,6 +51,8 @@ pcdos.img: ibmcmdex.com pcorg/pcdos.img
 
 ibmcmd.com: ibmcmd.exe
 	emu2 exe2bin.exe ibmcmd.exe ibmcmd.com
+	test "`openssl sha1 ibmcmd.com|sed -e 's/.*= //'`" = '1b01beba4f3eb02ffdaba2588041296460bfb1c5' \
+        || (rm -f ibmcmd.com;false)
 
 ibmcmd.exe: ibmcmd.obj
 	emu2 link.exe ibmcmd,ibmcmd,ibmcmd,ibmcmd,
@@ -66,19 +70,20 @@ ibmcmdex.obj: ibmcmdex.asm
 	emu2 masm.exe ibmcmdex,ibmcmdex,ibmcmdex,ibmcmdex || rm -f ibmcmdex.obj
 
 trans.com: trans.asm
-	emu2 qasm.com trans
+	emu2 qasm.com trans.ccz
 	emu2 qhex2bin.com trans
 
-io.com: io.asm
-	emu2 qasm.com io
+ibmbio.com: io.asm
+	emu2 qasm.com io.ccz
 	emu2 qhex2bin.com io
+	mv io.com ibmbio.com
 
 asm.com: asm.asm
-	emu2 qasm.com asm
+	emu2 qasm.com asm.ccz
 	emu2 qhex2bin.com asm
 
 hex2bin.com: hex2bin.asm
-	emu2 qasm.com hex2bin
+	emu2 qasm.com hex2bin.ccz
 	emu2 qhex2bin.com hex2bin
 
 clean:
