@@ -3,6 +3,7 @@ vm_*
 .D*
 msorg
 pcorg
+*.log
 .*.swp
 *.obj
 *.prn
@@ -14,6 +15,9 @@ rom
 ibm*.com
 ibmcmd*.com
 mscmd*.com
+trans.com
+hex2bin.com
+asm.com
 *.map
 ibm*.exe
 ibmcmd*.exe

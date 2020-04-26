@@ -191,6 +191,9 @@ DONE:
 	INT	21H
 	MOV	AH,CLOSE
 	INT	21H
+    MOV DX,BYEMES
+	MOV	AH,9    
+    INT 21H
 EXIT:
 	INT	20H
 
@@ -199,10 +202,11 @@ NOROOM:
 	JMP	QUIT
 
 HEX:	DB	"HEX"
-ERRMES:	DB	"Error in HEX file--conversion aborted$"
-NOFILE:	DB	"File not found$"
-ADDR:	DB	"Address out of range--conversion aborted$"
-DIRFUL:	DB	"Disk directory full$"
+BYEMES: DB	"Done.",0Dh,0Ah,"$"
+ERRMES:	DB	"Error in HEX file--conversion, aborted",0Dh,0Ah,"$"
+NOFILE:	DB	"File not found",0Dh,0Ah,"$"
+ADDR:	DB	"Address out of range--conversion, aborted",0Dh,0Ah,"$"
+DIRFUL:	DB	"Disk directory full",0Dh,0Ah,"$"
 
 OFFSET:	DS	2
 SEGSIZ:	DS	2

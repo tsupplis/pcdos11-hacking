@@ -90,4 +90,5 @@ clean:
 	rm -f mscmdex.exe mscmdex.obj mscmdex.com
 	rm -f asm.com hex2bin.com trans.com io.com
 	rm -f *.crf *.err *.lst *.map *.hex *.prn *.HEX *.PRN
+	rm -f *.log
 	rm -f pcdos.img msdos.img
