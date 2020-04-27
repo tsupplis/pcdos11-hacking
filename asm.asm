@@ -65,7 +65,7 @@ ARITH:	EQU	8	;Non-pop arithmetic operations
 
 	JMPS	BEGIN
 
-HEADER:	DB	13,10,'Seattle Computer Products 8086 Assembler Version 2.44'
+HEADER:	DB	13,10,'Seattle Computer Products 8086 Assembler Version 2.44A'
 	DB	13,10,'Copyright 1979-1983 by Seattle Computer Products, Inc.'
 	DB	13,10,13,10,'$'
 

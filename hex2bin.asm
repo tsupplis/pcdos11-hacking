@@ -16,6 +16,9 @@ BUFSIZ:	EQU	1024
 	PUT	100H
 
 HEX2BIN:
+    MOV DX,HEADER
+	MOV	AH,9    
+    INT 21H
 	MOV	DI,FCB+9
 	CMP	B,[DI]," "
 	JNZ	HAVEXT
@@ -201,6 +204,9 @@ NOROOM:
 	MOV	DX,DIRFUL
 	JMP	QUIT
 
+HEADER:	DB	13,10,'Seattle Computer Products 8086 Hex Converter Version 1.02A'
+	DB	13,10,'Copyright 1979-1983 by Seattle Computer Products, Inc.'
+	DB	13,10,13,10,'$'
 HEX:	DB	"HEX"
 BYEMES: DB	"Done.",0Dh,0Ah,"$"
 ERRMES:	DB	"Error in HEX file--conversion, aborted",0Dh,0Ah,"$"
