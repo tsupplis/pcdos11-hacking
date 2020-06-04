@@ -1,11 +1,5 @@
 # PC-DOS 1.1 Hacking - Playing with DOS 1,1 abd Command.com
 
-## Releases
-
-A bootable floppy containing IBMBIOS.COM, IBMDOS.COM, COMMAND.COM, HEXCOM.COM and ASM.COM recompiled is available the releases. It also contains all the binaries of the Microsoft in Git for 1.25 as well as the patched MASM 1.10 for MS-DOS 2.00. It makes a very complete and usable release. Hopefully, GWBASIC will be added soon.
-
-Testing has been done by exercising Turbo Pascal 2.01 and DOS 1.1 compatible c compiler outputs. (Aztec C)
-
 ## Sources
 
 The experiment started from the vintage MS-DOS code opened by Microsoft:
