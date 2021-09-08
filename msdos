@@ -1,2 +1,2 @@
-#!/bin/bash
+#!/bin/sh
 exec pce-ibmpc -c `basename $0`.cfg -g "cga" -r
