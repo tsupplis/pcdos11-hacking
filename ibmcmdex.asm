@@ -1912,8 +1912,18 @@ DATERR:
 ; CLS command
         IF IBMVER
 CLS:
-        MOV     AX,3
-        INT     10H
+        MOV    AX,0F00H
+        INT    10H
+        PUSH   BX
+        MOV    DH,0
+        MOV    DL,0
+        MOV    AH,02H
+        INT    10H
+        POP    BX
+        MOV    BL,07H
+        MOV    CX,2000
+        MOV    AX,0920H
+        INT    10H
         RET
         ENDIF
 
