@@ -23,35 +23,36 @@ xibmdos.obj: ibmdos.asm msdos.asm
 pcdos.img: xibmcmdx.com xibmbio.com xibmdos.com xasm.com xhello.com xtrans.com \
     xhex2bin.com images/blank.img xmem.com hello.asm hello.bas mkhello.bat
 	cp images/blank.img pcdos.img
-	mcopy  -o -i pcdos.img xibmbio.com ::IBMBIO.COM
-	mcopy  -o -i pcdos.img xibmdos.com ::IBMDOS.COM
-	mattrib -r -s -i pcdos.img ::IBMDOS.COM
-	mattrib -r -s -i pcdos.img ::IBMBIO.COM
-	mcopy  -o -i pcdos.img xibmcmdx.com ::COMMAND.COM
-	mcopy  -o -i pcdos.img bin/masm.exe ::MASM.EXE
-	mcopy  -o -i pcdos.img bin/link.exe ::LINK.EXE
-	mcopy  -o -i pcdos.img bin/lib.exe ::LIB.EXE
-	mcopy  -o -i pcdos.img bin/basic.com ::BASIC.COM
-	mcopy  -o -i pcdos.img bin/basica.com ::BASICA.COM
-	mcopy  -o -i pcdos.img bin/exe2bin.exe ::EXE2BIN.EXE
-	mcopy  -o -i pcdos.img bin/chkdsk.com ::CHKDSK.COM
-	mcopy  -o -i pcdos.img bin/sys.com ::SYS.COM
-	mcopy  -o -i pcdos.img bin/edlin.com ::EDLIN.COM
-	mcopy  -o -i pcdos.img bin/format.com ::FORMAT.COM
-	mcopy  -o -i pcdos.img bin/diskcopy.com ::DISKCOPY.COM
-	mcopy  -o -i pcdos.img bin/diskcomp.com ::DISKCOMP.COM
-	mcopy  -o -i pcdos.img bin/comp.com ::COMP.COM
-	mcopy  -o -i pcdos.img bin/debug.com ::DEBUG.COM
-	mcopy  -o -i pcdos.img bin/mode.com ::MODE.COM
-	mcopy  -o -i pcdos.img xasm.com ::ASM.COM
-	mcopy  -o -i pcdos.img xtrans.com ::TRANS.COM
-	mcopy  -o -i pcdos.img xhello.com ::HELLO.COM
-	mcopy  -o -i pcdos.img xhex2bin.com ::HEX2BIN.COM
-	mcopy  -o -i pcdos.img hello.asm ::HELLO.ASM
-	mcopy  -o -i pcdos.img mkhello.bat ::MKHELLO.BAT
-	mcopy  -o -i pcdos.img hello.bas ::HELLO.BAS
-	mcopy  -o -i pcdos.img xmem.com ::MEM.COM
-	[ -f private/pceexit.com ] && mcopy  -o -i pcdos.img private/pceexit.com ::EXIT.COM
+	mcopy  -p -i pcdos.img xibmbio.com ::IBMBIO.COM
+	mcopy  -p -i pcdos.img xibmdos.com ::IBMDOS.COM
+	mcopy  -i pcdos.img xibmcmdx.com ::COMMAND.COM
+	mcopy  -i pcdos.img bin/masm.exe ::MASM.EXE
+	mcopy  -i pcdos.img bin/link.exe ::LINK.EXE
+	mcopy  -i pcdos.img bin/lib.exe ::LIB.EXE
+	mcopy  -i pcdos.img bin/basic.com ::BASIC.COM
+	mcopy  -i pcdos.img bin/basica.com ::BASICA.COM
+	mcopy  -i pcdos.img bin/exe2bin.exe ::EXE2BIN.EXE
+	mcopy  -i pcdos.img bin/chkdsk.com ::CHKDSK.COM
+	mcopy  -i pcdos.img bin/sys.com ::SYS.COM
+	mcopy  -i pcdos.img bin/edlin.com ::EDLIN.COM
+	mcopy  -i pcdos.img bin/format.com ::FORMAT.COM
+	mcopy  -i pcdos.img bin/diskcopy.com ::DISKCOPY.COM
+	mcopy  -i pcdos.img bin/diskcomp.com ::DISKCOMP.COM
+	mcopy  -i pcdos.img bin/comp.com ::COMP.COM
+	mcopy  -i pcdos.img bin/debug.com ::DEBUG.COM
+	mcopy  -i pcdos.img bin/mode.com ::MODE.COM
+	mcopy  -i pcdos.img xasm.com ::ASM.COM
+	mcopy  -i pcdos.img xtrans.com ::TRANS.COM
+	mcopy  -i pcdos.img xhello.com ::HELLO.COM
+	mcopy  -i pcdos.img xhex2bin.com ::HEX2BIN.COM
+	mcopy  -i pcdos.img hello.asm ::HELLO.ASM
+	mcopy  -i pcdos.img mkhello.bat ::MKHELLO.BAT
+	mcopy  -i pcdos.img hello.bas ::HELLO.BAS
+	mcopy  -i pcdos.img xmem.com ::MEM.COM
+	[ -f private/pceexit.com ] && mcopy  -i pcdos.img private/pceexit.com ::EXIT.COM
+	mattrib -a -i pcdos.img -a ::"*.*"
+	mattrib -i pcdos.img +r +h +s ::IBMDOS.COM
+	mattrib -i pcdos.img +r +h +s ::IBMBIO.COM
 	mdir -w -i pcdos.img ::
 
 xibmcmd.com: xibmcmd.exe 
