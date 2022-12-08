@@ -158,7 +158,7 @@ IF MSVER
 VERSTR  DB      "MS-DOS Version 1.25A Command Version 1.17A",13,10,"$"
 ENDIF
 IF IBMVER
-VERSTR  DB      "IBM PC-DOS Version 1.10A",13,10,"$"
+VERSTR  DB      "IBM PC-DOS Version 1.10B",13,10,"$"
 ENDIF
 BADNAM  DB      "Bad command or file name",13,10,"$"
 MISNAM  DB      "Missing file name$"
@@ -632,7 +632,7 @@ HEADER  DB      13,10,13,10,"Microsoft DOS",13,10
 
         IF IBMVER
 HEADER  DB      13,10,13,10,"The IBM Personal Computer DOS",13,10
-        DB      "Version 1.10A (C)Copyright IBM Corp 1981, 1982, 2020",13,10,"$"
+        DB      "Version 1.10B (C)Copyright IBM Corp 1981, 1982, 2022",13,10,"$"
         DB      "Licensed Material - Program Property of IBM"
         ENDIF
 
