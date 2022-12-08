@@ -1,32 +1,33 @@
-all: ibmcmdex.com ibmcmd.com pcdos.img \
-     ibmdos.com asm.com hex2bin.com trans.com hello.com ibmbio.com
+all: xibmcmdx.com xibmcmd.com \
+     xibmdos.com xasm.com xhex2bin.com xtrans.com xhello.com xibmbio.com \
+     xmem.com pcdos.img
 
-ibmbio.com: ibmbio.exe
-	cat 60|emu2 bin/exe2bin.exe ibmbio.exe ibmbio.com
+xibmbio.com: xibmbio.exe
+	echo 60|emu2 bin/exe2bin.exe xibmbio.exe xibmbio.com
 
-ibmbio.exe: ibmbio.obj
-	emu2 bin/link.exe ibmbio,ibmbio,ibmbio,ibmbio,
+xibmbio.exe: xibmbio.obj
+	emu2 bin/link.exe xibmbio,xibmbio,xibmbio,xibmbio,
 
-ibmbio.obj: ibmbio.asm 
-	emu2 bin/masm.exe ibmbio,ibmbio,ibmbio,ibmbio || rm -f ibmbio.obj
+xibmbio.obj: ibmbio.asm 
+	emu2 bin/masm.exe ibmbio,xibmbio,xibmbio,xibmbio || rm -f ibmbio.obj
 
-ibmdos.com: ibmdos.exe
-	emu2 bin/exe2bin.exe ibmdos.exe ibmdos.com
+xibmdos.com: xibmdos.exe
+	emu2 bin/exe2bin.exe xibmdos.exe xibmdos.com
 
-ibmdos.exe: ibmdos.obj
-	emu2 bin/link.exe ibmdos,ibmdos,ibmdos,ibmdos,
+xibmdos.exe: xibmdos.obj
+	emu2 bin/link.exe xibmdos,xibmdos,xibmdos,xibmdos,
 
-ibmdos.obj: ibmdos.asm msdos.asm
-	emu2 bin/masm.exe ibmdos,ibmdos,ibmdos,ibmdos || rm -f ibmdos.obj
+xibmdos.obj: ibmdos.asm msdos.asm
+	emu2 bin/masm.exe ibmdos,xibmdos,xibmdos,xibmdos || rm -f ibmdos.obj
 
-pcdos.img: ibmcmdex.com ibmbio.com ibmdos.com asm.com hello.com trans.com hex2bin.com \
-  images/blank.img hello.asm hello.bas ball.bas mkhello.bat
+pcdos.img: xibmcmdx.com xibmbio.com xibmdos.com xasm.com xhello.com xtrans.com \
+    xhex2bin.com images/blank.img xmem.com hello.asm hello.bas mkhello.bat
 	cp images/blank.img pcdos.img
-	-mattrib -r -s -i pcdos.img ::IBMDOS.COM
-	-mattrib -r -s -i pcdos.img ::IBMBIO.COM
-	mcopy  -o -i pcdos.img ibmbio.com ::IBMBIO.COM
-	mcopy  -o -i pcdos.img ibmdos.com ::IBMDOS.COM
-	mcopy  -o -i pcdos.img ibmcmdex.com ::COMMAND.COM
+	mcopy  -o -i pcdos.img xibmbio.com ::IBMBIO.COM
+	mcopy  -o -i pcdos.img xibmdos.com ::IBMDOS.COM
+	mattrib -r -s -i pcdos.img ::IBMDOS.COM
+	mattrib -r -s -i pcdos.img ::IBMBIO.COM
+	mcopy  -o -i pcdos.img xibmcmdx.com ::COMMAND.COM
 	mcopy  -o -i pcdos.img bin/masm.exe ::MASM.EXE
 	mcopy  -o -i pcdos.img bin/link.exe ::LINK.EXE
 	mcopy  -o -i pcdos.img bin/lib.exe ::LIB.EXE
@@ -42,56 +43,70 @@ pcdos.img: ibmcmdex.com ibmbio.com ibmdos.com asm.com hello.com trans.com hex2bi
 	mcopy  -o -i pcdos.img bin/comp.com ::COMP.COM
 	mcopy  -o -i pcdos.img bin/debug.com ::DEBUG.COM
 	mcopy  -o -i pcdos.img bin/mode.com ::MODE.COM
-	mcopy  -o -i pcdos.img asm.com ::ASM.COM
-	mcopy  -o -i pcdos.img trans.com ::TRANS.COM
-	mcopy  -o -i pcdos.img hello.com ::HELLO.COM
-	mcopy  -o -i pcdos.img hex2bin.com ::HEX2BIN.COM
+	mcopy  -o -i pcdos.img xasm.com ::ASM.COM
+	mcopy  -o -i pcdos.img xtrans.com ::TRANS.COM
+	mcopy  -o -i pcdos.img xhello.com ::HELLO.COM
+	mcopy  -o -i pcdos.img xhex2bin.com ::HEX2BIN.COM
 	mcopy  -o -i pcdos.img hello.asm ::HELLO.ASM
 	mcopy  -o -i pcdos.img mkhello.bat ::MKHELLO.BAT
 	mcopy  -o -i pcdos.img hello.bas ::HELLO.BAS
+	mcopy  -o -i pcdos.img xmem.com ::MEM.COM
 	[ -f private/pceexit.com ] && mcopy  -o -i pcdos.img private/pceexit.com ::EXIT.COM
 	mdir -w -i pcdos.img ::
 
-ibmcmd.com: ibmcmd.exe 
-	emu2 bin/exe2bin.exe ibmcmd.exe ibmcmd.com
+xibmcmd.com: xibmcmd.exe 
+	emu2 bin/exe2bin.exe xibmcmd.exe xibmcmd.com
 
-ibmcmd.exe: ibmcmd.obj
-	emu2 bin/link.exe ibmcmd,ibmcmd,ibmcmd,ibmcmd,
+xibmcmd.exe: xibmcmd.obj
+	emu2 bin/link.exe xibmcmd,xibmcmd,xibmcmd,xibmcmd,
 
-ibmcmd.obj: ibmcmd.asm
-	emu2 bin/masm.exe ibmcmd,ibmcmd,ibmcmd,ibmcmd  || rm -f ibmcmdex.obj
+xibmcmd.obj: ibmcmd.asm
+	emu2 bin/masm.exe ibmcmd,xibmcmd,xibmcmd,xibmcmd  || rm -f xibmcmdx.obj
 
-ibmcmdex.com: ibmcmdex.exe
-	emu2 bin/exe2bin.exe ibmcmdex.exe ibmcmdex.com
+xibmcmdx.com: xibmcmdx.exe
+	emu2 bin/exe2bin.exe xibmcmdx.exe xibmcmdx.com
 
-ibmcmdex.exe: ibmcmdex.obj
-	emu2 bin/link.exe ibmcmdex,ibmcmdex,ibmcmdex,ibmcmdex, 
+xibmcmdx.exe: xibmcmdx.obj
+	emu2 bin/link.exe xibmcmdx,xibmcmdx,xibmcmdx,xibmcmdx, 
 
-ibmcmdex.obj: ibmcmdex.asm
-	emu2 bin/masm.exe ibmcmdex,ibmcmdex,ibmcmdex,ibmcmdex || rm -f ibmcmdex.obj
+xibmcmdx.obj: ibmcmdx.asm
+	emu2 bin/masm.exe ibmcmdx,xibmcmdx,xibmcmdx,ibmcmdx || rm -f xibmcmdx.obj
 
-hello.com: hello.asm asm.com hex2bin.com
-	emu2 asm.com hello.ccz
-	emu2 hex2bin.com hello
+xmem.com: xmem.exe
+	emu2 bin/exe2bin.exe xmem.exe xmem.com
 
-trans.com: trans.asm asm.com hex2bin.com
-	emu2 asm.com trans.ccz
-	emu2 hex2bin.com trans
+xmem.exe: xmem.obj
+	emu2 bin/link.exe xmem,xmem,xmem,xmem, 
 
-asm.com: asm.asm
+xmem.obj: mem.asm
+	emu2 bin/masm.exe mem,xmem,xmem,mem || rm -f xmem.obj
+
+xhello.com: hello.asm xasm.com xhex2bin.com
+	emu2 xasm.com hello.ccz
+	emu2 xhex2bin.com hello
+	mv hello.com xhello.com
+
+xtrans.com: trans.asm xasm.com xhex2bin.com
+	emu2 xasm.com trans.ccz
+	emu2 xhex2bin.com trans
+	mv trans.com xtrans.com
+
+xasm.com: asm.asm
 	emu2 bin/asm.com asm.ccz
 	emu2 bin/hex2bin.com asm
+	mv asm.com xasm.com
 
-hex2bin.com: hex2bin.asm
+xhex2bin.com: hex2bin.asm
 	emu2 bin/asm.com hex2bin.ccz
 	emu2 bin/hex2bin.com hex2bin
+	mv hex2bin.com xhex2bin.com
 
 clean:
-	rm -f ibmdos.exe ibmdos.obj ibmdos.com
-	rm -f ibmbio.exe ibmbio.obj ibmbio.com
-	rm -f ibmcmd.exe ibmcmd.obj ibmcmd.com
-	rm -f ibmcmdex.exe ibmcmdex.obj ibmcmdex.com
-	rm -f asm.com hex2bin.com trans.com ibmbio.com hello.com
+	rm -f xibmdos.exe ibmdos.obj xibmdos.com
+	rm -f xibmbio.exe ibmbio.obj xibmbio.com
+	rm -f xibmcmd.exe ibmcmd.obj xibmcmd.com
+	rm -f xibmcmdx.exe ibmcmdx.obj xibmcmdx.com
+	rm -f xasm.com xhex2bin.com xtrans.com xhello.com xmem.com
 	rm -f *.crf *.err *.lst *.map *.hex *.prn *.HEX *.PRN
 	rm -f *.log
 	rm -f pcdos.img

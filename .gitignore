@@ -12,7 +12,8 @@ private/**
 **/*.lst
 vm_*
 rom
-*.exe
-*.com
+x*.exe
+x*.com
+pcdos.img
 mscmd.asm
 mscmdex.asm
