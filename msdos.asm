@@ -251,7 +251,7 @@ ESCTAB:
 
 ESCTABLEN EQU   $-ESCTAB
 	IF      NOT IBMVER
-HEADER  DB      13,10,"MS-DOS version 1.25"
+HEADER  DB      13,10,"MS-DOS version 1.25B"
 	IF      HIGHMEM
 	DB      "H"
 	ENDIF
