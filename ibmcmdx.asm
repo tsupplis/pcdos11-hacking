@@ -155,7 +155,7 @@ TRANDATA        SEGMENT BYTE
         ORG     0
 ZERO    =       $
 IF MSVER
-VERSTR  DB      "MS-DOS Version 1.25A Command Version 1.17A",13,10,"$"
+VERSTR  DB      "MS-DOS Version 1.25B Command Version 1.17B",13,10,"$"
 ENDIF
 IF IBMVER
 VERSTR  DB      "IBM PC-DOS Version 1.10B",13,10,"$"
@@ -463,23 +463,19 @@ LOADCOM:
         MOV     AH,SETDMA
         INT     33
         POP     DS
-        IFDEF MSVER             ;ZDOS Addition
         MOV     AL, 0
         MOV     [COMFCB], AL
-        ENDIF
         MOV     DX,OFFSET RESGROUP:COMFCB
         MOV     AH,OPEN
         INT     33              ;Open COMMAND.COM
         OR      AL,AL
         JZ      READCOM
-        IFDEF MSVER             ;ZDOS Addition Try A
         MOV     AL, 1
         MOV     [COMFCB], AL
         MOV     DX,OFFSET RESGROUP:COMFCB
         MOV     AH,OPEN
         INT     33              ;Open COMMAND.COM
         OR      AL,AL
-        ENDIF
         JZ      READCOM
         MOV     DX,OFFSET RESGROUP:NEEDCOM
 PROMPTCOM:
@@ -496,9 +492,6 @@ READCOM:
         NOP
         NOP
         NOP
-        ENDIF
-        IF MSVER
-        MOV     [COMFCB], AL             ;Use default drive
         ENDIF
         INC     AX
         MOV     WORD PTR[COMFCB+RECLEN],AX
@@ -910,6 +903,12 @@ BADCOMJ:JMP     BADCOM
 SETDRV1:
         JMP     SETDRV
 
+EXEDEFDRV:
+        MOV     AL, [IDLEN]
+        OR      AL, AL
+        JNZ     BADCOMJ
+        MOV     BYTE PTR [IDLEN],1
+        JMP     EXTERNAL_IN
 DRVCHK:
         DEC     DL              ;Adjust for correct drive number
         DEC     AL              ;Check if anything else is on line
@@ -917,6 +916,7 @@ DRVCHK:
 EXTERNAL:
         MOV     AL,[SPECDRV]
         MOV     [IDLEN],AL
+EXTERNAL_IN:
         MOV     WORD PTR[COM],4F00H+"C" ;"CO"
         MOV     BYTE PTR[COM+2],"M"
         MOV     DX,OFFSET TRANGROUP:IDLEN
@@ -934,7 +934,7 @@ EXTERNAL:
         MOV     BYTE PTR[COM+2],"T"
         INT     33              ;Check if batch file to be executed
         OR      AL,AL
-        JNZ     BADCOMJ
+        JNZ     EXEDEFDRV
 BATCOM:
 ;Batch parameters are read with ES set to segment of resident part
         MOV     ES,[RESSEG]
