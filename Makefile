@@ -20,10 +20,10 @@ ibmdos.obj: ibmdos.asm msdos.asm
 	emu2 bin/masm.exe ibmdos,ibmdos,ibmdos,ibmdos || rm -f ibmdos.obj
 
 pcdos.img: ibmcmdex.com ibmbio.com ibmdos.com asm.com hello.com trans.com hex2bin.com \
-  pcorg/pcdos.img hello.asm hello.bas mkhello.bat
-	cp pcorg/pcdos.img pcdos.img
-	mattrib -r -s -i pcdos.img ::IBMDOS.COM
-	mattrib -r -s -i pcdos.img ::IBMBIO.COM
+  images/blank.img hello.asm hello.bas ball.bas mkhello.bat
+	cp images/blank.img pcdos.img
+	-mattrib -r -s -i pcdos.img ::IBMDOS.COM
+	-mattrib -r -s -i pcdos.img ::IBMBIO.COM
 	mcopy  -o -i pcdos.img ibmbio.com ::IBMBIO.COM
 	mcopy  -o -i pcdos.img ibmdos.com ::IBMDOS.COM
 	mcopy  -o -i pcdos.img ibmcmdex.com ::COMMAND.COM
@@ -49,6 +49,7 @@ pcdos.img: ibmcmdex.com ibmbio.com ibmdos.com asm.com hello.com trans.com hex2bi
 	mcopy  -o -i pcdos.img hello.asm ::HELLO.ASM
 	mcopy  -o -i pcdos.img mkhello.bat ::MKHELLO.BAT
 	mcopy  -o -i pcdos.img hello.bas ::HELLO.BAS
+	[ -f private/pceexit.com ] && mcopy  -o -i pcdos.img private/pceexit.com ::EXIT.COM
 	mdir -w -i pcdos.img ::
 
 ibmcmd.com: ibmcmd.exe 
