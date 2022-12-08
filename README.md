@@ -6,6 +6,8 @@ The experiment started from the vintage MS-DOS code opened by Microsoft:
 
 https://github.com/microsoft/MS-DOS/blob/master/v1.25/source/COMMAND.ASM
 
+ibmbio.com sources are retrieved from https://www.os2museum.com/wp/pc-dos-1-1-from-scratch
+
 ## MIT License (In line with Source License):
 
 - https://github.com/tsupplis/pcdos11-hacking/blob/master/LICENSE.md
