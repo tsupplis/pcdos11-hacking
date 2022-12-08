@@ -1,0 +1,7 @@
+	ORG	100H
+	MOV	DX,MESG
+	MOV	AH,9
+	INT	21H
+	RET
+MESG	DB	"Hello, DOS!",10,13,"$"
+

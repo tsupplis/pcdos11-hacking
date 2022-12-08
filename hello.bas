@@ -1,0 +1,3 @@
+10 CLS
+20 PRINT "Hello, DOS!"
+30 SYSTEM
