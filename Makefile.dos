@@ -1,22 +1,22 @@
 all: ibmcmdex.com ibmcmd.com 
 	    
 ibmcmd.com: ibmcmd.exe
-	exe2bin.exe ibmcmd.exe ibmcmd.com
+	bin\exe2bin.exe ibmcmd.exe ibmcmd.com
 
 ibmcmd.exe: ibmcmd.obj
-	link.exe ibmcmd,ibmcmd,ibmcmd,ibmcmd,
+	bin\link.exe ibmcmd,ibmcmd,ibmcmd,ibmcmd,
 
 ibmcmd.obj: ibmcmd.asm
-	masm.exe ibmcmd,ibmcmd,ibmcmd,ibmcmd 
+	bin\masm.exe ibmcmd,ibmcmd,ibmcmd,ibmcmd 
 
 ibmcmdex.com: ibmcmdex.exe
-	exe2bin.exe ibmcmdex.exe ibmcmdex.com
+	bin\exe2bin.exe ibmcmdex.exe ibmcmdex.com
 
 ibmcmdex.exe: ibmcmdex.obj
-	link.exe ibmcmdex,ibmcmdex,ibmcmdex,ibmcmdex,
+	bin\link.exe ibmcmdex,ibmcmdex,ibmcmdex,ibmcmdex,
 
 ibmcmdex.obj: ibmcmdex.asm
-	masm.exe ibmcmdex,ibmcmdex,ibmcmdex,ibmcmdex
+	bin\masm.exe ibmcmdex,ibmcmdex,ibmcmdex,ibmcmdex
 
 clean:
 	del ibmcmd.exe 

@@ -1,99 +1,96 @@
 all: ibmcmdex.com ibmcmd.com pcdos.img \
-     mscmdex.com mscmd.com msdos.img \
-     ibmdos.com asm.com hex2bin.com trans.com # ibmbio.com
+     ibmdos.com asm.com hex2bin.com trans.com hello.com ibmbio.com
+
+ibmbio.com: ibmbio.exe
+	cat 60|emu2 bin/exe2bin.exe ibmbio.exe ibmbio.com
+
+ibmbio.exe: ibmbio.obj
+	emu2 bin/link.exe ibmbio,ibmbio,ibmbio,ibmbio,
+
+ibmbio.obj: ibmbio.asm 
+	emu2 bin/masm.exe ibmbio,ibmbio,ibmbio,ibmbio || rm -f ibmbio.obj
 
 ibmdos.com: ibmdos.exe
-	emu2 exe2bin.exe ibmdos.exe ibmdos.com
-	#test "`openssl sha1 ibmdos.com|sed -e 's/.*= //'`" = 'a2ac85bef9d4b9c0a5aa85d00a5aa60a24cae9d2' \
-    #    || (rm -f ibmcmd.com;false)
+	emu2 bin/exe2bin.exe ibmdos.exe ibmdos.com
 
 ibmdos.exe: ibmdos.obj
-	emu2 link.exe ibmdos,ibmdos,ibmdos,ibmdos,
+	emu2 bin/link.exe ibmdos,ibmdos,ibmdos,ibmdos,
 
 ibmdos.obj: ibmdos.asm msdos.asm
-	emu2 masm.exe ibmdos,ibmdos,ibmdos,ibmdos || rm -f ibmdos.obj
+	emu2 bin/masm.exe ibmdos,ibmdos,ibmdos,ibmdos || rm -f ibmdos.obj
 
-msdos.img: mscmdex.com msorg/msdos.img
-	cp msorg/msdos.img msdos.img
-	mcopy  -o -i msdos.img mscmdex.com ::COMMAND.COM
-	mdir -w -i msdos.img ::
-
-mscmd.com: mscmd.exe
-	emu2 exe2bin.exe mscmd.exe mscmd.com
-
-mscmd.exe: mscmd.obj
-	emu2 link.exe mscmd,mscmd,mscmd,mscmd,
-
-mscmd.obj: mscmd.asm
-	emu2 masm.exe mscmd,mscmd,mscmd,mscmd || rm -f madosorg.obj
-
-mscmdex.com: mscmdex.exe
-	emu2 exe2bin.exe mscmdex.exe mscmdex.com
-
-mscmdex.exe: mscmdex.obj
-	emu2 link.exe mscmdex,mscmdex,mscmdex,mscmdex,
-
-mscmdex.obj: mscmdex.asm
-	emu2 masm.exe mscmdex,mscmdex,mscmdex,mscmdex || rm -f mscmdex.obj
-
-mscmdex.asm: ibmcmdex.asm
-	cat ibmcmdex.asm|sed -e 's/IBMVER \([ ]*\)EQU \([ ]*\)TRUE/IBMVER\1 EQU\2 FALSE/g' \
-		|sed -e 's/MSVER \([ ]*\)EQU \([ ]*\)FALSE/MSVER\1 EQU\2 TRUE/g' > mscmdex.asm
-	    
-mscmd.asm: ibmcmd.asm
-	cat ibmcmd.asm|sed -e 's/IBMVER \([ ]*\)EQU \([ ]*\)TRUE/IBMVER\1 EQU\2 FALSE/g' \
-		|sed -e 's/MSVER \([ ]*\)EQU \([ ]*\)FALSE/MSVER\1 EQU\2 TRUE/g' > mscmd.asm
-	    
-pcdos.img: ibmcmdex.com pcorg/pcdos.img
+pcdos.img: ibmcmdex.com ibmbio.com ibmdos.com asm.com hello.com trans.com hex2bin.com \
+  pcorg/pcdos.img hello.asm hello.bas mkhello.bat
 	cp pcorg/pcdos.img pcdos.img
+	mattrib -r -s -i pcdos.img ::IBMDOS.COM
+	mattrib -r -s -i pcdos.img ::IBMBIO.COM
+	mcopy  -o -i pcdos.img ibmbio.com ::IBMBIO.COM
+	mcopy  -o -i pcdos.img ibmdos.com ::IBMDOS.COM
 	mcopy  -o -i pcdos.img ibmcmdex.com ::COMMAND.COM
+	mcopy  -o -i pcdos.img bin/masm.exe ::MASM.EXE
+	mcopy  -o -i pcdos.img bin/link.exe ::LINK.EXE
+	mcopy  -o -i pcdos.img bin/lib.exe ::LIB.EXE
+	mcopy  -o -i pcdos.img bin/basic.com ::BASIC.COM
+	mcopy  -o -i pcdos.img bin/basica.com ::BASICA.COM
+	mcopy  -o -i pcdos.img bin/exe2bin.exe ::EXE2BIN.EXE
+	mcopy  -o -i pcdos.img bin/chkdsk.com ::CHKDSK.COM
+	mcopy  -o -i pcdos.img bin/sys.com ::SYS.COM
+	mcopy  -o -i pcdos.img bin/edlin.com ::EDLIN.COM
+	mcopy  -o -i pcdos.img bin/format.com ::FORMAT.COM
+	mcopy  -o -i pcdos.img bin/diskcopy.com ::DISKCOPY.COM
+	mcopy  -o -i pcdos.img bin/diskcomp.com ::DISKCOMP.COM
+	mcopy  -o -i pcdos.img bin/comp.com ::COMP.COM
+	mcopy  -o -i pcdos.img bin/debug.com ::DEBUG.COM
+	mcopy  -o -i pcdos.img bin/mode.com ::MODE.COM
+	mcopy  -o -i pcdos.img asm.com ::ASM.COM
+	mcopy  -o -i pcdos.img trans.com ::TRANS.COM
+	mcopy  -o -i pcdos.img hello.com ::HELLO.COM
+	mcopy  -o -i pcdos.img hex2bin.com ::HEX2BIN.COM
+	mcopy  -o -i pcdos.img hello.asm ::HELLO.ASM
+	mcopy  -o -i pcdos.img mkhello.bat ::MKHELLO.BAT
+	mcopy  -o -i pcdos.img hello.bas ::HELLO.BAS
 	mdir -w -i pcdos.img ::
 
-ibmcmd.com: ibmcmd.exe
-	emu2 exe2bin.exe ibmcmd.exe ibmcmd.com
-	test "`openssl sha1 ibmcmd.com|sed -e 's/.*= //'`" = '1b01beba4f3eb02ffdaba2588041296460bfb1c5' \
-        || (rm -f ibmcmd.com;false)
+ibmcmd.com: ibmcmd.exe 
+	emu2 bin/exe2bin.exe ibmcmd.exe ibmcmd.com
 
 ibmcmd.exe: ibmcmd.obj
-	emu2 link.exe ibmcmd,ibmcmd,ibmcmd,ibmcmd,
+	emu2 bin/link.exe ibmcmd,ibmcmd,ibmcmd,ibmcmd,
 
 ibmcmd.obj: ibmcmd.asm
-	emu2 masm.exe ibmcmd,ibmcmd,ibmcmd,ibmcmd  || rm -f ibmcmdex.obj
+	emu2 bin/masm.exe ibmcmd,ibmcmd,ibmcmd,ibmcmd  || rm -f ibmcmdex.obj
 
 ibmcmdex.com: ibmcmdex.exe
-	emu2 exe2bin.exe ibmcmdex.exe ibmcmdex.com
+	emu2 bin/exe2bin.exe ibmcmdex.exe ibmcmdex.com
 
 ibmcmdex.exe: ibmcmdex.obj
-	emu2 link.exe ibmcmdex,ibmcmdex,ibmcmdex,ibmcmdex, 
+	emu2 bin/link.exe ibmcmdex,ibmcmdex,ibmcmdex,ibmcmdex, 
 
 ibmcmdex.obj: ibmcmdex.asm
-	emu2 masm.exe ibmcmdex,ibmcmdex,ibmcmdex,ibmcmdex || rm -f ibmcmdex.obj
+	emu2 bin/masm.exe ibmcmdex,ibmcmdex,ibmcmdex,ibmcmdex || rm -f ibmcmdex.obj
 
-trans.com: trans.asm
-	emu2 qasm.com trans.ccz
-	emu2 qhex2bin.com trans
+hello.com: hello.asm asm.com hex2bin.com
+	emu2 asm.com hello.ccz
+	emu2 hex2bin.com hello
 
-ibmbio.com: io.asm
-	emu2 qasm.com io.ccz
-	emu2 qhex2bin.com io
-	mv io.com ibmbio.com
+trans.com: trans.asm asm.com hex2bin.com
+	emu2 asm.com trans.ccz
+	emu2 hex2bin.com trans
 
 asm.com: asm.asm
-	emu2 qasm.com asm.ccz
-	emu2 qhex2bin.com asm
+	emu2 bin/asm.com asm.ccz
+	emu2 bin/hex2bin.com asm
 
 hex2bin.com: hex2bin.asm
-	emu2 qasm.com hex2bin.ccz
-	emu2 qhex2bin.com hex2bin
+	emu2 bin/asm.com hex2bin.ccz
+	emu2 bin/hex2bin.com hex2bin
 
 clean:
 	rm -f ibmdos.exe ibmdos.obj ibmdos.com
-	rm -f mscmd.asm mscmdex.asm
+	rm -f ibmbio.exe ibmbio.obj ibmbio.com
 	rm -f ibmcmd.exe ibmcmd.obj ibmcmd.com
 	rm -f ibmcmdex.exe ibmcmdex.obj ibmcmdex.com
-	rm -f mscmd.exe mscmd.obj mscmd.com
-	rm -f mscmdex.exe mscmdex.obj mscmdex.com
-	rm -f asm.com hex2bin.com trans.com io.com
+	rm -f asm.com hex2bin.com trans.com ibmbio.com hello.com
 	rm -f *.crf *.err *.lst *.map *.hex *.prn *.HEX *.PRN
 	rm -f *.log
-	rm -f pcdos.img msdos.img
+	rm -f pcdos.img
