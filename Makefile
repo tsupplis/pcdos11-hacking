@@ -50,9 +50,9 @@ pcdos.img: xibmcmdx.com xibmbio.com xibmdos.com xasm.com xhello.com xtrans.com \
 	mcopy  -i pcdos.img hello.bas ::HELLO.BAS
 	mcopy  -i pcdos.img xmem.com ::MEM.COM
 	[ -f private/pceexit.com ] && mcopy  -i pcdos.img private/pceexit.com ::EXIT.COM
-	mattrib -a -i pcdos.img -a ::"*.*"
-	mattrib -i pcdos.img +r +h +s ::IBMDOS.COM
-	mattrib -i pcdos.img +r +h +s ::IBMBIO.COM
+	mattrib -i pcdos.img -a ::"*.*"
+	mattrib -i pcdos.img +h +s ::IBMDOS.COM
+	mattrib -i pcdos.img +h +s ::IBMBIO.COM
 	mdir -w -i pcdos.img ::
 
 xibmcmd.com: xibmcmd.exe 
