@@ -83,8 +83,10 @@ pcdos_full.img: pcdos_base.img xasm.com xtrans.com \
 	cp pcdos_base.img $@
 	[ -f private/ext/autoexec.bat ] && mcopy  -i $@ private/ext/autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/masm.exe ::MASM.EXE
+	[ -f private/ext/masm.exe ] && mcopy -o -i $@ private/ext/masm.exe ::MASM.EXE
 	mcopy  -i $@ bin/link.exe ::LINK.EXE
 	mcopy  -i $@ bin/lib.exe ::LIB.EXE
+	[ -f private/ext/lib.exe ] && mcopy -o -i $@ private/ext/lib.exe ::LIB.EXE
 	mcopy  -i $@ bin/basic.com ::BASIC.COM
 	mcopy  -i $@ bin/basica.com ::BASICA.COM
 	mcopy  -i $@ bin/exe2bin.exe ::EXE2BIN.EXE
