@@ -1,6 +1,6 @@
 all: xibmcmdx.com xibmcmd.com \
      xibmdos.com xasm.com xhex2bin.com xtrans.com xhello.com xibmbio.com \
-     xmem.com pcdos_full.img pcdos_base.img
+     xmem.com pcdos_full.img pcdos_base.img pcdos_dist.img
 
 xibmbio.com: xibmbio.exe
 	echo 60|emu2 bin/exe2bin.exe xibmbio.exe xibmbio.com
@@ -22,17 +22,20 @@ xibmdos.obj: ibmdos.asm msdos.asm
 
 pcdos_base.img: xibmcmdx.com xibmbio.com xibmdos.com images/blank.img
 	cp images/blank.img $@
-	mcopy  -p -i $@ xibmbio.com ::IBMBIO.COM
-	mcopy  -p -i $@ xibmdos.com ::IBMDOS.COM
-	mcopy  -i $@ xibmcmdx.com ::COMMAND.COM
+	mattrib -i $@ -h -s ::IBMDOS.COM
+	mattrib -i $@ -h -s ::IBMBIO.COM
+	mcopy  -o -p -i $@ xibmbio.com ::IBMBIO.COM
+	mcopy  -o -p -i $@ xibmdos.com ::IBMDOS.COM
+	mcopy  -o -i $@ xibmcmdx.com ::COMMAND.COM
 	mattrib -i $@ -a ::"*.*"
 	mattrib -i $@ +h +s ::IBMDOS.COM
 	mattrib -i $@ +h +s ::IBMBIO.COM
 	mdir -w -i $@ ::
 
-pcdos_full.img: pcdos_base.img xasm.com xhello.com xtrans.com \
+pcdos_dist.img: pcdos_base.img xasm.com xhello.com xtrans.com \
     xhex2bin.com xmem.com hello.asm hello.bas mkhello.bat
 	cp pcdos_base.img $@
+	[ -f private/ext/autoexec.bat ] && mcopy  -i $@ private/ext/autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/masm.exe ::MASM.EXE
 	mcopy  -i $@ bin/link.exe ::LINK.EXE
 	mcopy  -i $@ bin/lib.exe ::LIB.EXE
@@ -48,15 +51,52 @@ pcdos_full.img: pcdos_base.img xasm.com xhello.com xtrans.com \
 	mcopy  -i $@ bin/comp.com ::COMP.COM
 	mcopy  -i $@ bin/debug.com ::DEBUG.COM
 	mcopy  -i $@ bin/mode.com ::MODE.COM
+	[ -f private/ibm/art.bas ] && mcopy  -i $@ private/ibm/art.bas ::ART.BAS
+	[ -f private/ibm/ball.bas ] && mcopy  -i $@ private/ibm/ball.bas ::BALL.BAS
+	[ -f private/ibm/calendar.bas ] && mcopy  -i $@ private/ibm/calendar.bas ::CALENDAR.BAS
+	[ -f private/ibm/circle.bas ] && mcopy  -i $@ private/ibm/circle.bas ::CIRCLE.BAS
+	[ -f private/ibm/colorbar.bas ] && mcopy  -i $@ private/ibm/colorbar.bas ::COLORBAR.BAS
+	[ -f private/ibm/comm.bas ] && mcopy  -i $@ private/ibm/comm.bas ::COMM.BAS
+	[ -f private/ibm/donkey.bas ] && mcopy  -i $@ private/ibm/donkey.bas ::DONKEY.BAS
+	[ -f private/ibm/mortgage.bas ] && mcopy  -i $@ private/ibm/mortgage.bas ::MORTGAGE.BAS
+	[ -f private/ibm/MUSIC.BAS ] && mcopy  -i $@ private/ibm/music.bas ::MUSIC.BAS
+	[ -f private/ibm/piechart.bas ] && mcopy  -i $@ private/ibm/piechart.bas ::PIECHART.BAS
+	[ -f private/ibm/samples.bas ] && mcopy  -i $@ private/ibm/samples.bas ::SAMPLES.BAS
+	[ -f private/ibm/space.bas ] && mcopy  -i $@ private/ibm/space.bas ::SPACE.BAS
+	mattrib -i $@ -a ::"*.*"
+	mdir -w -i $@ ::
+
+pcdos_full.img: pcdos_base.img xasm.com xtrans.com \
+    xhex2bin.com xmem.com hello.asm hello.bas mkhello.bat
+	cp pcdos_base.img $@
+	[ -f private/ext/autoexec.bat ] && mcopy  -i $@ private/ext/autoexec.bat ::AUTOEXEC.BAT
+	mcopy  -i $@ bin/masm.exe ::MASM.EXE
+	mcopy  -i $@ bin/link.exe ::LINK.EXE
+	mcopy  -i $@ bin/lib.exe ::LIB.EXE
+	mcopy  -i $@ bin/basic.com ::BASIC.COM
+	mcopy  -i $@ bin/basica.com ::BASICA.COM
+	mcopy  -i $@ bin/exe2bin.exe ::EXE2BIN.EXE
+	mcopy  -i $@ bin/chkdsk.com ::CHKDSK.COM
+	mcopy  -i $@ bin/sys.com ::SYS.COM
+	mcopy  -i $@ bin/edlin.com ::EDLIN.COM
+	mcopy  -i $@ bin/format.com ::FORMAT.COM
+	mcopy  -i $@ bin/diskcopy.com ::DISKCOPY.COM
+	mcopy  -i $@ bin/diskcomp.com ::DISKCOMP.COM
+	mcopy  -i $@ bin/comp.com ::COMP.COM
+	mcopy  -i $@ bin/debug.com ::DEBUG.COM
+	mcopy  -i $@ bin/mode.com ::MODE.COM
+	[ -f private/ibm/ball.bas ] && mcopy  -i $@ private/ibm/ball.bas ::BALL.BAS
+	[ -f private/ibm/colorbar.bas ] && mcopy  -i $@ private/ibm/colorbar.bas ::COLORBAR.BAS
+	[ -f private/ibm/piechart.bas ] && mcopy  -i $@ private/ibm/piechart.bas ::PIECHART.BAS
 	mcopy  -i $@ xasm.com ::ASM.COM
 	mcopy  -i $@ xtrans.com ::TRANS.COM
-	mcopy  -i $@ xhello.com ::HELLO.COM
 	mcopy  -i $@ xhex2bin.com ::HEX2BIN.COM
 	mcopy  -i $@ hello.asm ::HELLO.ASM
 	mcopy  -i $@ mkhello.bat ::MKHELLO.BAT
 	mcopy  -i $@ hello.bas ::HELLO.BAS
 	mcopy  -i $@ xmem.com ::MEM.COM
-	[ -f private/pceexit.com ] && mcopy  -i $@ private/pceexit.com ::EXIT.COM
+	[ -f private/ext/pceexit.com ] && mcopy  -i $@ private/ext/pceexit.com ::EXIT.COM
+	[ -f private/ext/pcetime.com ] && mcopy  -i $@ private/ext/pcetime.com ::PCEINIT.COM
 	mattrib -i $@ -a ::"*.*"
 	mdir -w -i $@ ::
 
