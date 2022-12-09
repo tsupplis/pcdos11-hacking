@@ -1,6 +1,6 @@
 all: xibmcmdx.com xibmcmd.com \
      xibmdos.com xasm.com xhex2bin.com xtrans.com xhello.com xibmbio.com \
-     xmem.com pcdos_full.img pcdos_base.img pcdos_dist.img
+     xmem.com pcdos_full.img pcdos_base.img pcdos_dist.img pcdos_diag.img
 
 xibmbio.com: xibmbio.exe
 	echo 60|emu2 bin/exe2bin.exe xibmbio.exe xibmbio.com
@@ -66,6 +66,18 @@ pcdos_dist.img: pcdos_base.img xasm.com xhello.com xtrans.com \
 	mattrib -i $@ -a ::"*.*"
 	mdir -w -i $@ ::
 
+pcdos_diag.img: pcdos_base.img xasm.com xtrans.com \
+    xhex2bin.com xmem.com hello.asm hello.bas mkhello.bat
+	cp pcdos_base.img $@
+	[ -f private/ext/autoexec.bat ] && mcopy  -i $@ private/ext/autoexec.bat ::AUTOEXEC.BAT
+	mcopy  -i $@ bin/chkdsk.com ::CHKDSK.COM
+	mcopy  -i $@ bin/debug.com ::DEBUG.COM
+	mcopy  -i $@ xmem.com ::MEM.COM
+	[ -f private/ext/pceexit.com ] && mcopy  -i $@ private/ext/pceexit.com ::EXIT.COM
+	[ -f private/ext/pceinit.com ] && mcopy  -i $@ private/ext/pceinit.com ::PCEINIT.COM
+	mattrib -i $@ -a ::"*.*"
+	mdir -w -i $@ ::
+
 pcdos_full.img: pcdos_base.img xasm.com xtrans.com \
     xhex2bin.com xmem.com hello.asm hello.bas mkhello.bat
 	cp pcdos_base.img $@
@@ -96,7 +108,7 @@ pcdos_full.img: pcdos_base.img xasm.com xtrans.com \
 	mcopy  -i $@ hello.bas ::HELLO.BAS
 	mcopy  -i $@ xmem.com ::MEM.COM
 	[ -f private/ext/pceexit.com ] && mcopy  -i $@ private/ext/pceexit.com ::EXIT.COM
-	[ -f private/ext/pcetime.com ] && mcopy  -i $@ private/ext/pcetime.com ::PCEINIT.COM
+	[ -f private/ext/pceinit.com ] && mcopy  -i $@ private/ext/pceinit.com ::PCEINIT.COM
 	mattrib -i $@ -a ::"*.*"
 	mdir -w -i $@ ::
 

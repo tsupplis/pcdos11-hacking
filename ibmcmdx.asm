@@ -1915,8 +1915,7 @@ CLS:
         MOV    AX,0F00H
         INT    10H
         PUSH   BX
-        MOV    DH,0
-        MOV    DL,0
+        MOV    DX,0
         MOV    AH,02H
         INT    10H
         POP    BX

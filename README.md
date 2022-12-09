@@ -69,6 +69,7 @@ the default drive (Microsoft) or on drive A: (IBM).
 - pcdosenh: slightly enhanced PC-DOS 1.1 command.com marked as 1.10A
     - VER command
     - CLS command (BIOS)
+    - Check for command in A: if not found
     - External MEM command
 - pcdosorg: PC-DOS 1.1 command.com rebuilt 
     - Checked against PC-DOS 1.1 distribution 
