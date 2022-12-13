@@ -33,9 +33,8 @@ pcdos_base.img: xibmcmdx.com xibmbio.com xibmdos.com images/blank.img
 	mdir -w -i $@ ::
 
 pcdos_dist.img: pcdos_base.img xasm.com xhello.com xtrans.com \
-    xhex2bin.com xmem.com hello.asm hello.bas mkhello.bat
+    xhex2bin.com hello.asm hello.bas mkhello.bat
 	cp pcdos_base.img $@
-	[ -f private/ext/autoexec.bat ] && mcopy  -i $@ private/ext/autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/masm.exe ::MASM.EXE
 	mcopy  -i $@ bin/link.exe ::LINK.EXE
 	mcopy  -i $@ bin/lib.exe ::LIB.EXE
@@ -59,7 +58,7 @@ pcdos_dist.img: pcdos_base.img xasm.com xhello.com xtrans.com \
 	[ -f private/ibm/comm.bas ] && mcopy  -i $@ private/ibm/comm.bas ::COMM.BAS
 	[ -f private/ibm/donkey.bas ] && mcopy  -i $@ private/ibm/donkey.bas ::DONKEY.BAS
 	[ -f private/ibm/mortgage.bas ] && mcopy  -i $@ private/ibm/mortgage.bas ::MORTGAGE.BAS
-	[ -f private/ibm/MUSIC.BAS ] && mcopy  -i $@ private/ibm/music.bas ::MUSIC.BAS
+	[ -f private/ibm/music.bas ] && mcopy  -i $@ private/ibm/music.bas ::MUSIC.BAS
 	[ -f private/ibm/piechart.bas ] && mcopy  -i $@ private/ibm/piechart.bas ::PIECHART.BAS
 	[ -f private/ibm/samples.bas ] && mcopy  -i $@ private/ibm/samples.bas ::SAMPLES.BAS
 	[ -f private/ibm/space.bas ] && mcopy  -i $@ private/ibm/space.bas ::SPACE.BAS
