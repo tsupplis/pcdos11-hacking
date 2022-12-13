@@ -82,6 +82,7 @@ the default drive (Microsoft) or on drive A: (IBM).
     - Search path on A: if default drive seach fails
     - Investigate further other MS-DOS 1.25 variations
 - bios and dos
+- format.com has been patch to format disk that can work with all emulators including qemu. the signature 55AA is added at the end of the 512 byte boot sector.
 
 ## Build/Test Dependencies
 

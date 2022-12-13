@@ -161,6 +161,9 @@ xhex2bin.com: hex2bin.asm
 	emu2 bin/hex2bin.com hex2bin
 	mv hex2bin.com xhex2bin.com
 
+empty.img:
+	dd if=/dev/zero of=a.img bs=327680 count=1
+
 clean:
 	rm -f xibmdos.exe ibmdos.obj xibmdos.com
 	rm -f xibmbio.exe ibmbio.obj xibmbio.com
@@ -169,4 +172,5 @@ clean:
 	rm -f xasm.com xhex2bin.com xtrans.com xhello.com xmem.com
 	rm -f *.crf *.err *.lst *.map *.hex *.prn *.HEX *.PRN
 	rm -f *.log
-	rm -f pcdos_*.img
+	rm -f pcdos_*.img empty.img
+
