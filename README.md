@@ -1,4 +1,4 @@
-# PC-DOS 1.1 Hacking - Playing with DOS 1,1 abd Command.com
+# PC-DOS 1.1 Hacking - Playing with PC-DOS 1.10 and Ccmmand.com
 
 ## Sources
 
