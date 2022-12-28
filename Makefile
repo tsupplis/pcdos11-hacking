@@ -90,7 +90,6 @@ pcdos_full.img: pcdos_base.img xasm.com xtrans.com \
 	[ -f private/ext/lib.exe ] && mcopy -o -i $@ private/ext/lib.exe ::LIB.EXE
 	mcopy  -i $@ bin/basic.com ::BASIC.COM
 	mcopy  -i $@ bin/basica.com ::BASICA.COM
-	mcopy  -i $@ bin/basic86.com ::BASIC86.COM
 	mcopy  -i $@ bin/exe2bin.exe ::EXE2BIN.EXE
 	mcopy  -i $@ bin/chkdsk.com ::CHKDSK.COM
 	mcopy  -i $@ bin/sys.com ::SYS.COM
@@ -102,8 +101,6 @@ pcdos_full.img: pcdos_base.img xasm.com xtrans.com \
 	mcopy  -i $@ bin/debug.com ::DEBUG.COM
 	mcopy  -i $@ bin/mode.com ::MODE.COM
 	[ -f private/ibm/ball.bas ] && mcopy  -i $@ private/ibm/ball.bas ::BALL.BAS
-	[ -f private/ibm/colorbar.bas ] && mcopy  -i $@ private/ibm/colorbar.bas ::COLORBAR.BAS
-	[ -f private/ibm/piechart.bas ] && mcopy  -i $@ private/ibm/piechart.bas ::PIECHART.BAS
 	mcopy  -i $@ xasm.com ::ASM.COM
 	mcopy  -i $@ xtrans.com ::TRANS.COM
 	mcopy  -i $@ xhex2bin.com ::HEX2BIN.COM
