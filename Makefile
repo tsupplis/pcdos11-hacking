@@ -84,6 +84,8 @@ pcdos_full.img: pcdos_base.img xasm.com xtrans.com \
 	mcopy  -i $@ bin/masm.exe ::MASM.EXE
 	[ -f private/ext/masm.exe ] && mcopy -o -i $@ private/ext/masm.exe ::MASM.EXE
 	mcopy  -i $@ bin/link.exe ::LINK.EXE
+	[ -f private/ext/link.exe ] && mcopy -o -i $@ private/ext/link.exe ::LINK.EXE
+	[ -f private/ext/cref.exe ] && mcopy -o -i $@ private/ext/cref.exe ::CREF.EXE
 	mcopy  -i $@ bin/lib.exe ::LIB.EXE
 	[ -f private/ext/lib.exe ] && mcopy -o -i $@ private/ext/lib.exe ::LIB.EXE
 	mcopy  -i $@ bin/basic.com ::BASIC.COM
