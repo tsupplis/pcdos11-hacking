@@ -8,8 +8,8 @@ _start:
             clc
             ; Get BIOS Configuration
             int     12h
-            push    ax
             jc      short exit
+            push    ax
             mov     cl, 6
             mov     bx, cs
             shr     bx, cl
@@ -19,6 +19,7 @@ _start:
             ; Convert to string, starting with the last digit
             ; Overwrites code we don't need any more, to save space
             jmp     short display
+            db "000000"
 digitend:   
             db "K$"
 eol:        
