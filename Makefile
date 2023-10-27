@@ -71,6 +71,7 @@ pcdos_diag.img: pcdos_base.img xasm.com xtrans.com \
 	[ -f private/ext/autoexec.bat ] && mcopy  -i $@ private/ext/autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/chkdsk.com ::CHKDSK.COM
 	mcopy  -i $@ bin/debug.com ::DEBUG.COM
+	mcopy  -i $@ bin/edlin.com ::EDLIN.COM
 	mcopy  -i $@ xmem.com ::MEM.COM
 	[ -f private/ext/pceexit.com ] && mcopy  -i $@ private/ext/pceexit.com ::EXIT.COM
 	[ -f private/ext/pceinit.com ] && mcopy  -i $@ private/ext/pceinit.com ::PCEINIT.COM
@@ -164,11 +165,11 @@ empty.img:
 	dd if=/dev/zero of=a.img bs=327680 count=1
 
 clean:
-	rm -f xibmdos.exe ibmdos.obj xibmdos.com
-	rm -f xibmbio.exe ibmbio.obj xibmbio.com
-	rm -f xibmcmd.exe ibmcmd.obj xibmcmd.com
-	rm -f xibmcmdx.exe ibmcmdx.obj xibmcmdx.com
-	rm -f xasm.com xhex2bin.com xtrans.com xhello.com xmem.com
+	rm -f xibmdos.exe ibmdos.obj xibmdos.com xibmbio.obj
+	rm -f xibmbio.exe ibmbio.obj xibmbio.com xibmdos.obj
+	rm -f xibmcmd.exe ibmcmd.obj xibmcmd.com xibmcmd.obj
+	rm -f xibmcmdx.exe ibmcmdx.obj xibmcmdx.com xibmcmdx.obj
+	rm -f xasm.com xhex2bin.com xtrans.com xhello.com xmem.com xmem.exe xmem.obj mem.obj
 	rm -f *.crf *.err *.lst *.map *.hex *.prn *.HEX *.PRN
 	rm -f *.log
 	rm -f pcdos_*.img empty.img

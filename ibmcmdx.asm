@@ -155,10 +155,10 @@ TRANDATA        SEGMENT BYTE
         ORG     0
 ZERO    =       $
 IF MSVER
-VERSTR  DB      "MS-DOS Version 1.25B Command Version 1.17B",13,10,"$"
+VERSTR  DB      "MS-DOS Version 1.25C Command Version 1.17C",13,10,"$"
 ENDIF
 IF IBMVER
-VERSTR  DB      "IBM PC-DOS Version 1.10B",13,10,"$"
+VERSTR  DB      "IBM PC-DOS Version 1.10C",13,10,"$"
 ENDIF
 BADNAM  DB      "Bad command or file name",13,10,"$"
 MISNAM  DB      "Missing file name$"
@@ -617,15 +617,15 @@ DRV0:
         IF MSVER
 HEADER  DB      13,10,13,10,"Microsoft DOS",13,10
         IF      HIGHMEM
-        DB      "Version 1.25AH (C)Copyright Microsoft 1981, 1982, 2020",13,10,"$"
+        DB      "Version 1.25CH (C)Copyright Microsoft 1981, 1982, 2023",13,10,"$"
         ELSE
-        DB      "Version 1.25A (C)Copyright Microsoft 1981, 1982, 2020",13,10,"$"
+        DB      "Version 1.25C (C)Copyright Microsoft 1981, 1982, 2023",13,10,"$"
         ENDIF
         ENDIF
 
         IF IBMVER
 HEADER  DB      13,10,13,10,"The IBM Personal Computer DOS",13,10
-        DB      "Version 1.10B (C)Copyright IBM Corp 1981, 1982, 2022",13,10,"$"
+        DB      "Version 1.10C (C)Copyright IBM Corp 1981, 1982, 2023",13,10,"$"
         DB      "Licensed Material - Program Property of IBM"
         ENDIF
 
@@ -1912,17 +1912,29 @@ DATERR:
 ; CLS command
         IF IBMVER
 CLS:
-        MOV    AX,0F00H
-        INT    10H
-        PUSH   BX
-        MOV    DX,0
-        MOV    AH,02H
-        INT    10H
-        POP    BX
-        MOV    BL,07H
-        MOV    CX,2000
-        MOV    AX,0920H
-        INT    10H
+        MOV     AX,0F00H
+        INT     10H
+        PUSH    BX
+        MOV     AX,0600H
+        MOV     BH,07H
+        MOV     CX,0
+        MOV     DX,184FH
+        INT     10H
+        POP     BX
+        MOV     DX,0
+        MOV     AH,02H
+        INT     10H
+        ;MOV     AX,0F00H
+        ;INT     10H
+        ;PUSH    BX
+        ;MOV     DX,0
+        ;MOV     AH,02H
+        ;INT     10H
+        ;POP     BX
+        ;MOV     BL,07H
+        ;MOV     CX,2000
+        ;MOV     AX,0920H
+        ;INT     10H
         RET
         ENDIF
 
