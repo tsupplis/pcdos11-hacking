@@ -1,31 +1,90 @@
-all: ibmcmdex.com ibmcmd.com 
-	    
-ibmcmd.com: ibmcmd.exe
-	bin\exe2bin.exe ibmcmd.exe ibmcmd.com
+all: xibmcmdx.com xibmcmd.com \
+     xibmdos.com xibmbio.com xasm.com xhex2bin.com xtrans.com xhello.com \
+     xmem.com xcls.com
 
-ibmcmd.exe: ibmcmd.obj
-	bin\link.exe ibmcmd,ibmcmd,ibmcmd,ibmcmd,
+xibmbio.com: xibmbio.exe
+	echo 60|bin\exe2bin.exe xibmbio.exe xibmbio.com
 
-ibmcmd.obj: ibmcmd.asm
-	bin\masm.exe ibmcmd,ibmcmd,ibmcmd,ibmcmd 
+xibmbio.exe: xibmbio.obj
+	bin\link.exe xibmbio,xibmbio,xibmbio,xibmbio,
 
-ibmcmdex.com: ibmcmdex.exe
-	bin\exe2bin.exe ibmcmdex.exe ibmcmdex.com
+xibmbio.obj: ibmbio.asm 
+	bin\masm.exe ibmbio,xibmbio,xibmbio,xibmbio
 
-ibmcmdex.exe: ibmcmdex.obj
-	bin\link.exe ibmcmdex,ibmcmdex,ibmcmdex,ibmcmdex,
+xibmdos.com: xibmdos.exe
+	bin\exe2bin.exe xibmdos.exe xibmdos.com
 
-ibmcmdex.obj: ibmcmdex.asm
-	bin\masm.exe ibmcmdex,ibmcmdex,ibmcmdex,ibmcmdex
+xibmdos.exe: xibmdos.obj
+	bin\link.exe xibmdos,xibmdos,xibmdos,xibmdos,
+
+xibmdos.obj: ibmdos.asm msdos.asm
+	bin\masm.exe ibmdos,xibmdos,xibmdos,xibmdos
+
+xibmcmd.com: xibmcmd.exe 
+	bin\exe2bin.exe xibmcmd.exe xibmcmd.com
+
+xibmcmd.exe: xibmcmd.obj
+	bin\link.exe xibmcmd,xibmcmd,xibmcmd,xibmcmd,
+
+xibmcmd.obj: ibmcmd.asm
+	bin\masm.exe ibmcmd,xibmcmd,xibmcmd,xibmcmd
+
+xibmcmdx.com: xibmcmdx.exe
+	bin\exe2bin.exe xibmcmdx.exe xibmcmdx.com
+
+xibmcmdx.exe: xibmcmdx.obj
+	bin\link.exe xibmcmdx,xibmcmdx,xibmcmdx,xibmcmdx, 
+
+xibmcmdx.obj: ibmcmdx.asm
+	bin\masm.exe ibmcmdx,xibmcmdx,xibmcmdx,ibmcmdx
+
+xmem.com: xmem.exe
+	bin\exe2bin.exe xmem.exe xmem.com
+
+xmem.exe: xmem.obj
+	bin\link.exe xmem,xmem,xmem,xmem, 
+
+xmem.obj: mem.asm
+	bin\masm.exe mem,xmem,xmem,mem
+
+xcls.com: xcls.exe
+	bin\exe2bin.exe xcls.exe xcls.com
+
+xcls.exe: xcls.obj
+	bin\link.exe xcls,xcls,xcls,xcls, 
+
+xcls.obj: cls.asm
+	bin\masm.exe cls,xcls,xcls,cls
+
+xhello.com: hello.asm xasm.com xhex2bin.com
+	xasm.com hello.  z
+	xhex2bin.com hello
+	ren hello.com xhello.com
+
+xtrans.com: trans.asm xasm.com xhex2bin.com
+	xasm.com trans.  z
+	xhex2bin.com trans
+	ren trans.com xtrans.com
+
+xasm.com: asm.asm
+	bin\asm.com asm.  z
+	bin\hex2bin.com asm
+	ren asm.com xasm.com
+
+xhex2bin.com: hex2bin.asm
+	bin\asm.com hex2bin.  z
+	bin\hex2bin.com hex2bin
+	ren hex2bin.com xhex2bin.com
 
 clean:
-	del ibmcmd.exe 
-	del ibmcmd.obj 
-	del ibmcmd.com
-	del ibmcmdex.exe 
-	del ibmcmdex.obj 
-	del ibmcmdex.com
-	del *.crf 
-	del *.err 
-	del *.lst 
+	del x*.com
+	del x*.exe
+	del x*.obj
+	del *.crf
+	del *.err
+	del *.lst
 	del *.map
+	del *.hex
+	del *.prn
+	del *.log
+

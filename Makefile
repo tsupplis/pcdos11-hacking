@@ -1,6 +1,6 @@
 all: xibmcmdx.com xibmcmd.com \
-     xibmdos.com xasm.com xhex2bin.com xtrans.com xhello.com xibmbio.com \
-     xmem.com pcdos_full.img pcdos_base.img pcdos_dist.img pcdos_diag.img
+     xibmdos.com xibmbio.com xasm.com xhex2bin.com xtrans.com xhello.com \
+     xmem.com xcls.com pcdos_full.img pcdos_base.img pcdos_dist.img pcdos_diag.img
 
 xibmbio.com: xibmbio.exe
 	echo 60|emu2 bin/exe2bin.exe xibmbio.exe xibmbio.com
@@ -141,23 +141,32 @@ xmem.exe: xmem.obj
 xmem.obj: mem.asm
 	emu2 bin/masm.exe mem,xmem,xmem,mem || rm -f xmem.obj
 
+xcls.com: xcls.exe
+	emu2 bin/exe2bin.exe xcls.exe xcls.com
+
+xcls.exe: xcls.obj
+	emu2 bin/link.exe xcls,xcls,xcls,xcls, 
+
+xcls.obj: cls.asm
+	emu2 bin/masm.exe cls,xcls,xcls,cls || rm -f xcls.obj
+
 xhello.com: hello.asm xasm.com xhex2bin.com
-	emu2 xasm.com hello.ccz
+	emu2 xasm.com hello.  z
 	emu2 xhex2bin.com hello
 	mv hello.com xhello.com
 
 xtrans.com: trans.asm xasm.com xhex2bin.com
-	emu2 xasm.com trans.ccz
+	emu2 xasm.com trans.  z
 	emu2 xhex2bin.com trans
 	mv trans.com xtrans.com
 
 xasm.com: asm.asm
-	emu2 bin/asm.com asm.ccz
+	emu2 bin/asm.com asm.  z
 	emu2 bin/hex2bin.com asm
 	mv asm.com xasm.com
 
 xhex2bin.com: hex2bin.asm
-	emu2 bin/asm.com hex2bin.ccz
+	emu2 bin/asm.com hex2bin.  z
 	emu2 bin/hex2bin.com hex2bin
 	mv hex2bin.com xhex2bin.com
 
@@ -165,11 +174,9 @@ empty.img:
 	dd if=/dev/zero of=a.img bs=327680 count=1
 
 clean:
-	rm -f xibmdos.exe ibmdos.obj xibmdos.com xibmbio.obj
-	rm -f xibmbio.exe ibmbio.obj xibmbio.com xibmdos.obj
-	rm -f xibmcmd.exe ibmcmd.obj xibmcmd.com xibmcmd.obj
-	rm -f xibmcmdx.exe ibmcmdx.obj xibmcmdx.com xibmcmdx.obj
-	rm -f xasm.com xhex2bin.com xtrans.com xhello.com xmem.com xmem.exe xmem.obj mem.obj
+	rm -f x*.com
+	rm -f x*.exe
+	rm -f *.obj
 	rm -f *.crf *.err *.lst *.map *.hex *.prn *.HEX *.PRN
 	rm -f *.log
 	rm -f pcdos_*.img empty.img
