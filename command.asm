@@ -14,15 +14,6 @@
 ; reloaded. Thus programs which do not need maximum memory will save
 ; the time required to reload COMMAND when they terminate.
 
-;Use the following booleans to set assembly flags
-FALSE   EQU     0
-TRUE    EQU     NOT FALSE
-
-IBMVER  EQU     TRUE    ;Switch to build IBM version of Command
-MSVER   EQU     FALSE   ;Switch to build MS-DOS version of Command
-
-HIGHMEM EQU     FALSE    ;Run resident part above transient (high memory)
-
 LINPERPAG       EQU     23
 NORMPERLIN      EQU     1
 WIDEPERLIN      EQU     5
@@ -204,9 +195,9 @@ COMTAB  DB      4,"DIR",1
         DW      OFFSET TRANGROUP:PAUSE
         DB      5,"DATE",0
         DW      OFFSET TRANGROUP:DATE
+        IF CMDEXT
         DB      4,"VER",0
         DW      OFFSET TRANGROUP:VER
-        IF IBMVER
         DB      4,"CLS",0
         DW      OFFSET TRANGROUP:CLS
         ENDIF
@@ -1910,7 +1901,8 @@ DATERR:
         JMP     GETDAT
 
 ; CLS command
-        IF IBMVER
+
+        IF CMDEXT
 CLS:
         MOV     AX,0F00H
         INT     10H
@@ -1925,7 +1917,6 @@ CLS:
         MOV     AH,02H
         INT     10H
         RET
-        ENDIF
 
 ; VER command
 
@@ -1949,6 +1940,7 @@ VER:
         INT     33
         ENDIF
         RET
+        ENDIF
 
 ; TIME gets and sets the time
 

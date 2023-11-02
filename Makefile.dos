@@ -1,4 +1,4 @@
-all: xibmcmdx.com xibmcmd.com \
+all: xibmcmd.com \
      xibmdos.com xibmbio.com xasm.com xhex2bin.com xtrans.com xhello.com \
      xmem.com xcls.com
 
@@ -17,7 +17,7 @@ xibmdos.com: xibmdos.exe
 xibmdos.exe: xibmdos.obj
 	bin\link.exe xibmdos,xibmdos,xibmdos,xibmdos,
 
-xibmdos.obj: ibmdos.asm msdos.asm
+xibmdos.obj: ibmdos.asm dos.asm
 	bin\masm.exe ibmdos,xibmdos,xibmdos,xibmdos
 
 xibmcmd.com: xibmcmd.exe 
@@ -26,17 +26,8 @@ xibmcmd.com: xibmcmd.exe
 xibmcmd.exe: xibmcmd.obj
 	bin\link.exe xibmcmd,xibmcmd,xibmcmd,xibmcmd,
 
-xibmcmd.obj: ibmcmd.asm
+xibmcmd.obj: ibmcmd.asm command.asm
 	bin\masm.exe ibmcmd,xibmcmd,xibmcmd,xibmcmd
-
-xibmcmdx.com: xibmcmdx.exe
-	bin\exe2bin.exe xibmcmdx.exe xibmcmdx.com
-
-xibmcmdx.exe: xibmcmdx.obj
-	bin\link.exe xibmcmdx,xibmcmdx,xibmcmdx,xibmcmdx, 
-
-xibmcmdx.obj: ibmcmdx.asm
-	bin\masm.exe ibmcmdx,xibmcmdx,xibmcmdx,ibmcmdx
 
 xmem.com: xmem.exe
 	bin\exe2bin.exe xmem.exe xmem.com
