@@ -47,9 +47,8 @@ pcdos_base.img: xibmcmd.com xibmbio.com xibmdos.com images/pcdos.img
 	mattrib -i $@ +h +s ::IBMBIO.COM
 	mdir -w -i $@ ::
 
-msdos_dist.img: msdos_base.img xasm.com xhello.com xtrans.com \
-    xhex2bin.com hello.asm hello.bas mkhello.bat
-	cp pcdos_base.img $@
+msdos_dist.img: msdos_base.img 
+	cp msdos_base.img $@
 	mcopy  -i $@ bin/masm.exe ::MASM.EXE
 	mcopy  -i $@ bin/mslink.exe ::LINK.EXE
 	mcopy  -i $@ bin/lib.exe ::LIB.EXE
@@ -61,7 +60,7 @@ msdos_dist.img: msdos_base.img xasm.com xhello.com xtrans.com \
 	mcopy  -i $@ bin/msformat.com ::FORMAT.COM
 	mcopy  -i $@ bin/diskcopy.com ::DISKCOPY.COM
 	mcopy  -i $@ bin/diskcomp.com ::DISKCOMP.COM
-	mcopy  -i $@ bin/FILCOM.com ::FILCOM.COM
+	mcopy  -i $@ bin/filcom.com ::FILCOM.COM
 	mcopy  -i $@ bin/debug.com ::DEBUG.COM
 	mcopy  -i $@ bin/mode.com ::MODE.COM
 	mattrib -i $@ -a ::"*.*"
@@ -81,7 +80,7 @@ msdos_diag.img: msdos_base.img xasm.com xtrans.com \
 	mdir -w -i $@ ::
 
 msdos_full.img: msdos_base.img xasm.com xtrans.com \
-    xhex2bin.com xmem.com hello.asm hello.bas mkhello.bat
+    xhex2bin.com xmem.com hello.asm mshello.bas mkhello.bat
 	cp msdos_base.img $@
 	[ -f private/ext/autoexec.bat ] && mcopy  -i $@ private/ext/autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/masm.exe ::MASM.EXE
@@ -96,7 +95,7 @@ msdos_full.img: msdos_base.img xasm.com xtrans.com \
 	mcopy  -i $@ bin/msformat.com ::FORMAT.COM
 	mcopy  -i $@ bin/diskcopy.com ::DISKCOPY.COM
 	mcopy  -i $@ bin/diskcomp.com ::DISKCOMP.COM
-	mcopy  -i $@ bin/FILCOM.com ::FILCOM.COM
+	mcopy  -i $@ bin/filcom.com ::FILCOM.COM
 	mcopy  -i $@ bin/debug.com ::DEBUG.COM
 	mcopy  -i $@ bin/mode.com ::MODE.COM
 	mcopy  -i $@ xasm.com ::ASM.COM
@@ -104,7 +103,7 @@ msdos_full.img: msdos_base.img xasm.com xtrans.com \
 	mcopy  -i $@ xhex2bin.com ::HEX2BIN.COM
 	mcopy  -i $@ hello.asm ::HELLO.ASM
 	mcopy  -i $@ mkhello.bat ::MKHELLO.BAT
-	mcopy  -i $@ hello.bas ::HELLO.BAS
+	mcopy  -i $@ mshello.bas ::HELLO.BAS
 	mcopy  -i $@ xmem.com ::MEM.COM
 	[ -f private/ext/pceexit.com ] && mcopy  -i $@ private/ext/pceexit.com ::EXIT.COM
 	[ -f private/ext/pceinit.com ] && mcopy  -i $@ private/ext/pceinit.com ::PCEINIT.COM
@@ -112,8 +111,7 @@ msdos_full.img: msdos_base.img xasm.com xtrans.com \
 	mdir -w -i $@ ::
 
 
-pcdos_dist.img: msdos_base.img xasm.com xhello.com xtrans.com \
-    xhex2bin.com hello.asm hello.bas mkhello.bat
+pcdos_dist.img: msdos_base.img 
 	cp msdos_base.img $@
 	mcopy  -i $@ bin/link.exe ::LINK.EXE
 	mcopy  -i $@ bin/basic.com ::BASIC.COM
