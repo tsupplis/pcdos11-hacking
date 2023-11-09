@@ -1,76 +1,72 @@
-all: xibmcmd.com \
-     xibmdos.com xibmbio.com xasm.com xhex2bin.com xtrans.com xhello.com \
-     xmem.com xcls.com
+all: ibmcmd.com \
+     ibmdos.com ibmbio.com asm.com hex2bin.com xtrans.com hello.com \
+     mem.com cls.com
 
-xibmbio.com: xibmbio.exe
-	echo 60|bin\exe2bin.exe xibmbio.exe xibmbio.com
+ibmbio.com: ibmbio.exe
+	echo 60|bin\exe2bin.exe ibmbio.exe ibmbio.com
 
-xibmbio.exe: xibmbio.obj
-	bin\link.exe xibmbio,xibmbio,xibmbio,xibmbio,
+ibmbio.exe: ibmbio.obj
+	bin\link.exe ibmbio,ibmbio,ibmbio,ibmbio,
 
-xibmbio.obj: ibmbio.asm 
-	bin\masm.exe ibmbio,xibmbio,xibmbio,xibmbio
+ibmbio.obj: ibmbio.asm 
+	bin\masm.exe ibmbio,ibmbio,ibmbio,ibmbio
 
-xibmdos.com: xibmdos.exe
-	bin\exe2bin.exe xibmdos.exe xibmdos.com
+ibmdos.com: ibmdos.exe
+	bin\exe2bin.exe ibmdos.exe ibmdos.com
 
-xibmdos.exe: xibmdos.obj
-	bin\link.exe xibmdos,xibmdos,xibmdos,xibmdos,
+ibmdos.exe: ibmdos.obj
+	bin\link.exe ibmdos,ibmdos,ibmdos,ibmdos,
 
-xibmdos.obj: ibmdos.asm dos.asm
-	bin\masm.exe ibmdos,xibmdos,xibmdos,xibmdos
+ibmdos.obj: ibmdos.asm dos.asm
+	bin\masm.exe ibmdos,ibmdos,ibmdos,ibmdos
 
-xibmcmd.com: xibmcmd.exe 
-	bin\exe2bin.exe xibmcmd.exe xibmcmd.com
+ibmcmd.com: ibmcmd.exe 
+	bin\exe2bin.exe ibmcmd.exe ibmcmd.com
 
-xibmcmd.exe: xibmcmd.obj
-	bin\link.exe xibmcmd,xibmcmd,xibmcmd,xibmcmd,
+ibmcmd.exe: ibmcmd.obj
+	bin\link.exe ibmcmd,ibmcmd,ibmcmd,ibmcmd,
 
-xibmcmd.obj: ibmcmd.asm command.asm
-	bin\masm.exe ibmcmd,xibmcmd,xibmcmd,xibmcmd
+ibmcmd.obj: ibmcmd.asm command.asm
+	bin\masm.exe ibmcmd,ibmcmd,ibmcmd,ibmcmd
 
-xmem.com: xmem.exe
-	bin\exe2bin.exe xmem.exe xmem.com
+mem.com: mem.exe
+	bin\exe2bin.exe mem.exe mem.com
 
-xmem.exe: xmem.obj
-	bin\link.exe xmem,xmem,xmem,xmem, 
+mem.exe: mem.obj
+	bin\link.exe mem,mem,mem,mem, 
 
-xmem.obj: mem.asm
-	bin\masm.exe mem,xmem,xmem,mem
+mem.obj: mem.asm
+	bin\masm.exe mem,mem,mem,mem
 
-xcls.com: xcls.exe
-	bin\exe2bin.exe xcls.exe xcls.com
+cls.com: cls.exe
+	bin\exe2bin.exe cls.exe cls.com
 
-xcls.exe: xcls.obj
-	bin\link.exe xcls,xcls,xcls,xcls, 
+cls.exe: cls.obj
+	bin\link.exe cls,cls,cls,cls, 
 
-xcls.obj: cls.asm
-	bin\masm.exe cls,xcls,xcls,cls
+cls.obj: cls.asm
+	bin\masm.exe cls,cls,cls,cls
 
-xhello.com: hello.asm xasm.com xhex2bin.com
-	xasm.com hello.  z
-	xhex2bin.com hello
-	ren hello.com xhello.com
+hello.com: hello.asm asm.com hex2bin.com
+	asm.com hello.  z
+	hex2bin.com hello
 
-xtrans.com: trans.asm xasm.com xhex2bin.com
-	xasm.com trans.  z
-	xhex2bin.com trans
-	ren trans.com xtrans.com
+xtrans.com: trans.asm asm.com hex2bin.com
+	asm.com trans.  z
+	hex2bin.com trans
 
-xasm.com: asm.asm
+asm.com: asm.asm
 	bin\asm.com asm.  z
 	bin\hex2bin.com asm
-	ren asm.com xasm.com
 
-xhex2bin.com: hex2bin.asm
+hex2bin.com: hex2bin.asm
 	bin\asm.com hex2bin.  z
 	bin\hex2bin.com hex2bin
-	ren hex2bin.com xhex2bin.com
 
 clean:
-	del x*.com
-	del x*.exe
-	del x*.obj
+	del *.com
+	del *.exe
+	del *.obj
 	del *.crf
 	del *.err
 	del *.lst
