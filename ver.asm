@@ -1,33 +1,36 @@
+
 program     segment
             assume cs:program, ds:program
             org 100h
 
 _start:
-            clc
-            ; Get BIOS Configuration
-            int     12h
-            jc      short exit
-            push    ax
-            mov     cl, 6
-            mov     bx, cs
-            shr     bx, cl
-            inc     bx
-            sub     ax, bx
-
-            ; Convert to string, starting with the last digit
-            ; Overwrites code we don't need any more, to save space
             jmp     short display
+olddos:
+            db "1.x$"
             db "000000"
 digitend:   
-            db "K$"
-eol:        
+            db "$"
+eol:
             db 0Ah,0Dh,'$'
 display:
+            mov     ah, 30h
+            int     21h
+            cmp     al, 1
+            jg      newdos
+            mov     ah, 9
+            mov     dx, offset olddos
+            int     21h
+            jmp     short exit
+newdos:
+            push    ax
+            xor     ah,ah
             call    convert
             mov     ah, 2
-            mov     dl, '/'
+            mov     dl, '.'
             int     21h
             pop     ax
+            mov     al, ah
+            xor     ah, ah
             call    convert
 exit:
             mov     ah, 9

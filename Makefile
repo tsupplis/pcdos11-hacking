@@ -1,7 +1,8 @@
 all: ibmcmd.com ibmdos.com ibmbio.com \
      xmscmd.com \
      asm.com hex2bin.com trans.com hello.com \
-     mem.com cls.com \
+     mem.com ver.com cls.com \
+     ibmsys.com mssys.com \
      pcdos_full.img pcdos_base.img pcdos_dist.img pcdos_diag.img \
      msdos_full.img msdos_base.img msdos_dist.img msdos_diag.img
 
@@ -47,7 +48,7 @@ pcdos_base.img: ibmcmd.com ibmbio.com ibmdos.com images/pcdos.img
 	mattrib -i $@ +h +s ::IBMBIO.COM
 	mdir -w -i $@ ::
 
-msdos_dist.img: msdos_base.img 
+msdos_dist.img: msdos_base.img mssys.com
 	cp msdos_base.img $@
 	mcopy  -i $@ bin/masm.exe ::MASM.EXE
 	mcopy  -i $@ bin/mslink.exe ::LINK.EXE
@@ -55,7 +56,7 @@ msdos_dist.img: msdos_base.img
 	mcopy  -i $@ bin/msbasic.com ::MSBASIC.COM
 	mcopy  -i $@ bin/exe2bin.exe ::EXE2BIN.EXE
 	mcopy  -i $@ bin/chkdsk.com ::CHKDSK.COM
-	mcopy  -i $@ bin/mssys.com ::SYS.COM
+	mcopy  -i $@ mssys.com ::SYS.COM
 	mcopy  -i $@ bin/edlin.com ::EDLIN.COM
 	mcopy  -i $@ bin/msformat.com ::FORMAT.COM
 	mcopy  -i $@ bin/diskcopy.com ::DISKCOPY.COM
@@ -80,7 +81,7 @@ msdos_diag.img: msdos_base.img asm.com trans.com \
 	mdir -w -i $@ ::
 
 msdos_full.img: msdos_base.img asm.com trans.com \
-    hex2bin.com mem.com hello.asm mshello.bas mkhello.bat
+    hex2bin.com mem.com mssys.com hello.asm mshello.bas mkhello.bat
 	cp msdos_base.img $@
 	[ -f private/ext/autoexec.bat ] && mcopy  -i $@ private/ext/autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/masm.exe ::MASM.EXE
@@ -88,10 +89,9 @@ msdos_full.img: msdos_base.img asm.com trans.com \
 	mcopy  -i $@ bin/cref.exe ::CREF.EXE
 	mcopy  -i $@ bin/lib.exe ::LIB.EXE
 	mcopy  -i $@ bin/msbasic.com ::MSBASIC.COM
-	#[ -f private/ext/gwbasic.exe ] && mcopy  -i $@ private/ext/gwbasic.exe ::GWBASIC.EXE
 	mcopy  -i $@ bin/exe2bin.exe ::EXE2BIN.EXE
 	mcopy  -i $@ bin/chkdsk.com ::CHKDSK.COM
-	mcopy  -i $@ bin/mssys.com ::SYS.COM
+	mcopy  -i $@ mssys.com ::SYS.COM
 	mcopy  -i $@ bin/edlin.com ::EDLIN.COM
 	mcopy  -i $@ bin/msformat.com ::FORMAT.COM
 	mcopy  -i $@ bin/diskcopy.com ::DISKCOPY.COM
@@ -99,27 +99,35 @@ msdos_full.img: msdos_base.img asm.com trans.com \
 	mcopy  -i $@ bin/filcom.com ::FILCOM.COM
 	mcopy  -i $@ bin/debug.com ::DEBUG.COM
 	mcopy  -i $@ bin/mode.com ::MODE.COM
-	mcopy  -i $@ asm.com ::ASM.COM
 	mcopy  -i $@ trans.com ::TRANS.COM
+	mcopy  -i $@ asm.com ::ASM.COM
 	mcopy  -i $@ hex2bin.com ::HEX2BIN.COM
 	mcopy  -i $@ hello.asm ::HELLO.ASM
 	mcopy  -i $@ mkhello.bat ::MKHELLO.BAT
 	mcopy  -i $@ mshello.bas ::HELLO.BAS
 	mcopy  -i $@ mem.com ::MEM.COM
+	[ -f private/ext/gwbasic.exe ] && mdel -i $@ ::MSBASIC.COM
+	[ -f private/ext/gwbasic.exe ] && mdel -i $@ ::ASM.COM
+	[ -f private/ext/gwbasic.exe ] && mdel -i $@ ::TRANS.COM
+	[ -f private/ext/gwbasic.exe ] && mdel -i $@ ::HEX2BIN.COM
+	[ -f private/ext/gwbasic.exe ] && mdel -i $@ ::MKHELLO.BAT
+	[ -f private/ext/gwbasic.exe ] && mdel -i $@ ::HELLO.ASM
+	[ -f private/ext/msmasm.exe ] && mcopy  -o -i $@ private/ext/msmasm.exe ::MASM.EXE
+	[ -f private/ext/gwbasic.exe ] && mcopy  -i $@ private/ext/gwbasic.exe ::GWBASIC.EXE
 	[ -f private/ext/pceexit.com ] && mcopy  -i $@ private/ext/pceexit.com ::EXIT.COM
 	[ -f private/ext/pceinit.com ] && mcopy  -i $@ private/ext/pceinit.com ::PCEINIT.COM
 	mattrib -i $@ -a ::"*.*"
 	mdir -w -i $@ ::
 
 
-pcdos_dist.img: msdos_base.img 
+pcdos_dist.img: msdos_base.img ibmsys.com  
 	cp msdos_base.img $@
 	mcopy  -i $@ bin/link.exe ::LINK.EXE
 	mcopy  -i $@ bin/basic.com ::BASIC.COM
 	mcopy  -i $@ bin/basica.com ::BASICA.COM
 	mcopy  -i $@ bin/exe2bin.exe ::EXE2BIN.EXE
 	mcopy  -i $@ bin/chkdsk.com ::CHKDSK.COM
-	mcopy  -i $@ bin/sys.com ::SYS.COM
+	mcopy  -i $@ ibmsys.com ::SYS.COM
 	mcopy  -i $@ bin/edlin.com ::EDLIN.COM
 	mcopy  -i $@ bin/format.com ::FORMAT.COM
 	mcopy  -i $@ bin/diskcopy.com ::DISKCOPY.COM
@@ -156,7 +164,7 @@ pcdos_diag.img: pcdos_base.img asm.com trans.com \
 	mdir -w -i $@ ::
 
 pcdos_full.img: pcdos_base.img asm.com trans.com \
-    hex2bin.com mem.com hello.asm hello.bas mkhello.bat
+    hex2bin.com mem.com ibmsys.com hello.asm hello.bas mkhello.bat
 	cp pcdos_base.img $@
 	[ -f private/ext/autoexec.bat ] && mcopy  -i $@ private/ext/autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/masm.exe ::MASM.EXE
@@ -169,9 +177,10 @@ pcdos_full.img: pcdos_base.img asm.com trans.com \
 	[ -f private/ext/lib.exe ] && mcopy -o -i $@ private/ext/lib.exe ::LIB.EXE
 	mcopy  -i $@ bin/basic.com ::BASIC.COM
 	mcopy  -i $@ bin/basica.com ::BASICA.COM
+	mcopy  -i $@ bin/msbasic.com ::MSBASIC.COM
 	mcopy  -i $@ bin/exe2bin.exe ::EXE2BIN.EXE
 	mcopy  -i $@ bin/chkdsk.com ::CHKDSK.COM
-	mcopy  -i $@ bin/sys.com ::SYS.COM
+	mcopy  -i $@ ibmsys.com ::SYS.COM
 	mcopy  -i $@ bin/edlin.com ::EDLIN.COM
 	mcopy  -i $@ bin/format.com ::FORMAT.COM
 	mcopy  -i $@ bin/diskcopy.com ::DISKCOPY.COM
@@ -210,6 +219,15 @@ ibmcmd.exe: ibmcmd.obj
 ibmcmd.obj: ibmcmd.asm command.asm
 	emu2 bin/masm.exe ibmcmd,ibmcmd,ibmcmd,ibmcmd  || rm -f ibmcmd.obj
 
+ver.com: ver.exe
+	emu2 bin/exe2bin.exe ver.exe ver.com
+
+ver.exe: ver.obj
+	emu2 bin/link.exe ver,ver,ver,ver, 
+
+ver.obj: ver.asm
+	emu2 bin/masm.exe ver,ver,ver,ver || rm -f ver.obj
+
 mem.com: mem.exe
 	emu2 bin/exe2bin.exe mem.exe mem.com
 
@@ -218,6 +236,24 @@ mem.exe: mem.obj
 
 mem.obj: mem.asm
 	emu2 bin/masm.exe mem,mem,mem,mem || rm -f mem.obj
+
+mssys.com: mssys.exe
+	emu2 bin/exe2bin.exe mssys.exe mssys.com
+
+mssys.exe: mssys.obj
+	emu2 bin/link.exe mssys,mssys,mssys,mssys, 
+
+mssys.obj: mssys.asm sys.asm
+	emu2 bin/masm.exe mssys,mssys,mssys,mssys || rm -f mssys.obj
+
+ibmsys.com: ibmsys.exe
+	emu2 bin/exe2bin.exe ibmsys.exe ibmsys.com
+
+ibmsys.exe: ibmsys.obj
+	emu2 bin/link.exe ibmsys,ibmsys,ibmsys,ibmsys, 
+
+ibmsys.obj: ibmsys.asm sys.asm
+	emu2 bin/masm.exe ibmsys,ibmsys,ibmsys,ibmsys || rm -f ibmsys.obj
 
 cls.com: cls.exe
 	emu2 bin/exe2bin.exe cls.exe cls.com
