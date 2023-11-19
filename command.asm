@@ -146,7 +146,7 @@ TRANDATA        SEGMENT BYTE
         ORG     0
 ZERO    =       $
 IF MSVER
-VERSTR  DB      "Command Version 1.17C",13,10,"$"
+VERSTR  DB      "Microsoft DOS Version 1.25C",13,10,"$"
 ENDIF
 IF IBMVER
 VERSTR  DB      "IBM PC-DOS Version 1.10C",13,10,"$"

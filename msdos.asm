@@ -8,6 +8,7 @@ TRUE	EQU	NOT FALSE
 ; version of the operating system
 MSVER	EQU	TRUE
 IBMVER	EQU	FALSE
+NEWVER  EQU TRUE
 
 ; Set this switch to cause DOS to move itself to the end of memory
 HIGHMEM	EQU	FALSE
