@@ -31,12 +31,12 @@ display:
             call    convert
 exit:
             mov     ah, 9
-            mov     dx, offset eol
+            lea     dx, [eol]
             int     21h
             int     20h
 convert:
             mov     bl, 10
-            mov     di, offset digitend
+            lea     di, [digitend]
 cvtloop:
             dec     di
             div     bl

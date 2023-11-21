@@ -21,17 +21,17 @@ insert_drv:
             int 21h
             xor al, al
 chk_drv:
-            cmp byte ptr ds:[5DH], 20h ; ' '
+            cmp byte ptr ds:[5Dh], 20h ; ' '
             jnz invalid_param
             cmp al, 0FFh
             jz invalid_drv
-            cmp byte ptr ds:[5CH], 00h ; PSP Drive Defined?
+            cmp byte ptr ds:[5Ch], 00h ; PSP Drive Defined?
             jz invalid_drv
             mov ah, 19h ; Get default drive
             int 21h
             inc al
             mov byte ptr [default_drv],al
-            cmp ds:[5CH], al
+            cmp ds:[5Ch], al
             jz invalid_drv
             mov ah, 0Fh ; FCB Open
             mov dx, offset input_ctl ; FCB for input

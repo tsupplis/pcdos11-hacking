@@ -18,7 +18,7 @@ display:
             cmp     al, 1
             jg      newdos
             mov     ah, 9
-            mov     dx, offset olddos
+            lea     dx, [olddos]
             int     21h
             jmp     short exit
 newdos:
@@ -34,7 +34,7 @@ newdos:
             call    convert
 exit:
             mov     ah, 9
-            mov     dx, offset eol
+            lea     dx, [eol]
             int     21h
             int     20h
 convert:

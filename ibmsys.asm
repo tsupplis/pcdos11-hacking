@@ -1,7 +1,7 @@
-    FALSE   equ     0
-    TRUE    equ     not FALSE
+    FALSE   EQU     0
+    TRUE    EQU     NOT FALSE
 
-    MSVER	equ	FALSE
-    IBMVER	equ	TRUE
+    MSVER	EQU	FALSE
+    IBMVER	EQU	TRUE
 
 	include	sys.asm
