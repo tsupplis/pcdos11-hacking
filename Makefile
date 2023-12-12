@@ -113,6 +113,9 @@ msdos_full.img: msdos_base.img asm.com trans.com \
 	[ -f private/ext/gwbasic.exe ] && mdel -i $@ ::MKHELLO.BAT
 	[ -f private/ext/gwbasic.exe ] && mdel -i $@ ::HELLO.ASM
 	[ -f private/ext/msmasm.exe ] && mcopy  -o -i $@ private/ext/msmasm.exe ::MASM.EXE
+	[ -f private/ext/mslink.exe ] && mcopy  -o -i $@ private/ext/mslink.exe ::LINK.EXE
+	[ -f private/ext/mslib.exe ] && mcopy  -o -i $@ private/ext/mslib.exe ::LIB.EXE
+	[ -f private/ext/mscref.exe ] && mcopy  -o -i $@ private/ext/mscref.exe ::CREF.EXE
 	[ -f private/ext/gwbasic.exe ] && mcopy  -i $@ private/ext/gwbasic.exe ::GWBASIC.EXE
 	[ -f private/ext/pceexit.com ] && mcopy  -i $@ private/ext/pceexit.com ::EXIT.COM
 	[ -f private/ext/pceinit.com ] && mcopy  -i $@ private/ext/pceinit.com ::PCEINIT.COM
@@ -168,13 +171,9 @@ pcdos_full.img: pcdos_base.img asm.com trans.com \
 	cp pcdos_base.img $@
 	[ -f private/ext/autoexec.bat ] && mcopy  -i $@ private/ext/autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/masm.exe ::MASM.EXE
-	[ -f private/ext/masm.exe ] && mcopy -o -i $@ private/ext/masm.exe ::MASM.EXE
 	mcopy  -i $@ bin/link.exe ::LINK.EXE
-	[ -f private/ext/link.exe ] && mcopy -o -i $@ private/ext/link.exe ::LINK.EXE
 	mcopy  -i $@ bin/cref.exe ::CREF.EXE
-	[ -f private/ext/cref.exe ] && mcopy -o -i $@ private/ext/cref.exe ::CREF.EXE
 	mcopy  -i $@ bin/lib.exe ::LIB.EXE
-	[ -f private/ext/lib.exe ] && mcopy -o -i $@ private/ext/lib.exe ::LIB.EXE
 	mcopy  -i $@ bin/basic.com ::BASIC.COM
 	mcopy  -i $@ bin/basica.com ::BASICA.COM
 	mcopy  -i $@ bin/msbasic.com ::MSBASIC.COM
@@ -196,6 +195,10 @@ pcdos_full.img: pcdos_base.img asm.com trans.com \
 	mcopy  -i $@ mkhello.bat ::MKHELLO.BAT
 	mcopy  -i $@ hello.bas ::HELLO.BAS
 	mcopy  -i $@ mem.com ::MEM.COM
+	[ -f private/ext/masm.exe ] && mcopy -o -i $@ private/ext/masm.exe ::MASM.EXE
+	[ -f private/ext/link.exe ] && mcopy -o -i $@ private/ext/link.exe ::LINK.EXE
+	[ -f private/ext/cref.exe ] && mcopy -o -i $@ private/ext/cref.exe ::CREF.EXE
+	[ -f private/ext/lib.exe ] && mcopy -o -i $@ private/ext/lib.exe ::LIB.EXE
 	[ -f private/ext/pceexit.com ] && mcopy  -i $@ private/ext/pceexit.com ::EXIT.COM
 	[ -f private/ext/pceinit.com ] && mcopy  -i $@ private/ext/pceinit.com ::PCEINIT.COM
 	mattrib -i $@ -a ::"*.*"
