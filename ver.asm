@@ -4,15 +4,6 @@ program     segment
             org 100h
 
 _start:
-            jmp     short display
-olddos:
-            db "1.x$"
-            db "000000"
-digitend:   
-            db "$"
-eol:
-            db 0Ah,0Dh,'$'
-display:
             mov     ah, 30h
             int     21h
             cmp     al, 1
@@ -30,6 +21,14 @@ newdos:
             int     21h
             pop     ax
             mov     al, ah
+            cmp     al, 10
+            jge     nz_minor
+            push    ax
+            mov     ah, 2
+            mov     dl, '0'
+            int     21h
+            pop     ax
+nz_minor:
             xor     ah, ah
             call    convert
 exit:
@@ -52,6 +51,13 @@ cvtloop:
             mov     dx, di
             int     21h
             ret
+olddos:
+            db "1.x0$"
+            db "000000"
+digitend:   
+            db "$"
+eol:
+            db 0Ah,0Dh,'$'
 
 program     ends
             end _start

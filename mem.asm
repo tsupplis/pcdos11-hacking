@@ -14,14 +14,6 @@ _start:
             inc     bx
             sub     ax, bx
 
-            ; Convert to string, starting with the last digit
-            ; Overwrites code we don't need any more, to save space
-            jmp     short display
-            db "000000"
-digitend:   
-            db "K$"
-eol:        
-            db 0Ah,0Dh,'$'
 display:
             call    convert
             mov     ah, 2
@@ -49,6 +41,12 @@ cvtloop:
             mov     dx, di
             int     21h
             ret
+
+            db "000000"
+digitend:   
+            db "K$"
+eol:        
+            db 0Ah,0Dh,'$'
 
 program     ends
             end _start
