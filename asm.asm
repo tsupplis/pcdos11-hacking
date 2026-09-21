@@ -65,7 +65,7 @@ ARITH:	EQU	8	;Non-pop arithmetic operations
 
 	JMPS	BEGIN
 
-HEADER:	DB	13,10,'Seattle Computer Products 8086 Assembler Version 2.44A'
+HEADER:	DB	13,10,'Seattle Computer Products 8086 Assembler Version 2.44B'
 	DB	13,10,'Copyright 1979-1983 by Seattle Computer Products, Inc.'
 	DB	13,10,13,10,'$'
 
@@ -3933,6 +3933,7 @@ ERRTAB:
 ERRMES:	DM	'***** ERROR:  '
 NOSPAC:	DB	13,10,'File creation error',13,10,"$"
 NOMEM:	DB	13,10,'Insufficient memory',13,10,'$'
+NOSPEC:	DB	13,10,'No source specified',13,10,'$'
 NOFILE:	DB	13,10,'File not found',13,10,'$'
 WRTERR:	DB	13,10,'Disk full',13,10,'$'
 BADDSK:	DB	13,10,'Bad disk specifier',13,10,'$'
