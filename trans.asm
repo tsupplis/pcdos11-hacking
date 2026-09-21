@@ -18,7 +18,18 @@ PRNBUF:	EQU	9
 	MOV	SP,STACK
 	MOV	DX,HEADER
 	MOV	CL,9
-	CALL	SYSTEM
+	CALL SYSTEM
+	MOV	BX,FCB+1
+    MOV CH, 8
+CHKNAME:
+    CMP B,[BX],' '
+    JNZ HAVEFILE
+    INC BX
+    DEC CH
+    JNZ CHKNAME
+    MOV DX,NOSPEC
+    JMP ABORT
+HAVEFILE:
 	MOV	BX,FCB+12
 	XOR	AL,AL
 	MOV	CH,4
@@ -1168,9 +1179,10 @@ RWTAB:
 	DB	'ABCDEHLBDHSACNZNPMPPII'
 LENRW:	EQU	$-RWTAB
 	DB	0,0,0,0,0,0,0,'CELPF',0,'C',0,'Z',0,0,'OEYX'
-HEADER:	DB	13,10,'Z80 to 8086 Translator  version 2.21',13,10,'$'
+HEADER:	DB	13,10,'Seattle Computer Products Z80 to 8086 Translator Version 2.21A',13,10,'$'
 NOROOM:	DB	13,10,'File creation error',13,10,'$'
 NOFILE:	DB	13,10,'File not found',13,10,'$'
+NOSPEC:	DB	13,10,'No source specified',13,10,'$'
 ENDMES:	DB	13,10,'Translation complete',13,10,'$'
 WRTERR:	DB	13,10,'Out of disk space',13,10,'$'
 OPCDER:	DM	13,10,'*** Opcode Error '
