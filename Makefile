@@ -4,7 +4,8 @@ all: ibmcmd.com ibmdos.com ibmbio.com \
      mem.com ver.com cls.com \
      ibmsys.com mssys.com \
      pcdos_full.img pcdos_base.img pcdos_dist.img pcdos_diag.img \
-     msdos_full.img msdos_base.img msdos_dist.img msdos_diag.img
+     msdos_full.img msdos_base.img msdos_dist.img msdos_diag.img \
+     turbo.img
 
 ibmbio.com: ibmbio.exe
 	echo 60|emu2 bin/exe2bin.exe ibmbio.exe ibmbio.com
@@ -204,6 +205,33 @@ pcdos_full.img: pcdos_base.img asm.com trans.com \
 	mattrib -i $@ -a ::"*.*"
 	mdir -w -i $@ ::
 
+turbo.img: pcdos_base.img
+	cp pcdos_base.img $@
+	mcopy  -i $@ turbo/turbo.com ::TURBO.COM
+	mcopy  -i $@ turbo/turbo-87.com ::TURBO-87.COM
+	mcopy  -i $@ turbo/turbo.msg ::TURBO.MSG
+	mcopy  -i $@ turbo/tinst.com ::TINST.COM
+	mcopy  -i $@ turbo/tinst.msg ::TINST.MSG
+	mcopy  -i $@ turbo/tlist.com ::TLIST.COM
+	mcopy  -i $@ turbo/read.me ::READ.ME
+	mcopy  -i $@ turbo/art.pas ::ART.PAS
+	mcopy  -i $@ turbo/calc.pas ::CALC.PAS
+	mcopy  -i $@ turbo/calc.hlp ::CALC.HLP
+	mcopy  -i $@ turbo/calcmain.pas ::CALCMAIN.PAS
+	mcopy  -i $@ turbo/calcdemo.mcs ::CALCDEMO.MCS
+	mcopy  -i $@ turbo/sheet.mcs ::SHEET.MCS
+	mcopy  -i $@ turbo/cls.pas ::CLS.PAS
+	mcopy  -i $@ turbo/color.pas ::COLOR.PAS
+	mcopy  -i $@ turbo/sound.pas ::SOUND.PAS
+	mcopy  -i $@ turbo/window.pas ::WINDOW.PAS
+	mcopy  -i $@ turbo/hilb.pas ::HILB.PAS
+	mcopy  -i $@ turbo/test.pas ::TEST.PAS
+	mcopy  -i $@ turbo/dosfcall.doc ::DOSFCALL.DOC
+	mcopy  -i $@ turbo/external.doc ::EXTERNAL.DOC
+	mcopy  -i $@ turbo/intrptcl.doc ::INTRPTCL.DOC
+	mattrib -i $@ -a ::"*.*"
+	mdir -w -i $@ ::
+
 xmscmd.com: xmscmd.exe 
 	emu2 bin/exe2bin.exe xmscmd.exe xmscmd.com
 
@@ -295,6 +323,7 @@ clean:
 	rm -f *.log
 	rm -f pcdos_*.img empty.img
 	rm -f msdos_*.img
+	rm -f turbo.img
 
 pcdos: all
 	./pcdos
