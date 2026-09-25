@@ -2,9 +2,18 @@
 
 ## Screenshots
 
-Enhanced PC-DOS 1.10C booting under PCE/ibmpc, with the added `VER` command and the extended disk content:
+Both flavours booting under PCE/ibmpc, with the added `ver.com` command and the extended disk content:
 
-![PC-DOS 1.10C boot and directory listing](images/dos.png)
+<table>
+<tr>
+<td align="center"><img src="images/pcdos.png" alt="IBM PC-DOS 1.10C boot and directory listing" width="100%"></td>
+<td align="center"><img src="images/msdos.png" alt="Microsoft DOS 1.25C boot and directory listing" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>IBM PC-DOS 1.10C</b> (<code>pcdos_full.img</code>)</td>
+<td align="center"><b>Microsoft DOS 1.25C</b> (<code>msdos_full.img</code>)</td>
+</tr>
+</table>
 
 A `vi`-like editor running on PC-DOS 1.1:
 
