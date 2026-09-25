@@ -30,12 +30,12 @@ Each variant builds on top of `*_base.img`.
 |-------|---------|---------|
 | `pcdos_base.img` | PC-DOS | `ibmbio.com`, `ibmdos.com`, `command.com` only (minimal bootable system) |
 | `pcdos_dist.img` | PC-DOS | Base + the original PC-DOS 1.1 distribution tools and the IBM BASIC sample programs |
-| `pcdos_full.img` | PC-DOS | Base + distribution tools, `masm.exe`/`link.exe`/`cref.exe`/`lib.exe`, `basic.com`/`basica.com` and the extra utilities (`asm.com`, `trans.com`, `hex2bin.com`, `mem.com`, `hello.*` samples) |
+| `pcdos_full.img` | PC-DOS | Base + distribution tools, `masm.exe`/`link.exe`/`cref.exe`/`lib.exe`, `basic.com`/`basica.com` and the samples (`asm.com`, `trans.com`, `hex2bin.com`, `mem.com`, `hello.asm`/`hello.bas`, `graph.bas`, `ballc.bas`/`ballc.com`) |
 | `pcdos_diag.img` | PC-DOS | Base + a small diagnostic set (`chkdsk.com`, `debug.com`, `edlin.com`, `mem.com`) |
 | `turbo.img` | PC-DOS | Base + Turbo Pascal 2.00B (see [Turbo Pascal](#turbo-pascal) below) |
 | `msdos_base.img` | MS-DOS | `io.sys`, `msdos.sys`, `command.com` only |
 | `msdos_dist.img` | MS-DOS | Base + the MS-DOS 1.25 style tool set and the SCP tools (`asm.com`, `hex2bin.com`, `trans.com`) |
-| `msdos_full.img` | MS-DOS | Base + tools, assembler chain, MS-BASIC and the extra utilities |
+| `msdos_full.img` | MS-DOS | Base + tools, assembler chain, MS-BASIC/GW-BASIC and the samples (`hello.asm`/`hello.bas`, `graph.bas`, `ballc.com`) |
 | `msdos_diag.img` | MS-DOS | Base + the small diagnostic set |
 
 Master (pre-formatted, empty file system) images live in `disks/`: `pcdos.img`, `msdos.img`
@@ -62,8 +62,25 @@ and `blank.img`.
 | `ver.com` | [ver.asm](ver.asm) | Reports the DOS version (external counterpart of the built-in) |
 | `cls` | [command.asm](command.asm)| Clears the screen through the video BIOS (external counterpart of the built-in [command](command.asm#L201-L206) implemented in `command.com`) |
 | `mem.com` | [mem.asm](mem.asm) | Reports conventional memory size from `INT 12h` |
+
+### Samples
+
+| Command | Source | Description |
+|---------|--------|-------------|
 | `hello.com` | [hello.asm](hello.asm), [hello.bas](hello.bas) | Minimal assembler and BASIC samples, built by [mkhello.bat](mkhello.bat) |
 | `graph.bas` | [graph.bas](graph.bas) | BASICA demo plotting `f(x) = cosine(x)` in `SCREEN 2` (640x200), with arrowed axes (`pcdos_full.img` only) |
+| `ballc.bas`, `ballc.com` | [ballc.bas](ballc.bas), [ballc.asm](ballc.asm) | BASICA and MASM ports of the [cpm86-hacking](https://github.com/tsupplis/cpm86-hacking) `ball.c` bouncing-ball demo, 320x200 4-color CGA (`pcdos_full.img` only) |
+
+<table>
+<tr>
+<td align="center"><img src="images/cosine.png" alt="graph.bas plotting f(x) = cosine(x)" width="100%"></td>
+<td align="center"><img src="images/ballc.png" alt="ballc bouncing ball demo" width="100%"></td>
+</tr>
+<tr>
+<td align="center"><b>graph.bas</b></td>
+<td align="center"><b>ballc.bas / ballc.com</b></td>
+</tr>
+</table>
 
 ### 86-DOS Tools Rebuilt From Source
 
@@ -97,10 +114,10 @@ Vintage third-party binaries used at build time and copied onto the images.
 
 | Group | Files |
 |-------|-------|
-| Build chain | `masm.exe` (Microsoft MACRO Assembler, Version 1.10, patched), `link.exe` (IBM Personal Computer Linker, Version 1.10), `mslink.exe`, `lib.exe` (Microsoft Library Manager, Version 2.00), `cref.exe`, `exe2bin.exe` |
+| Build chain | `masm.exe` (IBM Personal Computer MACRO Assembler, Version 2.00; PC-DOS), `msmasm.exe` (Microsoft MACRO Assembler, Version 1.10, patched; used for the build and on MS-DOS images), `link.exe` (IBM Personal Computer Linker, Version 1.10; PC-DOS), `mslink.exe` (Microsoft Object Linker, Version 1.10; MS-DOS), `lib.exe` (Microsoft Library Manager, Version 2.00; PC-DOS), `mslib.exe` (Microsoft Librarian, Version 2.00; MS-DOS), `cref.exe` (Microsoft Cross Reference, Version 1.00; PC-DOS), `mscref.exe` (Microsoft Cross Reference, Version 1.00; MS-DOS), `exe2bin.exe` |
 | Bootstrap tools | `asm.com`, `hex2bin.com`, `trans.com` |
 | DOS utilities | `chkdsk.com`, `comp.com`, `debug.com`, `diskcomp.com`, `diskcopy.com`, `edlin.com`, `filcom.com`, `format.com`, `msformat.com`, `mode.com` |
-| BASIC | `basic.com`, `basica.com` (IBM BASIC/BASICA, Version A1.10; require an IBM PC with the BASIC ROM, e.g. `rom/ibm-basic-1.10.rom`; PC-DOS images only), `msbasic.com` (Microsoft BASIC, Version 5.28, MS-DOS patched; `msbasic.org` is the unpatched original) |
+| BASIC | `basic.com`, `basica.com` (IBM BASIC/BASICA, Version A1.10; require an IBM PC with the BASIC ROM, e.g. `rom/ibm-basic-1.10.rom`; PC-DOS images only), `msbasic.com` (Microsoft BASIC, Version 5.28, MS-DOS patched; `msbasic.org` is the unpatched original), `gwbasic.exe` (GW-BASIC, Version 1.14; MS-DOS images only) |
 
 ### Emulation
 
@@ -125,6 +142,11 @@ ibmbio.com sources are retrieved from https://www.os2museum.com/wp/pc-dos-1-1-fr
 
 - https://github.com/tsupplis/pcdos11-hacking/blob/master/LICENSE.md
 - https://github.com/microsoft/MS-DOS/blob/master/LICENSE.md
+
+Turbo Pascal 2.00B (`turbo/`, [Turbo Pascal](#turbo-pascal) section) is not covered by the MIT
+license above: it is proprietary software, distributed here under Borland/Embarcadero's
+[Turbo Pascal museum program](https://www.embarcadero.com/free-tools/turbo-pascal), which makes
+it available free of charge for personal/non-commercial use.
 
 ## First Contact
 

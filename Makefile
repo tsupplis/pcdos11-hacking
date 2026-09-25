@@ -1,7 +1,7 @@
 all: ibmcmd.com ibmdos.com ibmbio.com \
      xmscmd.com \
      asm.com hex2bin.com trans.com hello.com \
-     mem.com ver.com cls.com \
+     mem.com ver.com cls.com ballc.com \
      ibmsys.com mssys.com \
      pcdos_full.img pcdos_base.img pcdos_dist.img pcdos_diag.img \
      msdos_full.img msdos_base.img msdos_dist.img msdos_diag.img \
@@ -84,7 +84,8 @@ msdos_diag.img: msdos_base.img asm.com trans.com \
 	mdir -w -i $@ ::
 
 msdos_full.img: msdos_base.img asm.com trans.com \
-    hex2bin.com mem.com mssys.com hello.asm mshello.bas mkhello.bat
+    hex2bin.com mem.com mssys.com hello.asm mshello.bas mkhello.bat \
+	graph.bas ballc.com
 	cp msdos_base.img $@
 	mcopy  -i $@ autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/msmasm.exe ::MASM.EXE
@@ -109,7 +110,8 @@ msdos_full.img: msdos_base.img asm.com trans.com \
 	mcopy  -i $@ hello.asm ::HELLO.ASM
 	mcopy  -i $@ mkhello.bat ::MKHELLO.BAT
 	mcopy  -i $@ mshello.bas ::HELLO.BAS
-	mcopy  -i $@ ballc.bas ::BALLC.BAS
+	mcopy  -i $@ graph.bas ::GRAPH.BAS
+	mcopy  -i $@ ballc.com ::BALLC.COM
 	mcopy  -i $@ mem.com ::MEM.COM
 	mcopy  -i $@ bin/pceinit.com ::PCEINIT.COM
 	mattrib -i $@ -a ::"*.*"
@@ -159,7 +161,7 @@ pcdos_diag.img: pcdos_base.img asm.com trans.com \
 	mdir -w -i $@ ::
 
 pcdos_full.img: pcdos_base.img asm.com trans.com \
-    hex2bin.com mem.com ibmsys.com hello.asm hello.bas mkhello.bat graph.bas ballc.bas
+    hex2bin.com mem.com ibmsys.com hello.asm hello.bas mkhello.bat graph.bas ballc.bas ballc.com
 	cp pcdos_base.img $@
 	mcopy  -i $@ autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/masm.exe ::MASM.EXE
@@ -187,6 +189,7 @@ pcdos_full.img: pcdos_base.img asm.com trans.com \
 	mcopy  -i $@ hello.bas ::HELLO.BAS
 	mcopy  -i $@ graph.bas ::GRAPH.BAS
 	mcopy  -i $@ ballc.bas ::BALLC.BAS
+	mcopy  -i $@ ballc.com ::BALLC.COM
 	mcopy  -i $@ mem.com ::MEM.COM
 	mcopy  -i $@ bin/pceinit.com ::PCEINIT.COM
 	mattrib -i $@ -a ::"*.*"
@@ -281,6 +284,15 @@ cls.exe: cls.obj
 
 cls.obj: cls.asm
 	emu2 bin/msmasm.exe cls,cls,cls,cls || rm -f cls.obj
+
+ballc.com: ballc.exe
+	emu2 bin/exe2bin.exe ballc.exe ballc.com
+
+ballc.exe: ballc.obj
+	emu2 bin/link.exe ballc,ballc,ballc,ballc, 
+
+ballc.obj: ballc.asm
+	emu2 bin/msmasm.exe ballc,ballc,ballc,ballc || rm -f ballc.obj
 
 hello.com: hello.asm asm.com hex2bin.com
 	emu2 asm.com hello.  z
