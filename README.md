@@ -19,10 +19,6 @@ A `vi`-like editor running on PC-DOS 1.1:
 
 ![vi-like editor editing assembly source](images/editor.png)
 
-Turbo Pascal 2.00B starting up on the same system:
-
-![Turbo Pascal 2.00B startup](images/turbo.png)
-
 ## Distribution Content
 
 ### Disk Images
@@ -36,6 +32,7 @@ Each variant builds on top of `*_base.img`.
 | `pcdos_dist.img` | PC-DOS | Base + the original PC-DOS 1.1 distribution tools and the IBM BASIC sample programs |
 | `pcdos_full.img` | PC-DOS | Base + distribution tools, `masm.exe`/`link.exe`/`cref.exe`/`lib.exe`, `basic.com`/`basica.com` and the extra utilities (`asm.com`, `trans.com`, `hex2bin.com`, `mem.com`, `hello.*` samples) |
 | `pcdos_diag.img` | PC-DOS | Base + a small diagnostic set (`chkdsk.com`, `debug.com`, `edlin.com`, `mem.com`) |
+| `turbo.img` | PC-DOS | Base + Turbo Pascal 2.00B (see [Turbo Pascal](#turbo-pascal) below) |
 | `msdos_base.img` | MS-DOS | `io.sys`, `msdos.sys`, `command.com` only |
 | `msdos_dist.img` | MS-DOS | Base + the MS-DOS 1.25 style tool set |
 | `msdos_full.img` | MS-DOS | Base + tools, assembler chain, MS-BASIC and the extra utilities |
@@ -74,6 +71,24 @@ and `blank.img`.
 | `asm.com` | [asm.asm](asm.asm) | Seattle Computer Products 8086 assembler 2.44 (Tim Paterson) |
 | `hex2bin.com` | [hex2bin.asm](hex2bin.asm) | Intel HEX to binary converter 1.02 |
 | `trans.com` | [trans.asm](trans.asm) | Z80 to 8086 source translator 2.21 (Tim Paterson) |
+
+### Turbo Pascal
+
+Turbo Pascal 2.00B starting up on the system:
+
+![Turbo Pascal 2.00B startup](images/turbo.png)
+
+`turbo.img` (built from `turbo/`) carries Turbo Pascal 2.00B on top of `pcdos_base.img`:
+
+| Files | Description |
+|-------|-------------|
+| `turbo.com`, `turbo-87.com` | The IDE/compiler, plain and 8087 co-processor builds |
+| `tinst.com`, `tinst.msg` | Installation program used to configure `turbo.com` for the target hardware |
+| `tlist.com` | Cross-reference/token list utility |
+| `sound.com` | Sample compiled program |
+| `*.pas` | Sample sources (`art`, `calc`, `calcmain`, `cls`, `color`, `sound`, `window`, `hilb`, `test`) |
+| `*.mcs` | `calc.pas` spreadsheet sample data (`calcdemo.mcs`, `sheet.mcs`) |
+| `*.doc`, `read.me`, `turbo.msg` | Original documentation and help text |
 
 ### Prebuilt Binaries (`bin/`)
 
