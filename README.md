@@ -60,7 +60,7 @@ and `blank.img`.
 | Command | Source | Description |
 |---------|--------|-------------|
 | `ver.com` | [ver.asm](ver.asm) | Reports the DOS version (external counterpart of the built-in) |
-| `cls.com` | [cls.asm](cls.asm) | Clears the screen through the video BIOS |
+| `cls` | [command.asm](command.asm)| Clears the screen through the video BIOS (external counterpart of the built-in [command](command.asm#L201-L206) implemented in `command.com`) |
 | `mem.com` | [mem.asm](mem.asm) | Reports conventional memory size from `INT 12h` |
 | `hello.com` | [hello.asm](hello.asm), [hello.bas](hello.bas) | Minimal assembler and BASIC samples, built by [mkhello.bat](mkhello.bat) |
 
@@ -68,9 +68,9 @@ and `blank.img`.
 
 | Command | Source | Description |
 |---------|--------|-------------|
-| `asm.com` | [asm.asm](asm.asm) | Seattle Computer Products 8086 assembler 2.44 (Tim Paterson) |
-| `hex2bin.com` | [hex2bin.asm](hex2bin.asm) | Intel HEX to binary converter 1.02 |
-| `trans.com` | [trans.asm](trans.asm) | Z80 to 8086 source translator 2.21 (Tim Paterson) |
+| `asm.com` | [asm.asm](asm.asm) | Seattle Computer Products 8086 Assembler, Version 2.44B (Tim Paterson) |
+| `hex2bin.com` | [hex2bin.asm](hex2bin.asm) | Seattle Computer Products 8086 Hex Converter, Version 1.02A |
+| `trans.com` | [trans.asm](trans.asm) | Seattle Computer Products Z80 to 8086 Translator, Version 2.21A (Tim Paterson) |
 
 ### Turbo Pascal
 
@@ -96,10 +96,10 @@ Vintage third-party binaries used at build time and copied onto the images.
 
 | Group | Files |
 |-------|-------|
-| Build chain | `masm.exe` (patched), `link.exe`, `mslink.exe`, `lib.exe`, `cref.exe`, `exe2bin.exe` |
+| Build chain | `masm.exe` (Microsoft MACRO Assembler, Version 1.10, patched), `link.exe` (IBM Personal Computer Linker, Version 1.10), `mslink.exe`, `lib.exe` (Microsoft Library Manager, Version 2.00), `cref.exe`, `exe2bin.exe` |
 | Bootstrap tools | `asm.com`, `hex2bin.com`, `trans.com` |
 | DOS utilities | `chkdsk.com`, `comp.com`, `debug.com`, `diskcomp.com`, `diskcopy.com`, `edlin.com`, `filcom.com`, `format.com`, `msformat.com`, `mode.com` |
-| BASIC | `basic.com`, `basica.com`, `msbasic.com` (`msbasic.org` is the unpatched original) |
+| BASIC | `basic.com`, `basica.com`, `msbasic.com` (Microsoft BASIC, Version 5.28, MS-DOS patched; `msbasic.org` is the unpatched original) |
 
 ### Emulation
 
