@@ -171,7 +171,7 @@ pcdos_diag.img: pcdos_base.img asm.com trans.com \
 	mdir -w -i $@ ::
 
 pcdos_full.img: pcdos_base.img asm.com trans.com \
-    hex2bin.com mem.com ibmsys.com hello.asm hello.bas mkhello.bat graph.bas
+    hex2bin.com mem.com ibmsys.com hello.asm hello.bas mkhello.bat graph.bas ballc.bas
 	cp pcdos_base.img $@
 	[ -f private/ext/autoexec.bat ] && mcopy  -i $@ private/ext/autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/masm.exe ::MASM.EXE
@@ -199,6 +199,7 @@ pcdos_full.img: pcdos_base.img asm.com trans.com \
 	mcopy  -i $@ mkhello.bat ::MKHELLO.BAT
 	mcopy  -i $@ hello.bas ::HELLO.BAS
 	mcopy  -i $@ graph.bas ::GRAPH.BAS
+	mcopy  -i $@ ballc.bas ::BALLC.BAS
 	mcopy  -i $@ mem.com ::MEM.COM
 	[ -f private/ext/masm.exe ] && mcopy -o -i $@ private/ext/masm.exe ::MASM.EXE
 	[ -f private/ext/link.exe ] && mcopy -o -i $@ private/ext/link.exe ::LINK.EXE
