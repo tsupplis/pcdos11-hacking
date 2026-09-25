@@ -24,8 +24,8 @@ ibmdos.exe: ibmdos.obj
 ibmdos.obj: ibmdos.asm dos.asm
 	emu2 bin/masm.exe ibmdos,ibmdos,ibmdos,ibmdos || rm -f ibmdos.obj
 
-msdos_base.img: xmscmd.com ibmbio.com ibmdos.com images/msdos.img
-	cp images/msdos.img $@
+msdos_base.img: xmscmd.com ibmbio.com ibmdos.com disks/msdos.img
+	cp disks/msdos.img $@
 	mattrib -i $@ -h -s ::MSDOS.SYS
 	mattrib -i $@ -h -s ::IO.SYS
 	mcopy  -o -p -i $@ ibmbio.com ::IO.SYS
@@ -36,8 +36,8 @@ msdos_base.img: xmscmd.com ibmbio.com ibmdos.com images/msdos.img
 	mattrib -i $@ +h +s ::IO.SYS
 	mdir -w -i $@ ::
 
-pcdos_base.img: ibmcmd.com ibmbio.com ibmdos.com images/pcdos.img
-	cp images/pcdos.img $@
+pcdos_base.img: ibmcmd.com ibmbio.com ibmdos.com disks/pcdos.img
+	cp disks/pcdos.img $@
 	mattrib -i $@ -h -s ::IBMDOS.COM
 	mattrib -i $@ -h -s ::IBMBIO.COM
 	mcopy  -o -p -i $@ ibmbio.com ::IBMBIO.COM

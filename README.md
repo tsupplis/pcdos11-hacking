@@ -1,5 +1,19 @@
 # PC-DOS 1.1 Hacking - Playing with PC-DOS 1.10 bios/dos and command.com
 
+## Screenshots
+
+Enhanced PC-DOS 1.10C booting under PCE/ibmpc, with the added `VER` command and the extended disk content:
+
+![PC-DOS 1.10C boot and directory listing](images/dos.png)
+
+A `vi`-like editor running on PC-DOS 1.1:
+
+![vi-like editor editing assembly source](images/editor.png)
+
+Turbo Pascal 2.00B starting up on the same system:
+
+![Turbo Pascal 2.00B startup](images/turbo.png)
+
 ## Sources
 
 The experiment started from the vintage MS-DOS code opened by Microsoft:
