@@ -34,7 +34,7 @@ Each variant builds on top of `*_base.img`.
 | `pcdos_diag.img` | PC-DOS | Base + a small diagnostic set (`chkdsk.com`, `debug.com`, `edlin.com`, `mem.com`) |
 | `turbo.img` | PC-DOS | Base + Turbo Pascal 2.00B (see [Turbo Pascal](#turbo-pascal) below) |
 | `msdos_base.img` | MS-DOS | `io.sys`, `msdos.sys`, `command.com` only |
-| `msdos_dist.img` | MS-DOS | Base + the MS-DOS 1.25 style tool set |
+| `msdos_dist.img` | MS-DOS | Base + the MS-DOS 1.25 style tool set and the SCP tools (`asm.com`, `hex2bin.com`, `trans.com`) |
 | `msdos_full.img` | MS-DOS | Base + tools, assembler chain, MS-BASIC and the extra utilities |
 | `msdos_diag.img` | MS-DOS | Base + the small diagnostic set |
 
@@ -63,6 +63,7 @@ and `blank.img`.
 | `cls` | [command.asm](command.asm)| Clears the screen through the video BIOS (external counterpart of the built-in [command](command.asm#L201-L206) implemented in `command.com`) |
 | `mem.com` | [mem.asm](mem.asm) | Reports conventional memory size from `INT 12h` |
 | `hello.com` | [hello.asm](hello.asm), [hello.bas](hello.bas) | Minimal assembler and BASIC samples, built by [mkhello.bat](mkhello.bat) |
+| `graph.bas` | [graph.bas](graph.bas) | BASICA demo plotting `f(x) = cosine(x)` in `SCREEN 2` (640x200), with arrowed axes (`pcdos_full.img` only) |
 
 ### 86-DOS Tools Rebuilt From Source
 
@@ -99,7 +100,7 @@ Vintage third-party binaries used at build time and copied onto the images.
 | Build chain | `masm.exe` (Microsoft MACRO Assembler, Version 1.10, patched), `link.exe` (IBM Personal Computer Linker, Version 1.10), `mslink.exe`, `lib.exe` (Microsoft Library Manager, Version 2.00), `cref.exe`, `exe2bin.exe` |
 | Bootstrap tools | `asm.com`, `hex2bin.com`, `trans.com` |
 | DOS utilities | `chkdsk.com`, `comp.com`, `debug.com`, `diskcomp.com`, `diskcopy.com`, `edlin.com`, `filcom.com`, `format.com`, `msformat.com`, `mode.com` |
-| BASIC | `basic.com`, `basica.com`, `msbasic.com` (Microsoft BASIC, Version 5.28, MS-DOS patched; `msbasic.org` is the unpatched original) |
+| BASIC | `basic.com`, `basica.com` (IBM BASIC/BASICA, Version A1.10; require an IBM PC with the BASIC ROM, e.g. `rom/ibm-basic-1.10.rom`; PC-DOS images only), `msbasic.com` (Microsoft BASIC, Version 5.28, MS-DOS patched; `msbasic.org` is the unpatched original) |
 
 ### Emulation
 
