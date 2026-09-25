@@ -14,7 +14,7 @@ ibmbio.exe: ibmbio.obj
 	emu2 bin/link.exe ibmbio,ibmbio,ibmbio,ibmbio,
 
 ibmbio.obj: ibmbio.asm 
-	emu2 bin/masm.exe ibmbio,ibmbio,ibmbio,ibmbio || rm -f ibmbio.obj
+	emu2 bin/msmasm.exe ibmbio,ibmbio,ibmbio,ibmbio || rm -f ibmbio.obj
 
 ibmdos.com: ibmdos.exe
 	emu2 bin/exe2bin.exe ibmdos.exe ibmdos.com
@@ -23,7 +23,7 @@ ibmdos.exe: ibmdos.obj
 	emu2 bin/link.exe ibmdos,ibmdos,ibmdos,ibmdos,
 
 ibmdos.obj: ibmdos.asm dos.asm
-	emu2 bin/masm.exe ibmdos,ibmdos,ibmdos,ibmdos || rm -f ibmdos.obj
+	emu2 bin/msmasm.exe ibmdos,ibmdos,ibmdos,ibmdos || rm -f ibmdos.obj
 
 msdos_base.img: xmscmd.com ibmbio.com ibmdos.com disks/msdos.img
 	cp disks/msdos.img $@
@@ -51,10 +51,10 @@ pcdos_base.img: ibmcmd.com ibmbio.com ibmdos.com disks/pcdos.img
 
 msdos_dist.img: msdos_base.img mssys.com asm.com hex2bin.com trans.com
 	cp msdos_base.img $@
-	mcopy  -i $@ bin/masm.exe ::MASM.EXE
+	mcopy  -i $@ bin/msmasm.exe ::MASM.EXE
 	mcopy  -i $@ bin/mslink.exe ::LINK.EXE
-	mcopy  -i $@ bin/lib.exe ::LIB.EXE
-	mcopy  -i $@ bin/msbasic.com ::MSBASIC.COM
+	mcopy  -i $@ bin/mslib.exe ::LIB.EXE
+	mcopy  -i $@ bin/gwbasic.exe ::GWBASIC.EXE
 	mcopy  -i $@ bin/exe2bin.exe ::EXE2BIN.EXE
 	mcopy  -i $@ bin/chkdsk.com ::CHKDSK.COM
 	mcopy  -i $@ mssys.com ::SYS.COM
@@ -74,25 +74,25 @@ msdos_dist.img: msdos_base.img mssys.com asm.com hex2bin.com trans.com
 msdos_diag.img: msdos_base.img asm.com trans.com \
     hex2bin.com mem.com
 	cp msdos_base.img $@
-	[ -f private/ext/autoexec.bat ] && mcopy  -i $@ private/ext/autoexec.bat ::AUTOEXEC.BAT
+	mcopy  -i $@ autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/chkdsk.com ::CHKDSK.COM
 	mcopy  -i $@ bin/debug.com ::DEBUG.COM
 	mcopy  -i $@ bin/edlin.com ::EDLIN.COM
 	mcopy  -i $@ mem.com ::MEM.COM
-	[ -f private/ext/pceexit.com ] && mcopy  -i $@ private/ext/pceexit.com ::EXIT.COM
-	[ -f private/ext/pceinit.com ] && mcopy  -i $@ private/ext/pceinit.com ::PCEINIT.COM
+	mcopy  -i $@ bin/pceinit.com ::PCEINIT.COM
 	mattrib -i $@ -a ::"*.*"
 	mdir -w -i $@ ::
 
 msdos_full.img: msdos_base.img asm.com trans.com \
     hex2bin.com mem.com mssys.com hello.asm mshello.bas mkhello.bat
 	cp msdos_base.img $@
-	[ -f private/ext/autoexec.bat ] && mcopy  -i $@ private/ext/autoexec.bat ::AUTOEXEC.BAT
-	mcopy  -i $@ bin/masm.exe ::MASM.EXE
+	mcopy  -i $@ autoexec.bat ::AUTOEXEC.BAT
+	mcopy  -i $@ bin/msmasm.exe ::MASM.EXE
 	mcopy  -i $@ bin/mslink.exe ::LINK.EXE
-	mcopy  -i $@ bin/cref.exe ::CREF.EXE
-	mcopy  -i $@ bin/lib.exe ::LIB.EXE
-	mcopy  -i $@ bin/msbasic.com ::MSBASIC.COM
+	mcopy  -i $@ bin/mscref.exe ::CREF.EXE
+	mcopy  -i $@ bin/mslib.exe ::LIB.EXE
+	#mcopy  -i $@ bin/msbasic.com ::MSBASIC.COM
+	mcopy  -i $@ bin/gwbasic.exe ::GWBASIC.EXE
 	mcopy  -i $@ bin/exe2bin.exe ::EXE2BIN.EXE
 	mcopy  -i $@ bin/chkdsk.com ::CHKDSK.COM
 	mcopy  -i $@ mssys.com ::SYS.COM
@@ -109,20 +109,9 @@ msdos_full.img: msdos_base.img asm.com trans.com \
 	mcopy  -i $@ hello.asm ::HELLO.ASM
 	mcopy  -i $@ mkhello.bat ::MKHELLO.BAT
 	mcopy  -i $@ mshello.bas ::HELLO.BAS
+	mcopy  -i $@ ballc.bas ::BALLC.BAS
 	mcopy  -i $@ mem.com ::MEM.COM
-	[ -f private/ext/gwbasic.exe ] && mdel -i $@ ::MSBASIC.COM
-	[ -f private/ext/gwbasic.exe ] && mdel -i $@ ::ASM.COM
-	[ -f private/ext/gwbasic.exe ] && mdel -i $@ ::TRANS.COM
-	[ -f private/ext/gwbasic.exe ] && mdel -i $@ ::HEX2BIN.COM
-	[ -f private/ext/gwbasic.exe ] && mdel -i $@ ::MKHELLO.BAT
-	[ -f private/ext/gwbasic.exe ] && mdel -i $@ ::HELLO.ASM
-	[ -f private/ext/msmasm.exe ] && mcopy  -o -i $@ private/ext/msmasm.exe ::MASM.EXE
-	[ -f private/ext/mslink.exe ] && mcopy  -o -i $@ private/ext/mslink.exe ::LINK.EXE
-	[ -f private/ext/mslib.exe ] && mcopy  -o -i $@ private/ext/mslib.exe ::LIB.EXE
-	[ -f private/ext/mscref.exe ] && mcopy  -o -i $@ private/ext/mscref.exe ::CREF.EXE
-	[ -f private/ext/gwbasic.exe ] && mcopy  -i $@ private/ext/gwbasic.exe ::GWBASIC.EXE
-	[ -f private/ext/pceexit.com ] && mcopy  -i $@ private/ext/pceexit.com ::EXIT.COM
-	[ -f private/ext/pceinit.com ] && mcopy  -i $@ private/ext/pceinit.com ::PCEINIT.COM
+	mcopy  -i $@ bin/pceinit.com ::PCEINIT.COM
 	mattrib -i $@ -a ::"*.*"
 	mdir -w -i $@ ::
 
@@ -142,38 +131,37 @@ pcdos_dist.img: msdos_base.img ibmsys.com
 	mcopy  -i $@ bin/comp.com ::COMP.COM
 	mcopy  -i $@ bin/debug.com ::DEBUG.COM
 	mcopy  -i $@ bin/mode.com ::MODE.COM
-	[ -f private/ibm/art.bas ] && mcopy  -i $@ private/ibm/art.bas ::ART.BAS
-	[ -f private/ibm/ball.bas ] && mcopy  -i $@ private/ibm/ball.bas ::BALL.BAS
-	[ -f private/ibm/calendar.bas ] && mcopy  -i $@ private/ibm/calendar.bas ::CALENDAR.BAS
-	[ -f private/ibm/circle.bas ] && mcopy  -i $@ private/ibm/circle.bas ::CIRCLE.BAS
-	[ -f private/ibm/colorbar.bas ] && mcopy  -i $@ private/ibm/colorbar.bas ::COLORBAR.BAS
-	[ -f private/ibm/comm.bas ] && mcopy  -i $@ private/ibm/comm.bas ::COMM.BAS
-	[ -f private/ibm/donkey.bas ] && mcopy  -i $@ private/ibm/donkey.bas ::DONKEY.BAS
-	[ -f private/ibm/mortgage.bas ] && mcopy  -i $@ private/ibm/mortgage.bas ::MORTGAGE.BAS
-	[ -f private/ibm/music.bas ] && mcopy  -i $@ private/ibm/music.bas ::MUSIC.BAS
-	[ -f private/ibm/piechart.bas ] && mcopy  -i $@ private/ibm/piechart.bas ::PIECHART.BAS
-	[ -f private/ibm/samples.bas ] && mcopy  -i $@ private/ibm/samples.bas ::SAMPLES.BAS
-	[ -f private/ibm/space.bas ] && mcopy  -i $@ private/ibm/space.bas ::SPACE.BAS
+	mcopy  -i $@ samples/art.bas ::ART.BAS
+	mcopy  -i $@ samples/ball.bas ::BALL.BAS
+	mcopy  -i $@ samples/calendar.bas ::CALENDAR.BAS
+	mcopy  -i $@ samples/circle.bas ::CIRCLE.BAS
+	mcopy  -i $@ samples/colorbar.bas ::COLORBAR.BAS
+	mcopy  -i $@ samples/comm.bas ::COMM.BAS
+	mcopy  -i $@ samples/donkey.bas ::DONKEY.BAS
+	mcopy  -i $@ samples/mortgage.bas ::MORTGAGE.BAS
+	mcopy  -i $@ samples/music.bas ::MUSIC.BAS
+	mcopy  -i $@ samples/piechart.bas ::PIECHART.BAS
+	mcopy  -i $@ samples/samples.bas ::SAMPLES.BAS
+	mcopy  -i $@ samples/space.bas ::SPACE.BAS
 	mattrib -i $@ -a ::"*.*"
 	mdir -w -i $@ ::
 
 pcdos_diag.img: pcdos_base.img asm.com trans.com \
     hex2bin.com mem.com
 	cp pcdos_base.img $@
-	[ -f private/ext/autoexec.bat ] && mcopy  -i $@ private/ext/autoexec.bat ::AUTOEXEC.BAT
+	mcopy  -i $@ autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/chkdsk.com ::CHKDSK.COM
 	mcopy  -i $@ bin/debug.com ::DEBUG.COM
 	mcopy  -i $@ bin/edlin.com ::EDLIN.COM
 	mcopy  -i $@ mem.com ::MEM.COM
-	[ -f private/ext/pceexit.com ] && mcopy  -i $@ private/ext/pceexit.com ::EXIT.COM
-	[ -f private/ext/pceinit.com ] && mcopy  -i $@ private/ext/pceinit.com ::PCEINIT.COM
+	mcopy  -i $@ bin/pceinit.com ::PCEINIT.COM
 	mattrib -i $@ -a ::"*.*"
 	mdir -w -i $@ ::
 
 pcdos_full.img: pcdos_base.img asm.com trans.com \
     hex2bin.com mem.com ibmsys.com hello.asm hello.bas mkhello.bat graph.bas ballc.bas
 	cp pcdos_base.img $@
-	[ -f private/ext/autoexec.bat ] && mcopy  -i $@ private/ext/autoexec.bat ::AUTOEXEC.BAT
+	mcopy  -i $@ autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/masm.exe ::MASM.EXE
 	mcopy  -i $@ bin/link.exe ::LINK.EXE
 	mcopy  -i $@ bin/cref.exe ::CREF.EXE
@@ -191,7 +179,6 @@ pcdos_full.img: pcdos_base.img asm.com trans.com \
 	mcopy  -i $@ bin/comp.com ::COMP.COM
 	mcopy  -i $@ bin/debug.com ::DEBUG.COM
 	mcopy  -i $@ bin/mode.com ::MODE.COM
-	[ -f private/ibm/ball.bas ] && mcopy  -i $@ private/ibm/ball.bas ::BALL.BAS
 	mcopy  -i $@ asm.com ::ASM.COM
 	mcopy  -i $@ trans.com ::TRANS.COM
 	mcopy  -i $@ hex2bin.com ::HEX2BIN.COM
@@ -201,12 +188,7 @@ pcdos_full.img: pcdos_base.img asm.com trans.com \
 	mcopy  -i $@ graph.bas ::GRAPH.BAS
 	mcopy  -i $@ ballc.bas ::BALLC.BAS
 	mcopy  -i $@ mem.com ::MEM.COM
-	[ -f private/ext/masm.exe ] && mcopy -o -i $@ private/ext/masm.exe ::MASM.EXE
-	[ -f private/ext/link.exe ] && mcopy -o -i $@ private/ext/link.exe ::LINK.EXE
-	[ -f private/ext/cref.exe ] && mcopy -o -i $@ private/ext/cref.exe ::CREF.EXE
-	[ -f private/ext/lib.exe ] && mcopy -o -i $@ private/ext/lib.exe ::LIB.EXE
-	[ -f private/ext/pceexit.com ] && mcopy  -i $@ private/ext/pceexit.com ::EXIT.COM
-	[ -f private/ext/pceinit.com ] && mcopy  -i $@ private/ext/pceinit.com ::PCEINIT.COM
+	mcopy  -i $@ bin/pceinit.com ::PCEINIT.COM
 	mattrib -i $@ -a ::"*.*"
 	mdir -w -i $@ ::
 
@@ -244,7 +226,7 @@ xmscmd.exe: xmscmd.obj
 	emu2 bin/link.exe xmscmd,xmscmd,xmscmd,xmscmd,
 
 xmscmd.obj: mscmd.asm command.asm
-	emu2 bin/masm.exe mscmd,xmscmd,xmscmd,xmscmd  || rm -f xmscmd.obj
+	emu2 bin/msmasm.exe mscmd,xmscmd,xmscmd,xmscmd  || rm -f xmscmd.obj
 
 ibmcmd.com: ibmcmd.exe 
 	emu2 bin/exe2bin.exe ibmcmd.exe ibmcmd.com
@@ -253,7 +235,7 @@ ibmcmd.exe: ibmcmd.obj
 	emu2 bin/link.exe ibmcmd,ibmcmd,ibmcmd,ibmcmd,
 
 ibmcmd.obj: ibmcmd.asm command.asm
-	emu2 bin/masm.exe ibmcmd,ibmcmd,ibmcmd,ibmcmd  || rm -f ibmcmd.obj
+	emu2 bin/msmasm.exe ibmcmd,ibmcmd,ibmcmd,ibmcmd  || rm -f ibmcmd.obj
 
 ver.com: ver.exe
 	emu2 bin/exe2bin.exe ver.exe ver.com
@@ -262,7 +244,7 @@ ver.exe: ver.obj
 	emu2 bin/link.exe ver,ver,ver,ver, 
 
 ver.obj: ver.asm
-	emu2 bin/masm.exe ver,ver,ver,ver || rm -f ver.obj
+	emu2 bin/msmasm.exe ver,ver,ver,ver || rm -f ver.obj
 
 mem.com: mem.exe
 	emu2 bin/exe2bin.exe mem.exe mem.com
@@ -271,7 +253,7 @@ mem.exe: mem.obj
 	emu2 bin/link.exe mem,mem,mem,mem, 
 
 mem.obj: mem.asm
-	emu2 bin/masm.exe mem,mem,mem,mem || rm -f mem.obj
+	emu2 bin/msmasm.exe mem,mem,mem,mem || rm -f mem.obj
 
 mssys.com: mssys.exe
 	emu2 bin/exe2bin.exe mssys.exe mssys.com
@@ -280,7 +262,7 @@ mssys.exe: mssys.obj
 	emu2 bin/link.exe mssys,mssys,mssys,mssys, 
 
 mssys.obj: mssys.asm sys.asm
-	emu2 bin/masm.exe mssys,mssys,mssys,mssys || rm -f mssys.obj
+	emu2 bin/msmasm.exe mssys,mssys,mssys,mssys || rm -f mssys.obj
 
 ibmsys.com: ibmsys.exe
 	emu2 bin/exe2bin.exe ibmsys.exe ibmsys.com
@@ -289,7 +271,7 @@ ibmsys.exe: ibmsys.obj
 	emu2 bin/link.exe ibmsys,ibmsys,ibmsys,ibmsys, 
 
 ibmsys.obj: ibmsys.asm sys.asm
-	emu2 bin/masm.exe ibmsys,ibmsys,ibmsys,ibmsys || rm -f ibmsys.obj
+	emu2 bin/msmasm.exe ibmsys,ibmsys,ibmsys,ibmsys || rm -f ibmsys.obj
 
 cls.com: cls.exe
 	emu2 bin/exe2bin.exe cls.exe cls.com
@@ -298,7 +280,7 @@ cls.exe: cls.obj
 	emu2 bin/link.exe cls,cls,cls,cls, 
 
 cls.obj: cls.asm
-	emu2 bin/masm.exe cls,cls,cls,cls || rm -f cls.obj
+	emu2 bin/msmasm.exe cls,cls,cls,cls || rm -f cls.obj
 
 hello.com: hello.asm asm.com hex2bin.com
 	emu2 asm.com hello.  z
