@@ -1336,19 +1336,21 @@ insert_lp:
                 inc     bx
                 jmp     short insert_lp
 
-; TODO: the room check above looks wrong in the original program (not
-; confirmed by a run, see below).  DX = SI + length + 1 where SI is the
-; address in the input buffer (editbuf_text, around 0C20h), not the
-; destination DI, and BP (the end of the gap) is always at or above
-; buf_start.  The test can therefore hardly ever fire, so an insert into a
-; nearly full buffer can run past BP and overwrite the start of the text that
-; was moved to the top of memory.
-; Likely fix, same size (2 bytes), different binary:
+; TODO: the room check above is wrong in the original program (confirmed
+; with emu2, see below).  DX = SI + length + 1 where SI is the address in the
+; input buffer (editbuf_text, around 0C20h), not the destination DI, and BP
+; (the end of the gap) is always at or above buf_start.  The test can
+; therefore hardly ever fire, so an insert into a nearly full buffer runs past
+; BP and overwrites the text that was moved to the top of memory.
+; Fix, same size (2 bytes), different binary:
 ;                 mov     dx, di          ; instead of: mov     dx, si
 ; (then DX = DI + length + 1 is compared with BP and memerr is taken when the
 ; new line, with its CR LF, would not fit in the gap).
-; Not confirmed: emu2 implements its own DOS buffered input and does not end
-; the insert on ^Z, so the overflow could not be exercised there.
+; Test (emu2, copy of edlin.com with the buffer cut to 2000 bytes and "." instead
+; of ^Z ending the insert; the check itself untouched): 1I on a 640 byte file
+; and 60 lines of 32 bytes, 42 of which fit.  Original: no message, all 60 lines
+; accepted and the 20 original lines destroyed.  With the fix: "Insufficient
+; memory" after line 43.
 
 ; ^Break while inserting: rebuild the segments and stack, then finish as for ^Z
 break_ins:
