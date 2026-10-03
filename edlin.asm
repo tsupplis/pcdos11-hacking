@@ -35,6 +35,10 @@
 ;
 ;  Routines take their arguments in registers, as noted at each one.  The
 ;  Z flag is often the result code (set = found / yes).
+;
+;  Labels ending in _ret (skip_ret, scan_eof_ret, write_recs_ret, ...) sit on
+;  the RET that ends the routine they are named after.  Other routines branch
+;  to them instead of carrying a RET of their own, as the original does.
 ;-------------------------------------------------------------------------
 
 program         segment
@@ -89,12 +93,14 @@ fcb_fname_words equ     6               ; Drive + name + extension: 12 bytes
 ; Program Segment Prefix (PSP) fields.  These are below the 100h load
 ; address, in the same segment as the code and data (COM program: CS=DS=ES=SS)
 ; ---------------------------------------------------------------------------
-psp_memsize     equ     06h             ; Word: bytes available in the segment
+psp_memsize     equ     06h             ; Word: bytes available in the segment (set by DOS,
+                                        ; at most 0FFF0h)
 fcb1            equ     5Ch             ; Default FCB 1 (file named on the command line)
 fcb1_name       equ     fcb1 + 1        ; File name (8 chars, space padded)
 fcb1_ext        equ     fcb1 + 9        ; Extension (3 chars)
 fcb1_recsiz     equ     fcb1 + 14       ; Record size word
-fcb1_newname    equ     fcb1 + fcb_newname ; Rename: new name field
+fcb1_newname    equ     fcb1 + fcb_newname ; Rename: new name field (for reference: the E command
+                                        ; reaches it as [si + fcb_newname] with SI = fcb1)
 fcb1_rr         equ     fcb1 + 33       ; Random record number (dword)
 
 ; ---------------------------------------------------------------------------
@@ -120,7 +126,6 @@ dos_setvec_23   equ     2523h           ; AH = 25h set interrupt vector, AL = 23
 last_line       equ     0FFFEh          ; Line number returned for "#"
 all_lines       equ     0FFFFh          ; "Every line" count
 numlim          equ     1999h           ; 6553 = 65535 / 10: next digit would overflow
-comtab_len     equ     10              ; Number of entries in comtab (letters + CR)
 combuf_size     equ     128                     ; Command line max length
 strbuf_size     equ     128                     ; Search / replace string max length
 editbuf_max     equ     255                     ; Edited line max length
@@ -294,7 +299,7 @@ chkcase:
 
 dispatch:
                 mov     di, offset comtab
-                mov     cx, comtab_len
+                mov     cx, offset comtab_end - offset comtab ; Number of entries
                 repne scasb
                 jnz     short comerr            ; Unknown command letter
                 mov     bx, cx                  ; CX = table length - 1 - index of the
@@ -324,7 +329,7 @@ skip1:
                 cmp     al, ' '
                 jz      short skip
 
-retnum:
+skip_ret:
                 ret
 skip            endp
 
@@ -376,7 +381,7 @@ numlp:
 
 chknum:
                 cmp82_cl 0                      ; Any digit seen?
-                jz      short retnum            ; No number given, DX = 0
+                jz      short skip_ret            ; No number given, DX = 0
                 or      dx, dx                  ; An explicit 0 is invalid
                 jz      short comerr
                 ret
@@ -399,6 +404,7 @@ getnum          endp
 ; ---------------------------------------------------------------------------
 
 comtab          db      "QWASRDLIE", cr
+comtab_end      label   byte
 
 table           dw      offset edit_cmd         ; CR  Edit a line
                 dw      offset exit_cmd         ; E   End edit, save the file
@@ -587,7 +593,7 @@ write_calc_len:
                 mov     word ptr ds:[endtxt], di
                 mov     word ptr ds:[curlin], 1
 
-findlin_ret:
+write_recs_ret:
                 ret
 
 write_dskful_err:
@@ -616,14 +622,14 @@ findlin         proc near
                 mov     dx, word ptr ds:[curlin]
                 mov     di, word ptr ds:[pointer]
                 cmp     bx, dx
-                jz      short findlin_ret       ; It is the current line
+                jz      short write_recs_ret       ; It is the current line
                 ja      short findlin_calc_rem  ; After it: search forward
                 or      bx, bx
                 jz      short findlin_calc_rem  ; 0 = to the end: also forward
                 mov     dx, 1                   ; Before it: restart at line 1
                 mov     di, offset buf_start
                 cmp     bx, dx
-                jz      short findlin_ret
+                jz      short write_recs_ret
 
 findlin_calc_rem:
                 mov     cx, word ptr ds:[endtxt]
@@ -643,7 +649,7 @@ count_lines     proc near
                 or      al, al                  ; ZF = 0 in case CX = 0
 
 count_lp:
-                jcxz    short findlin_ret
+                jcxz    short write_recs_ret
                 repne scasb                     ; Next LF
                 inc     dx
                 cmp     bx, dx
@@ -772,7 +778,7 @@ print_line_check_rem:
                 mov     cx, word ptr ds:[endtxt]
                 sub     cx, si                  ; CX = bytes of text left
                 jz      short print_line_ret
-                mov     bp, word ptr ds:[curlin] ; (unused)
+                mov     bp, word ptr ds:[curlin] ; Dead code: BP is never used (shownum tests curlin itself)
 
 print_line_hdr:
                 push    cx
@@ -908,7 +914,7 @@ replace_shift:
 
 replace_next:
                 call    find_match
-                jnz     short outstr_ret        ; No more matches
+                jnz     short print_string_ret        ; No more matches
                 jmpn    replace_lp
 replace_cmd     endp
 
@@ -917,7 +923,7 @@ replace_cmd     endp
 ; ---------------------------------------------------------------------------
 
 print_string    proc near
-                jcxz    short outstr_ret
+                jcxz    short print_string_ret
 
 print_str_lp:
                 lodsb
@@ -925,7 +931,7 @@ print_str_lp:
                 dec     dx
                 loop    print_str_lp
 
-outstr_ret:
+print_string_ret:
                 ret
 print_string    endp
 
@@ -1012,7 +1018,7 @@ prompt_yesno    proc near
                 jz      short set_curlin_ret
                 cmp     al, 'y'                 ; ZF set if "y"
 
-parse_srch_ret:
+prompt_yesno_ret:
                 ret
 prompt_yesno    endp
 
@@ -1030,7 +1036,7 @@ parse_search_args proc near
                 mov     di, offset srch_buf
                 call    get_param_str
                 or      al, al                  ; ZF = 0 for the error returns below
-                jcxz    short parse_srch_ret    ; Empty search string
+                jcxz    short prompt_yesno_ret    ; Empty search string
                 mov     word ptr ds:[srch_len], cx
                 xor     cx, cx
                 cmp     al, cr
@@ -1054,9 +1060,9 @@ parse_srch_find_range:
                 mov     cx, di
                 sub     cx, word ptr ds:[srch_ptr] ; CX = size of the range
                 or      al, 0FFh                ; ZF = 0 for the error returns
-                jcxz    short parse_srch_ret    ; Empty range
+                jcxz    short prompt_yesno_ret    ; Empty range
                 sub     cx, word ptr ds:[srch_len]
-                jb      short parse_srch_ret    ; Range shorter than the string
+                jb      short prompt_yesno_ret    ; Range shorter than the string
                 inc     cx                      ; Possible start positions
                 mov     word ptr ds:[srch_remaining], cx
 parse_search_args endp
@@ -1081,7 +1087,7 @@ find_match      proc near
 find_match_lp:
                 or      di, di                  ; ZF = 0, in case CX = 0
                 repne scasb                     ; Look for the first character
-                jnz     short parse_srch_ret
+                jnz     short prompt_yesno_ret
                 mov     dx, cx                  ; Save the position
                 mov     bx, di
                 mov     cx, word ptr ds:[srch_len]
@@ -1110,7 +1116,7 @@ find_match_count_lines:
                 mov     word ptr ds:[srch_lineptr], bx
                 xor     al, al                  ; ZF = 1, found
 
-get_param_ret:
+find_match_ret:
                 ret
 find_match      endp
 
@@ -1126,9 +1132,9 @@ get_param_str   proc near
 get_param_char_lp:
                 lodsb
                 cmp     al, ctrlz
-                jz      short get_param_ret
+                jz      short find_match_ret
                 cmp     al, cr
-                jz      short get_param_ret
+                jz      short find_match_ret
                 stosb
                 inc     cx
                 jmp     short get_param_char_lp
@@ -1149,7 +1155,7 @@ delete_cmd      proc near
 
 delete_find_start:
                 call    findlin
-                jnz     short get_param_ret     ; No such line
+                jnz     short find_match_ret     ; No such line
                 push    bx                      ; First line number
                 push    di                      ; and its address
                 mov     bx, word ptr ds:[param2]
@@ -1193,9 +1199,9 @@ edit_find_line:
                 mov     si, di
                 mov     word ptr ds:[curlin], dx
                 mov     word ptr ds:[pointer], si
-                jnz     short get_param_ret     ; Past the end of the text
+                jnz     short find_match_ret     ; Past the end of the text
                 cmp     si, word ptr ds:[endtxt]
-                jz      short get_param_ret     ; The empty line at the end
+                jz      short find_match_ret     ; The empty line at the end
                 call    linelen                 ; Old line into the input buffer
                 mov     word ptr ds:[srch_len], dx ; Old length (srch_len is free here)
                 mov     si, word ptr ds:[pointer]
@@ -1503,8 +1509,8 @@ modflg          equ     fcb2 + 39               ; Byte: 1 once the E command has
 ; Command arguments and search state
 param1          equ     fcb2 + 40               ; Word: first number on the command line (0A80h)
 param2          equ     param1 + 2              ; Word: second number (0A82h)
-srch_len        equ     param2 + 2              ; Word: search string length; the edit
-                                                ; command keeps the old line length here (0A84h)
+srch_len        equ     param2 + 2              ; Word: search string length (0A84h); the line
+                                                ; edit also keeps the old line length here
 rplc_len        equ     srch_len + 2            ; Word: replacement string length (0A86h)
 srch_ptr        equ     rplc_len + 2            ; Word: address after the 1st char of the match (0A88h)
 srch_lineno     equ     srch_ptr + 2            ; Word: number of the line holding the match (0A8Ah)
