@@ -539,7 +539,8 @@ append_cmd      endp
 ; W command: [n]W
 ; Write the first n lines to the temporary file and move the rest of the text
 ; down.  Without n, write everything except the last 1/4 of a buffer (if the
-; text is larger than that), cut on a line end.
+; text is larger than that), cut on a line end (checked with emu2: a 46400 byte
+; text left 15456 bytes in memory, 1/4 of the 61.9K buffer).
 ; ---------------------------------------------------------------------------
 
 write_cmd       proc near
@@ -778,7 +779,8 @@ print_line_check_rem:
                 mov     cx, word ptr ds:[endtxt]
                 sub     cx, si                  ; CX = bytes of text left
                 jz      short print_line_ret
-                mov     bp, word ptr ds:[curlin] ; Dead code: BP is never used (shownum tests curlin itself)
+                mov     bp, word ptr ds:[curlin] ; TODO: dead code, BP is never used afterwards
+                                                ; (shownum tests curlin itself).  Kept for byte parity.
 
 print_line_hdr:
                 push    cx
@@ -1325,14 +1327,28 @@ insert_lp:
                 mov     dx, si
                 add     dx, cx
                 inc     dx
-                cmp     dx, bp                  ; Room check (as in the original: it tests SI,
-                jnb     short memerr            ; the input buffer address, not DI)
+                cmp     dx, bp                  ; TODO: room check, see the note below
+                jnb     short memerr
                 rep movsb                       ; Copy the line,
                 movsb                           ; its CR,
                 mov     al, lf
                 stosb                           ; and add a LF
                 inc     bx
                 jmp     short insert_lp
+
+; TODO: the room check above looks wrong in the original program (not
+; confirmed by a run, see below).  DX = SI + length + 1 where SI is the
+; address in the input buffer (editbuf_text, around 0C20h), not the
+; destination DI, and BP (the end of the gap) is always at or above
+; buf_start.  The test can therefore hardly ever fire, so an insert into a
+; nearly full buffer can run past BP and overwrite the start of the text that
+; was moved to the top of memory.
+; Likely fix, same size (2 bytes), different binary:
+;                 mov     dx, di          ; instead of: mov     dx, si
+; (then DX = DI + length + 1 is compared with BP and memerr is taken when the
+; new line, with its CR LF, would not fit in the gap).
+; Not confirmed: emu2 implements its own DOS buffered input and does not end
+; the insert on ^Z, so the overflow could not be exercised there.
 
 ; ^Break while inserting: rebuild the segments and stack, then finish as for ^Z
 break_ins:
@@ -1387,7 +1403,9 @@ quit_cmd        endp
 ; rename the original file to filename.BAK and the temporary file filename.$$$
 ; to the original name, then return to DOS.
 ; modflg is set so that append_cmd does not complain about lack of memory
-; while the file is being copied over.
+; while the file is being copied over (checked with emu2: a plain nnnA that
+; cannot read n lines says "Insufficient memory", E on the same file does not).
+; "End of input file" is displayed when the copy reaches the end of the file.
 ; ---------------------------------------------------------------------------
 
 exit_all_recs:
