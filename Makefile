@@ -14,6 +14,7 @@ ibmbio.exe: ibmbio.obj
 	emu2 bin/link.exe ibmbio,ibmbio,ibmbio,ibmbio,
 
 ibmbio.obj: ibmbio.asm 
+	unix2dos $<
 	emu2 bin/msmasm.exe ibmbio,ibmbio,ibmbio,ibmbio || rm -f ibmbio.obj
 
 ibmdos.com: ibmdos.exe
@@ -23,6 +24,8 @@ ibmdos.exe: ibmdos.obj
 	emu2 bin/link.exe ibmdos,ibmdos,ibmdos,ibmdos,
 
 ibmdos.obj: ibmdos.asm dos.asm
+	unix2dos ibmdos.asm
+	unix2dos dos.asm
 	emu2 bin/msmasm.exe ibmdos,ibmdos,ibmdos,ibmdos || rm -f ibmdos.obj
 
 msdos_base.img: xmscmd.com ibmbio.com ibmdos.com disks/msdos.img
@@ -49,7 +52,7 @@ pcdos_base.img: ibmcmd.com ibmbio.com ibmdos.com disks/pcdos.img
 	mattrib -i $@ +h +s ::IBMBIO.COM
 	mdir -w -i $@ ::
 
-msdos_dist.img: msdos_base.img mssys.com asm.com hex2bin.com trans.com
+msdos_dist.img: msdos_base.img mssys.com asm.com hex2bin.com trans.com edlin.com
 	cp msdos_base.img $@
 	mcopy  -i $@ bin/msmasm.exe ::MASM.EXE
 	mcopy  -i $@ bin/mslink.exe ::LINK.EXE
@@ -58,7 +61,7 @@ msdos_dist.img: msdos_base.img mssys.com asm.com hex2bin.com trans.com
 	mcopy  -i $@ bin/exe2bin.exe ::EXE2BIN.EXE
 	mcopy  -i $@ bin/chkdsk.com ::CHKDSK.COM
 	mcopy  -i $@ mssys.com ::SYS.COM
-	mcopy  -i $@ bin/edlin.com ::EDLIN.COM
+	mcopy  -i $@ edlin.com ::EDLIN.COM
 	mcopy  -i $@ bin/msformat.com ::FORMAT.COM
 	mcopy  -i $@ bin/diskcopy.com ::DISKCOPY.COM
 	mcopy  -i $@ bin/diskcomp.com ::DISKCOMP.COM
@@ -72,12 +75,12 @@ msdos_dist.img: msdos_base.img mssys.com asm.com hex2bin.com trans.com
 	mdir -w -i $@ ::
 
 msdos_diag.img: msdos_base.img asm.com trans.com \
-    hex2bin.com mem.com
+    hex2bin.com mem.com edlin.com
 	cp msdos_base.img $@
 	mcopy  -i $@ autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/chkdsk.com ::CHKDSK.COM
 	mcopy  -i $@ bin/debug.com ::DEBUG.COM
-	mcopy  -i $@ bin/edlin.com ::EDLIN.COM
+	mcopy  -i $@ edlin.com ::EDLIN.COM
 	mcopy  -i $@ mem.com ::MEM.COM
 	mcopy  -i $@ bin/pceinit.com ::PCEINIT.COM
 	mattrib -i $@ -a ::"*.*"
@@ -85,7 +88,7 @@ msdos_diag.img: msdos_base.img asm.com trans.com \
 
 msdos_full.img: msdos_base.img asm.com trans.com \
     hex2bin.com mem.com mssys.com hello.asm mshello.bas mkhello.bat \
-	graph.bas ballc.com
+	graph.bas ballc.com edlin.com
 	cp msdos_base.img $@
 	mcopy  -i $@ autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/msmasm.exe ::MASM.EXE
@@ -97,7 +100,7 @@ msdos_full.img: msdos_base.img asm.com trans.com \
 	mcopy  -i $@ bin/exe2bin.exe ::EXE2BIN.EXE
 	mcopy  -i $@ bin/chkdsk.com ::CHKDSK.COM
 	mcopy  -i $@ mssys.com ::SYS.COM
-	mcopy  -i $@ bin/edlin.com ::EDLIN.COM
+	mcopy  -i $@ edlin.com ::EDLIN.COM
 	mcopy  -i $@ bin/msformat.com ::FORMAT.COM
 	mcopy  -i $@ bin/diskcopy.com ::DISKCOPY.COM
 	mcopy  -i $@ bin/diskcomp.com ::DISKCOMP.COM
@@ -118,7 +121,7 @@ msdos_full.img: msdos_base.img asm.com trans.com \
 	mdir -w -i $@ ::
 
 
-pcdos_dist.img: msdos_base.img ibmsys.com  
+pcdos_dist.img: msdos_base.img ibmsys.com edlin.com
 	cp msdos_base.img $@
 	mcopy  -i $@ bin/link.exe ::LINK.EXE
 	mcopy  -i $@ bin/basic.com ::BASIC.COM
@@ -126,7 +129,7 @@ pcdos_dist.img: msdos_base.img ibmsys.com
 	mcopy  -i $@ bin/exe2bin.exe ::EXE2BIN.EXE
 	mcopy  -i $@ bin/chkdsk.com ::CHKDSK.COM
 	mcopy  -i $@ ibmsys.com ::SYS.COM
-	mcopy  -i $@ bin/edlin.com ::EDLIN.COM
+	mcopy  -i $@ edlin.com ::EDLIN.COM
 	mcopy  -i $@ bin/format.com ::FORMAT.COM
 	mcopy  -i $@ bin/diskcopy.com ::DISKCOPY.COM
 	mcopy  -i $@ bin/diskcomp.com ::DISKCOMP.COM
@@ -149,18 +152,18 @@ pcdos_dist.img: msdos_base.img ibmsys.com
 	mdir -w -i $@ ::
 
 pcdos_diag.img: pcdos_base.img asm.com trans.com \
-    hex2bin.com mem.com
+    hex2bin.com mem.com edlin.com
 	cp pcdos_base.img $@
 	mcopy  -i $@ autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/chkdsk.com ::CHKDSK.COM
 	mcopy  -i $@ bin/debug.com ::DEBUG.COM
-	mcopy  -i $@ bin/edlin.com ::EDLIN.COM
+	mcopy  -i $@ edlin.com ::EDLIN.COM
 	mcopy  -i $@ mem.com ::MEM.COM
 	mcopy  -i $@ bin/pceinit.com ::PCEINIT.COM
 	mattrib -i $@ -a ::"*.*"
 	mdir -w -i $@ ::
 
-pcdos_full.img: pcdos_base.img asm.com trans.com \
+pcdos_full.img: pcdos_base.img asm.com trans.com edlin.com \
     hex2bin.com mem.com ibmsys.com hello.asm hello.bas mkhello.bat graph.bas ballc.bas ballc.com
 	cp pcdos_base.img $@
 	mcopy  -i $@ autoexec.bat ::AUTOEXEC.BAT
@@ -174,7 +177,7 @@ pcdos_full.img: pcdos_base.img asm.com trans.com \
 	mcopy  -i $@ bin/exe2bin.exe ::EXE2BIN.EXE
 	mcopy  -i $@ bin/chkdsk.com ::CHKDSK.COM
 	mcopy  -i $@ ibmsys.com ::SYS.COM
-	mcopy  -i $@ bin/edlin.com ::EDLIN.COM
+	mcopy  -i $@ edlin.com ::EDLIN.COM
 	mcopy  -i $@ bin/format.com ::FORMAT.COM
 	mcopy  -i $@ bin/diskcopy.com ::DISKCOPY.COM
 	mcopy  -i $@ bin/diskcomp.com ::DISKCOMP.COM
@@ -229,6 +232,8 @@ xmscmd.exe: xmscmd.obj
 	emu2 bin/link.exe xmscmd,xmscmd,xmscmd,xmscmd,
 
 xmscmd.obj: mscmd.asm command.asm
+	unix2dos mscmd.asm
+	unix2dos command.asm
 	emu2 bin/msmasm.exe mscmd,xmscmd,xmscmd,xmscmd  || rm -f xmscmd.obj
 
 ibmcmd.com: ibmcmd.exe 
@@ -247,6 +252,7 @@ ver.exe: ver.obj
 	emu2 bin/link.exe ver,ver,ver,ver, 
 
 ver.obj: ver.asm
+	unix2dos $<
 	emu2 bin/msmasm.exe ver,ver,ver,ver || rm -f ver.obj
 
 mem.com: mem.exe
@@ -256,7 +262,20 @@ mem.exe: mem.obj
 	emu2 bin/link.exe mem,mem,mem,mem, 
 
 mem.obj: mem.asm
+	unix2dos $<
 	emu2 bin/msmasm.exe mem,mem,mem,mem || rm -f mem.obj
+
+
+edlin.com: edlin.exe
+	emu2 bin/exe2bin.exe edlin.exe edlin.com
+
+edlin.exe: edlin.obj
+	emu2 bin/link.exe edlin,edlin,edlin,edlin,
+
+edlin.obj: edlin.asm
+	unix2dos $<
+	emu2 bin/msmasm.exe edlin,edlin,edlin,edlin || rm -f edlin.obj
+
 
 mssys.com: mssys.exe
 	emu2 bin/exe2bin.exe mssys.exe mssys.com
@@ -265,6 +284,8 @@ mssys.exe: mssys.obj
 	emu2 bin/link.exe mssys,mssys,mssys,mssys, 
 
 mssys.obj: mssys.asm sys.asm
+	unix2dos mssys.asm
+	unix2dos sys.asm
 	emu2 bin/msmasm.exe mssys,mssys,mssys,mssys || rm -f mssys.obj
 
 ibmsys.com: ibmsys.exe
@@ -283,6 +304,7 @@ cls.exe: cls.obj
 	emu2 bin/link.exe cls,cls,cls,cls, 
 
 cls.obj: cls.asm
+	unix2dos $<
 	emu2 bin/msmasm.exe cls,cls,cls,cls || rm -f cls.obj
 
 ballc.com: ballc.exe
@@ -292,21 +314,30 @@ ballc.exe: ballc.obj
 	emu2 bin/link.exe ballc,ballc,ballc,ballc, 
 
 ballc.obj: ballc.asm
+	unix2dos $<
 	emu2 bin/msmasm.exe ballc,ballc,ballc,ballc || rm -f ballc.obj
 
 hello.com: hello.asm asm.com hex2bin.com
+	unix2dos hello.asm
 	emu2 asm.com hello.  z
 	emu2 hex2bin.com hello
 
 trans.com: trans.asm asm.com hex2bin.com
+	unix2dos trans.asm
 	emu2 asm.com trans.  z
 	emu2 hex2bin.com trans
 
 asm.com: asm.asm
+	unix2dos $<
 	emu2 bin/asm.com asm.  z
 	emu2 bin/hex2bin.com asm
 
+hex2bin.obj: hex2bin.asm
+	unix2dos $<
+	emu2 bin/msmasm.exe hex2bin,hex2bin,hex2bin,hex2bin || rm -f hex2bin.obj
+
 hex2bin.com: hex2bin.asm
+	unix2dos $<
 	emu2 bin/asm.com hex2bin.  z
 	emu2 bin/hex2bin.com hex2bin
 

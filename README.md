@@ -31,7 +31,7 @@ Each variant builds on top of `*_base.img`.
 | `pcdos_base.img` | PC-DOS | `ibmbio.com`, `ibmdos.com`, `command.com` only (minimal bootable system) |
 | `pcdos_dist.img` | PC-DOS | Base + the original PC-DOS 1.1 distribution tools and the IBM BASIC sample programs |
 | `pcdos_full.img` | PC-DOS | Base + distribution tools, `masm.exe`/`link.exe`/`cref.exe`/`lib.exe`, `basic.com`/`basica.com` and the samples (`asm.com`, `trans.com`, `hex2bin.com`, `mem.com`, `hello.asm`/`hello.bas`, `graph.bas`, `ballc.bas`/`ballc.com`) |
-| `pcdos_diag.img` | PC-DOS | Base + a small diagnostic set (`chkdsk.com`, `debug.com`, `edlin.com`, `mem.com`) |
+| `pcdos_diag.img` | PC-DOS | Base + a small diagnostic set (`chkdsk.com`, `debug.com`, `edlin.com` rebuilt from source, `mem.com`) |
 | `turbo.img` | PC-DOS | Base + Turbo Pascal 2.00B (see [Turbo Pascal](#turbo-pascal) below) |
 | `msdos_base.img` | MS-DOS | `io.sys`, `msdos.sys`, `command.com` only |
 | `msdos_dist.img` | MS-DOS | Base + the MS-DOS 1.25 style tool set and the SCP tools (`asm.com`, `hex2bin.com`, `trans.com`) |
@@ -90,6 +90,24 @@ and `blank.img`.
 | `hex2bin.com` | [hex2bin.asm](hex2bin.asm) | Seattle Computer Products 8086 Hex Converter, Version 1.02A |
 | `trans.com` | [trans.asm](trans.asm) | Seattle Computer Products Z80 to 8086 Translator, Version 2.21A (Tim Paterson) |
 
+### IBM Utilities Rebuilt From Reverse-Engineered Source
+
+| Command | Source | Description |
+|---------|--------|-------------|
+| `edlin.com` | [edlin.asm](edlin.asm) | IBM Personal Computer EDITOR (EDLIN), Version 1.00 (C)Copyright IBM Corp 1981 |
+
+No source is available for this utility. [edlin.asm](edlin.asm) was reverse engineered from the
+original `bin/edlin.com`: disassembled (IDA), then refined by hand until it reassembles to a
+**byte-for-byte identical** binary (SHA256 `ac27e26913f26f2caa17221c92a1a2439742bed78c365cc862d727622f5fa150`).
+The reconstructed source has named routines, labelled PSP/FCB/work-area addresses, equates and
+a commented description of every command and routine; the command handlers are named after the
+command letters they implement (`A`, `D`, `E`, `I`, `L`, `Q`, `R`, `S`, `W` and line edit).
+
+It is built like the other sources (`make edlin.com`: `msmasm`, `link`, `exe2bin`) and the
+rebuilt `edlin.com` is the one copied onto the disk images. A few instructions use encodings
+the Microsoft assembler 1.10 does not generate (opcode `82h` byte compares, near jumps to a
+nearby label), they are emitted with `db`/`dw` and commented so that the output stays identical.
+
 ### Turbo Pascal
 
 Turbo Pascal 2.00B starting up on the system:
@@ -116,7 +134,7 @@ Vintage third-party binaries used at build time and copied onto the images.
 |-------|-------|
 | Build chain | `masm.exe` (IBM Personal Computer MACRO Assembler, Version 2.00; PC-DOS), `msmasm.exe` (Microsoft MACRO Assembler, Version 1.10, patched; used for the build and on MS-DOS images), `link.exe` (IBM Personal Computer Linker, Version 1.10; PC-DOS), `mslink.exe` (Microsoft Object Linker, Version 1.10; MS-DOS), `lib.exe` (Microsoft Library Manager, Version 2.00; PC-DOS), `mslib.exe` (Microsoft Librarian, Version 2.00; MS-DOS), `cref.exe` (Microsoft Cross Reference, Version 1.00; PC-DOS), `mscref.exe` (Microsoft Cross Reference, Version 1.00; MS-DOS), `exe2bin.exe` |
 | Bootstrap tools | `asm.com`, `hex2bin.com`, `trans.com` |
-| DOS utilities | `chkdsk.com`, `comp.com`, `debug.com`, `diskcomp.com`, `diskcopy.com`, `edlin.com`, `filcom.com`, `format.com`, `msformat.com`, `mode.com` |
+| DOS utilities | `chkdsk.com`, `comp.com`, `debug.com`, `diskcomp.com`, `diskcopy.com`, `edlin.com` (original, kept as the reference the rebuilt source is checked against; the images carry the [rebuilt one](#ibm-utilities-rebuilt-from-reverse-engineered-source)), `filcom.com`, `format.com`, `msformat.com`, `mode.com` |
 | BASIC | `basic.com`, `basica.com` (IBM BASIC/BASICA, Version A1.10; require an IBM PC with the BASIC ROM, e.g. `rom/ibm-basic-1.10.rom`; PC-DOS images only), `msbasic.com` (Microsoft BASIC, Version 5.28, MS-DOS patched; `msbasic.org` is the unpatched original), `gwbasic.exe` (GW-BASIC, Version 1.14; MS-DOS images only) |
 
 ### Emulation
@@ -137,6 +155,9 @@ The experiment started from the vintage MS-DOS code opened by Microsoft:
 https://github.com/microsoft/MS-DOS/blob/master/v1.25/source/COMMAND.ASM
 
 ibmbio.com sources are retrieved from https://www.os2museum.com/wp/pc-dos-1-1-from-scratch
+
+[edlin.asm](edlin.asm) has no upstream source: it is reverse engineered from the PC-DOS 1.1 `edlin.com`
+(see [IBM Utilities Rebuilt From Reverse-Engineered Source](#ibm-utilities-rebuilt-from-reverse-engineered-source)).
 
 ## MIT License (In line with Source License):
 
