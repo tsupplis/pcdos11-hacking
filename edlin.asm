@@ -42,11 +42,48 @@ program         segment
                 org     100h
 
 ; ---------------------------------------------------------------------------
+; Macros for encodings the original program has and MASM 1.10 does not emit
+;   jmpn:      near jmp (E9) to a label that is in short range; MASM 1.10 would
+;              use a short jmp (EB) for a backward target and `near ptr` is
+;              ignored
+;   cmp82_*:   cmp r/m8,imm8 with opcode 82h, which MASM 1.10 encodes as 80h
+; ---------------------------------------------------------------------------
+jmpn            macro   target
+                db      0E9h
+                dw      target - $ - 2
+                endm
+
+cmp82_mem       macro   addr, imm               ; cmp byte ptr ds:[addr], imm
+                db      82h, 3Eh
+                dw      addr
+                db      imm
+                endm
+
+cmp82_si        macro   imm                     ; cmp byte ptr [si], imm
+                db      82h, 3Ch, imm
+                endm
+
+cmp82_cl        macro   imm                     ; cmp cl, imm
+                db      82h, 0F9h, imm
+                endm
+
+; ---------------------------------------------------------------------------
 ; Character constants
 ; ---------------------------------------------------------------------------
 cr              equ     0Dh             ; Carriage return
 lf              equ     0Ah             ; Line feed
 ctrlz           equ     1Ah             ; ^Z, end of file / end of text marker
+tab             equ     09h             ; Tab
+upmask          equ     5Fh             ; AND mask: lower case letter to upper case
+ctrlmask        equ     40h             ; OR mask: control character to its letter
+
+; ---------------------------------------------------------------------------
+; FCB layout
+; ---------------------------------------------------------------------------
+fcb_newname     equ     16              ; Offset of the new name in a rename FCB
+fcb_drvname     equ     9               ; Drive byte + 8 name characters
+fcb_ext_len     equ     3               ; Extension length ("BAK", "$$$")
+fcb_fname_words equ     6               ; Drive + name + extension: 12 bytes
 
 ; ---------------------------------------------------------------------------
 ; Program Segment Prefix (PSP) fields.  These are below the 100h load
@@ -57,8 +94,25 @@ fcb1            equ     5Ch             ; Default FCB 1 (file named on the comma
 fcb1_name       equ     fcb1 + 1        ; File name (8 chars, space padded)
 fcb1_ext        equ     fcb1 + 9        ; Extension (3 chars)
 fcb1_recsiz     equ     fcb1 + 14       ; Record size word
-fcb1_newname    equ     fcb1 + 16       ; Rename: new name field (FCB + 10h)
+fcb1_newname    equ     fcb1 + fcb_newname ; Rename: new name field
 fcb1_rr         equ     fcb1 + 33       ; Random record number (dword)
+
+; ---------------------------------------------------------------------------
+; DOS function numbers (INT 21h, AH), and INT 20h terminates the program
+; ---------------------------------------------------------------------------
+dos_kbd_echo    equ     01h             ; Keyboard input with echo
+dos_display     equ     02h             ; Display output (DL)
+dos_print       equ     09h             ; Print '$' terminated string (DS:DX)
+dos_bufin       equ     0Ah             ; Buffered keyboard input (DS:DX)
+dos_open        equ     0Fh             ; Open file (FCB at DS:DX)
+dos_close       equ     10h             ; Close file
+dos_delete      equ     13h             ; Delete file
+dos_create      equ     16h             ; Create file
+dos_rename      equ     17h             ; Rename file
+dos_set_dta     equ     1Ah             ; Set disk transfer address (DS:DX)
+dos_rdblock     equ     27h             ; Random block read (CX records)
+dos_wrblock     equ     28h             ; Random block write (CX records)
+dos_setvec_23   equ     2523h           ; AH = 25h set interrupt vector, AL = 23h (^C)
 
 ; ---------------------------------------------------------------------------
 ; Limits and special values
@@ -98,37 +152,35 @@ err_exit:
 init:
                 mov     byte ptr ds:[modflg], 0 ; Not in "end edit" mode
                 mov     sp, offset stack_top
-                db      82h, 3Eh                ; cmp byte ptr ds:[fcb1_name], ' '
-                dw      fcb1_name               ; (opcode 82h form, as in the original)
-                db      ' '
+                cmp82_mem fcb1_name, ' '        ; No file name on the command line?
                 jz      short err_nofile        ; No file name on the command line
                 or      al, al                  ; AL = 0 if the drive letter is valid
                 mov     dx, offset baddrv
                 jnz     short err_exit
                 mov     si, offset bak          ; Refuse to edit a .BAK file
                 mov     di, fcb1_ext
-                mov     cx, 3
+                mov     cx, fcb_ext_len
                 repe cmpsb
                 jz      short err_bak
-                mov     ah, 0Fh                 ; DOS: open file (FCB)
+                mov     ah, dos_open                 ; DOS: open file (FCB)
                 mov     dx, fcb1
                 int     21h
                 mov     byte ptr ds:[newfile_flg], al ; 0 = file found, 0FFh = new file
                 or      al, al
                 jz      short create_tmp
                 mov     dx, offset newfil
-                mov     ah, 9                   ; DOS: print string
+                mov     ah, dos_print                   ; DOS: print string
                 int     21h                     ; "New file"
 
 create_tmp:
                 mov     si, fcb1                ; Copy drive + 8 char name to FCB 2
                 mov     di, offset fcb2
-                mov     cx, 9
+                mov     cx, fcb_drvname
                 rep movsb
                 mov     si, offset bak          ; ... and give it the extension BAK
                 movsw
                 movsb
-                mov     ah, 13h                 ; DOS: delete file (FCB), any old .BAK
+                mov     ah, dos_delete                 ; DOS: delete file (FCB), any old .BAK
                 mov     dx, offset fcb2
                 int     21h
                 mov     al, '$'
@@ -136,7 +188,7 @@ create_tmp:
                 stosb
                 stosb
                 stosb
-                mov     ah, 16h                 ; DOS: create the temporary file
+                mov     ah, dos_create                 ; DOS: create the temporary file
                 int     21h
                 or      al, al
                 jz      short init_buf
@@ -162,7 +214,7 @@ init_buf:
                 mov     word ptr ds:[fcb2_recsiz], ax
                 mov     dx, offset buf_start
                 mov     di, dx
-                mov     ah, 1Ah                 ; DOS: set DTA to the text buffer
+                mov     ah, dos_set_dta                 ; DOS: set DTA to the text buffer
                 int     21h
                 mov     cx, ds:[psp_memsize]    ; Bytes available in the segment
                 dec     cx
@@ -179,7 +231,7 @@ init_buf:
                 add     dx, offset buf_start
                 mov     word ptr ds:[buf_3qtr], dx ; 3/4 mark (address)
                 mov     dx, fcb1                ; DOS: random block read of CX bytes
-                mov     ah, 27h
+                mov     ah, dos_rdblock
                 int     21h
                 call    scan_eof                ; CX = bytes up to a ^Z, if any
                 add     di, cx                  ; DI = end of the text read
@@ -205,13 +257,13 @@ init_vars:
 
 command:
                 mov     sp, offset stack_top    ; Discard anything left on the stack
-                mov     ax, 2523h               ; DOS: set interrupt vector 23h (^C)
+                mov     ax, dos_setvec_23       ; DOS: set interrupt vector 23h (^C)
                 mov     dx, offset break_cmd    ; ^C returns to the prompt
                 int     21h
                 mov     al, '*'                 ; Prompt
                 call    print_char
                 mov     dx, offset combuf       ; DOS: buffered keyboard input
-                mov     ah, 0Ah
+                mov     ah, dos_bufin
                 int     21h
                 mov     al, lf                  ; The input only echoed a CR
                 call    print_char
@@ -238,7 +290,7 @@ chknxt:
 chkcase:
                 cmp     al, '_'                 ; Convert lower case letters to upper
                 jbe     short dispatch
-                and     al, 5Fh
+                and     al, upmask
 
 dispatch:
                 mov     di, offset comtab
@@ -256,8 +308,7 @@ dispatch:
 docom:
                 shl     bx, 1                   ; Word index
                 call    table[bx]
-                db      0E9h                    ; Near jmp, MASM would emit a short one
-                dw      command - $ - 2         ; Back to the command prompt
+                jmpn    command                 ; Back to the command prompt
 
 ; ---------------------------------------------------------------------------
 ; Skip blanks in the command line.
@@ -283,7 +334,7 @@ skip            endp
 
 comerr:
                 mov     dx, offset badcom
-                mov     ah, 9                   ; DOS: print string
+                mov     ah, dos_print                   ; DOS: print string
                 int     21h
                 jmp     command
 
@@ -324,7 +375,7 @@ numlp:
                 jmp     short numlp
 
 chknum:
-                db      82h, 0F9h, 0            ; cmp cl, 0 (opcode 82h form, as in the original)
+                cmp82_cl 0                      ; Any digit seen?
                 jz      short retnum            ; No number given, DX = 0
                 or      dx, dx                  ; An explicit 0 is invalid
                 jz      short comerr
@@ -406,13 +457,13 @@ append_cmd      proc near
 
 append_lp:
                 mov     di, dx                  ; DI = where the new text starts
-                mov     ah, 1Ah                 ; DOS: set DTA to the end of the text
+                mov     ah, dos_set_dta                 ; DOS: set DTA to the end of the text
                 int     21h
                 mov     cx, word ptr ds:[mem_top]
                 sub     cx, dx                  ; Free memory
                 jz      short append_memerr
                 mov     dx, fcb1                ; DOS: random block read of CX bytes
-                mov     ah, 27h
+                mov     ah, dos_rdblock
                 int     21h
                 mov     byte ptr ds:[newfile_flg], al ; Non zero when the end of the file was hit
                 push    cx                      ; Number of bytes read
@@ -462,7 +513,7 @@ append_set_end:
 
 append_eof_msg:
                 mov     dx, offset eofmsg       ; "End of input file"
-                mov     ah, 9                   ; DOS: print string
+                mov     ah, dos_print                   ; DOS: print string
                 int     21h
 
 append_ret:
@@ -518,10 +569,10 @@ write_calc_len:
                 mov     dx, offset buf_start
                 sub     cx, dx                  ; CX = bytes to write
                 jz      short append_ret
-                mov     ah, 1Ah                 ; DOS: set DTA to the start of the text
+                mov     ah, dos_set_dta                 ; DOS: set DTA to the start of the text
                 int     21h
                 mov     dx, offset fcb2         ; DOS: random block write of CX bytes
-                mov     ah, 28h
+                mov     ah, dos_wrblock
                 int     21h
                 or      al, al
                 jnz     short write_dskful_err
@@ -540,13 +591,13 @@ findlin_ret:
                 ret
 
 write_dskful_err:
-                mov     ah, 10h                 ; DOS: close the temporary file
+                mov     ah, dos_close                 ; DOS: close the temporary file
                 int     21h
                 mov     dx, offset dskful
 
 ; Display the error message at DX and return to DOS (no return)
 disp_err:
-                mov     ah, 9                   ; DOS: print string
+                mov     ah, dos_print                   ; DOS: print string
                 int     21h
                 int     20h                     ; DOS: terminate program
 write_recs      endp
@@ -736,13 +787,13 @@ print_line_out_char:
                 jz      short print_line_done
                 cmp     al, cr
                 jz      short print_line_done
-                cmp     al, 9                   ; TAB
+                cmp     al, tab
                 jz      short print_line_done
                 push    ax                      ; Other control character: show as
                 mov     al, '^'                 ; ^ followed by the letter
                 call    print_char
                 pop     ax
-                or      al, 40h
+                or      al, ctrlmask
 
 print_line_done:
                 call    print_char
@@ -858,8 +909,7 @@ replace_shift:
 replace_next:
                 call    find_match
                 jnz     short outstr_ret        ; No more matches
-                db      0E9h                    ; Near jmp, MASM would emit a short one
-                dw      replace_lp - $ - 2
+                jmpn    replace_lp
 replace_cmd     endp
 
 ; ---------------------------------------------------------------------------
@@ -920,7 +970,7 @@ notfound:
 
 ; Display the '$' terminated message at DX and return to the caller
 print_msg:
-                mov     ah, 9                   ; DOS: print string
+                mov     ah, dos_print                   ; DOS: print string
                 int     21h
                 ret
 search_cmd      endp
@@ -949,9 +999,9 @@ prompt_yesno    proc near
                 test    byte ptr ds:[qflg], 0FFh
                 jz      short set_curlin_ret    ; No ?, ZF is set
                 mov     dx, offset prompt_ok
-                mov     ah, 9                   ; DOS: print string
+                mov     ah, dos_print                   ; DOS: print string
                 int     21h
-                mov     ah, 1                   ; DOS: keyboard input with echo
+                mov     ah, dos_kbd_echo                   ; DOS: keyboard input with echo
                 int     21h
                 push    ax
                 call    print_crlf
@@ -1151,7 +1201,7 @@ edit_find_line:
                 mov     si, word ptr ds:[pointer]
                 call    print_line
                 call    shownum
-                mov     ah, 0Ah                 ; DOS: buffered keyboard input
+                mov     ah, dos_bufin                 ; DOS: buffered keyboard input
                 mov     dx, offset editbuf
                 int     21h
                 mov     al, lf
@@ -1212,7 +1262,7 @@ shift_ret:
 ; "Insufficient memory": give up the command (the stack is reset at the prompt)
 memerr:
                 mov     dx, offset memful
-                mov     ah, 9                   ; DOS: print string
+                mov     ah, dos_print                   ; DOS: print string
                 int     21h
                 jmp     command
 shift_text      endp
@@ -1229,7 +1279,7 @@ shift_text      endp
 ; ---------------------------------------------------------------------------
 
 insert_cmd      proc near
-                mov     ax, 2523h               ; DOS: set interrupt vector 23h (^C)
+                mov     ax, dos_setvec_23       ; DOS: set interrupt vector 23h (^C)
                 mov     dx, offset break_ins    ; ^C must put the text back together
                 int     21h
                 mov     bx, word ptr ds:[param1]
@@ -1258,11 +1308,11 @@ insert_lp:
                 mov     word ptr ds:[endtxt], bp ; Text seems to end at the gap
                 call    shownum
                 mov     dx, offset editbuf      ; DOS: buffered keyboard input
-                mov     ah, 0Ah
+                mov     ah, dos_bufin
                 int     21h
                 call    print_lf
                 mov     si, offset editbuf_text
-                db      82h, 3Ch, ctrlz         ; cmp byte ptr [si], ctrlz (opcode 82h form)
+                cmp82_si ctrlz                  ; ^Z at the start: finished
                 jz      short insert_done       ; ^Z at the start: finished
                 mov     cl, [si-1]              ; Length typed
                 mov     ch, 0
@@ -1309,17 +1359,17 @@ insert_cmd      endp
 
 quit_cmd        proc near
                 mov     dx, offset abort_prompt
-                mov     ah, 9                   ; DOS: print string
+                mov     ah, dos_print                   ; DOS: print string
                 int     21h
-                mov     ah, 1                   ; DOS: keyboard input with echo
+                mov     ah, dos_kbd_echo                   ; DOS: keyboard input with echo
                 int     21h
-                and     al, 5Fh                 ; Upper case
+                and     al, upmask              ; Upper case
                 cmp     al, 'Y'
                 jnz     short print_crlf        ; No: new line, back to the prompt
                 mov     dx, offset fcb2
-                mov     ah, 10h                 ; DOS: close the temporary file
+                mov     ah, dos_close                 ; DOS: close the temporary file
                 int     21h
-                mov     ah, 13h                 ; DOS: delete it (DX is unchanged)
+                mov     ah, dos_delete                 ; DOS: delete it (DX is unchanged)
                 int     21h
                 int     20h                     ; DOS: terminate program
 quit_cmd        endp
@@ -1345,27 +1395,27 @@ exit_cmd        proc near
                 test    byte ptr ds:[newfile_flg], 0FFh
                 jz      short exit_all_recs     ; The file is not all copied yet
                 mov     dx, word ptr ds:[endtxt] ; DOS: set DTA to the final ^Z
-                mov     ah, 1Ah
+                mov     ah, dos_set_dta
                 int     21h
                 mov     cx, 1                   ; DOS: random block write of that 1 byte
                 mov     dx, offset fcb2
-                mov     ah, 28h
+                mov     ah, dos_wrblock
                 int     21h
-                mov     ah, 10h                 ; DOS: close the new file
+                mov     ah, dos_close                 ; DOS: close the new file
                 int     21h
                 mov     si, fcb1                ; Rename the original file to name.BAK:
-                lea     di, [si+10h]            ; the new name field of FCB 1 gets
+                lea     di, [si+fcb_newname]    ; the new name field of FCB 1 gets
                 mov     dx, si                  ; the drive and name,
-                mov     cx, 9
+                mov     cx, fcb_drvname
                 rep movsb
                 mov     si, offset bak          ; and the extension BAK
                 movsw
                 movsb
-                mov     ah, 17h                 ; DOS: rename file (FCB at DX)
+                mov     ah, dos_rename                 ; DOS: rename file (FCB at DX)
                 int     21h
                 mov     si, fcb1                ; Rename name.$$$ to the original name:
                 mov     di, offset fcb2_newname ; copy drive, name and extension of
-                mov     cx, 6                   ; FCB 1 (12 bytes) to the new name
+                mov     cx, fcb_fname_words     ; FCB 1 (12 bytes) to the new name
                 rep movsw                       ; field of FCB 2
                 mov     dx, offset fcb2
                 int     21h                     ; DOS: rename file (AH is still 17h)
@@ -1390,7 +1440,7 @@ print_lf        endp
 print_char      proc near
                 push    dx
                 xchg    ax, dx                  ; DL = character
-                mov     ah, 2                   ; DOS: display output
+                mov     ah, dos_display                   ; DOS: display output
                 int     21h
                 xchg    ax, dx                  ; Restore AX
                 pop     dx
@@ -1441,7 +1491,7 @@ abort_prompt    db      "Abort edit (Y/N)? $"
 fcb2            label   byte                    ; 0A58h
 fcb2_ext        equ     fcb2 + 9                ; Extension
 fcb2_recsiz     equ     fcb2 + 14               ; Record size word (0A66h)
-fcb2_newname    equ     fcb2 + 16               ; Rename: new name field (0A68h)
+fcb2_newname    equ     fcb2 + fcb_newname      ; Rename: new name field (0A68h)
 fcb2_rr         equ     fcb2 + 33               ; Random record number dword (0A79h)
 
 ; Flags
