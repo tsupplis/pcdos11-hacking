@@ -1,8 +1,5 @@
 ;*-------------------------------------------------------------------------
 ;  EDLIN.ASM - IBM Personal Computer line editor ("EDITOR"), version 1.00
-;  Reconstructed from the IDA disassembly of bin/edlin.com, for MASM 1.10
-;  (IBM PC-DOS 1.10 EDLIN.COM).  The assembled image is byte-for-byte
-;  identical to bin/edlin.com.
 ;
 ;  Build:   make edlin.com
 ;           (msmasm edlin -> link edlin -> exe2bin edlin.exe edlin.com)
