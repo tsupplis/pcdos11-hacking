@@ -135,7 +135,7 @@ Vintage third-party binaries used at build time and copied onto the images.
 | Build chain | `masm.exe` (IBM Personal Computer MACRO Assembler, Version 2.00; PC-DOS), `msmasm.exe` (Microsoft MACRO Assembler, Version 1.10, patched; used for the build and on MS-DOS images), `link.exe` (IBM Personal Computer Linker, Version 1.10; PC-DOS), `mslink.exe` (Microsoft Object Linker, Version 1.10; MS-DOS), `lib.exe` (Microsoft Library Manager, Version 2.00; PC-DOS), `mslib.exe` (Microsoft Librarian, Version 2.00; MS-DOS), `cref.exe` (Microsoft Cross Reference, Version 1.00; PC-DOS), `mscref.exe` (Microsoft Cross Reference, Version 1.00; MS-DOS), `exe2bin.exe` |
 | Bootstrap tools | `asm.com`, `hex2bin.com`, `trans.com` |
 | DOS utilities | `chkdsk.com`, `comp.com`, `debug.com`, `diskcomp.com`, `diskcopy.com`, `edlin.com` (original, kept as the reference the rebuilt source is checked against; the images carry the [rebuilt one](#ibm-utilities-rebuilt-from-reverse-engineered-source)), `filcom.com`, `format.com`, `msformat.com`, `mode.com` |
-| BASIC | `basic.com`, `basica.com` (IBM BASIC/BASICA, Version A1.10; require an IBM PC with the BASIC ROM, e.g. `rom/ibm-basic-1.10.rom`; PC-DOS images only), `msbasic.com` (Microsoft BASIC, Version 5.28, MS-DOS patched; `msbasic.org` is the unpatched original), `gwbasic.exe` (GW-BASIC, Version 1.14; MS-DOS images only) |
+| BASIC | `basic.com`, `basica.com` (IBM BASIC/BASICA, Version A1.10; require an IBM PC with the BASIC ROM, e.g. `rom/ibm-basic-1.10.rom`; PC-DOS images only), `msbasic.com` (Microsoft BASIC, Version 5.50, reconstructed from Microsoft Sources (cf companion projects)), `gwbasic.exe` (GW-BASIC, Version 1.14; MS-DOS images only) |
 
 ### Emulation
 

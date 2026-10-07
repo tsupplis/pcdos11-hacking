@@ -189,12 +189,10 @@ pcdos_full.img: pcdos_base.img asm.com trans.com edlin.com \
 	mcopy  -i $@ hex2bin.com ::HEX2BIN.COM
 	mcopy  -i $@ hello.asm ::HELLO.ASM
 	mcopy  -i $@ mkhello.bat ::MKHELLO.BAT
-	mcopy  -i $@ hello.bas ::HELLO.BAS
-	mcopy  -i $@ graph.bas ::GRAPH.BAS
-	mcopy  -i $@ ballc.bas ::BALLC.BAS
-	mcopy  -i $@ ballc.com ::BALLC.COM
-	mcopy  -i $@ mem.com ::MEM.COM
 	mcopy  -i $@ bin/pceinit.com ::PCEINIT.COM
+	mcopy  -i $@ mem.com ::MEM.COM
+	mcopy  -i $@ graph.bas ::GRAPH.BAS
+	mcopy  -i $@ ballc.com ::BALLC.COM
 	mattrib -i $@ -a ::"*.*"
 	mdir -w -i $@ ::
 
