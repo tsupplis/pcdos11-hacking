@@ -16,6 +16,8 @@ x*.exe
 x*.com
 mssys.com
 mssys.exe
+mscmd.com
+mscmd.exe
 ibmbio.com
 ibmbio.exe
 ibmcmd.com
@@ -32,8 +34,10 @@ dosmon.exe
 dosmon.com
 cls.exe
 cls.com
-edlin.exe
-edlin.com
+ibmedlin.exe
+ibmedlin.com
+msedlin.exe
+msedlin.com
 ballc.com
 ballc.exe
 mem.exe
@@ -43,8 +47,6 @@ ver.exe
 asm.com
 tran.com
 hello.com
-mscmd.asm
-mscmdex.asm
 msdos_*.img
 turbo.img
 pcdos_*.img

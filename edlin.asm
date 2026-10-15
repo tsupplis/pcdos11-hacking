@@ -137,10 +137,14 @@ _start:
 ; Copyright banner (never displayed by the program, '$' terminated)
 ; ---------------------------------------------------------------------------
                 db      cr, lf
+IF MSVER
+                db     "EDLIN  version 1.01", cr, lf, "$"
+ENDIF
+IF IBMVER
                 db      "The IBM Personal Computer EDITOR", cr, lf
                 db      "Version 1.00 (C)Copyright IBM Corp 1981", cr, lf, "$"
                 db      "Licensed Material - Program Property of IBM"
-
+ENDIF
 ; ---------------------------------------------------------------------------
 ; Startup: validate the file name, open it, create the temporary file
 ; ---------------------------------------------------------------------------
@@ -154,11 +158,25 @@ err_exit:
 init:
                 mov     byte ptr ds:[modflg], 0 ; Not in "end edit" mode
                 mov     sp, offset stack_top
+IF MSVER
+                push    ax                      ; Print the banner at startup
+                mov     dx, offset _start + 2   ; Points to the CR LF "EDLIN..." string
+                mov     ah, dos_print
+                int     21h
+                pop     ax
+                or      al, al                  ; AL = 0 if the drive letter is valid
+                mov     dx, offset baddrv
+                jnz     short err_exit
+                cmp82_mem fcb1_name, ' '        ; No file name on the command line?
+                jz      short err_nofile
+ENDIF
+IF IBMVER
                 cmp82_mem fcb1_name, ' '        ; No file name on the command line?
                 jz      short err_nofile        ; No file name on the command line
                 or      al, al                  ; AL = 0 if the drive letter is valid
                 mov     dx, offset baddrv
                 jnz     short err_exit
+ENDIF
                 mov     si, offset bak          ; Refuse to edit a .BAK file
                 mov     di, fcb1_ext
                 mov     cx, fcb_ext_len
