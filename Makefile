@@ -1,7 +1,7 @@
 all: ibmcmd.com ibmdos.com ibmbio.com \
      xmscmd.com \
      asm.com hex2bin.com trans.com hello.com \
-     mem.com ver.com cls.com ballc.com \
+     mem.com ver.com cls.com ballc.com mon.com \
      ibmsys.com mssys.com \
      pcdos_full.img pcdos_base.img pcdos_dist.img pcdos_diag.img \
      msdos_full.img msdos_base.img msdos_dist.img msdos_diag.img \
@@ -262,6 +262,17 @@ mem.exe: mem.obj
 mem.obj: mem.asm
 	unix2dos $<
 	emu2 bin/msmasm.exe mem,mem,mem,mem || rm -f mem.obj
+
+
+mon.com: mon.exe
+	emu2 bin/exe2bin.exe mon.exe mon.com
+
+mon.exe: mon.obj
+	emu2 bin/link.exe mon,mon,mon,mon,
+
+mon.obj: mon.asm
+	unix2dos mon.asm
+	emu2 bin/msmasm.exe mon,mon,mon,mon || rm -f mon.obj
 
 
 edlin.com: edlin.exe
