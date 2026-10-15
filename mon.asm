@@ -1,9 +1,3 @@
-CODE	SEGMENT
-	ASSUME	CS:CODE, DS:CODE, SS:CODE, ES:CODE
-	ORG	100H
-
-_start:
-
 ; Seattle Computer Products 8086 Monitor version 1.9  4-02-83
 ; Adapted for MASM / PC-DOS COM file
 ;   Original by Tim Paterson, Seattle Computer Products
@@ -1273,6 +1267,3 @@ QUIT:
 	MOV	SI,OFFSET BYEMES
 	CALL	PRINTMES
 	INT	20H			;Terminate — return to DOS
-
-CODE	ENDS
-	END	_start

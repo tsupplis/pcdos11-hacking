@@ -270,9 +270,9 @@ mon.com: mon.exe
 mon.exe: mon.obj
 	emu2 bin/link.exe mon,mon,mon,mon,
 
-mon.obj: mon.asm
-	unix2dos mon.asm
-	emu2 bin/msmasm.exe mon,mon,mon,mon || rm -f mon.obj
+mon.obj: dosmon.asm mon.asm
+	unix2dos dosmon.asm mon.asm
+	emu2 bin/msmasm.exe dosmon,mon,mon,mon || rm -f mon.obj
 
 
 edlin.com: edlin.exe

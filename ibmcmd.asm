@@ -16,4 +16,4 @@ CMDEXT  EQU TRUE
 ; Set this switch to cause DOS to move itself to the end of memory
 HIGHMEM	EQU	FALSE
 
-	INCLUDE	COMMAND.ASM
+INCLUDE	COMMAND.ASM

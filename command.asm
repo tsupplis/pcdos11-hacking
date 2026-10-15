@@ -454,13 +454,16 @@ LOADCOM:
         MOV     AH,SETDMA
         INT     33
         POP     DS
+        IF MSVER
         MOV     AL, 0
         MOV     [COMFCB], AL
+        ENDIF
         MOV     DX,OFFSET RESGROUP:COMFCB
         MOV     AH,OPEN
         INT     33              ;Open COMMAND.COM
         OR      AL,AL
         JZ      READCOM
+        IF CMDEXT
         MOV     AL, 1
         MOV     [COMFCB], AL
         MOV     DX,OFFSET RESGROUP:COMFCB
@@ -468,6 +471,7 @@ LOADCOM:
         INT     33              ;Open COMMAND.COM
         OR      AL,AL
         JZ      READCOM
+        ENDIF
         MOV     DX,OFFSET RESGROUP:NEEDCOM
 PROMPTCOM:
         MOV     AH,PRINTBUF
@@ -606,18 +610,32 @@ DRV0:
 
 
         IF MSVER
+        IF CMDEXT
 HEADER  DB      13,10,13,10,"Microsoft DOS",13,10
         IF      HIGHMEM
         DB      "Version 1.25CH (C)Copyright Microsoft 1981, 1982, 2023",13,10,"$"
         ELSE
         DB      "Version 1.25C (C)Copyright Microsoft 1981, 1982, 2023",13,10,"$"
         ENDIF
+        ELSE
+HEADER  DB      13,10,"Command v. 1.17"
+        IF      HIGHMEM
+        DB      "H"
+        ENDIF
+        DB      13,10,"$"
+        ENDIF
         ENDIF
 
         IF IBMVER
+        IF CMDEXT
 HEADER  DB      13,10,13,10,"The IBM Personal Computer DOS",13,10
         DB      "Version 1.10C (C)Copyright IBM Corp 1981, 1982, 2023",13,10,"$"
         DB      "Licensed Material - Program Property of IBM"
+        ELSE
+HEADER  DB      13,10,13,10,"The IBM Personal Computer DOS",13,10
+        DB      "Version 1.10 (C)Copyright IBM Corp 1981, 1982",13,10,"$"
+        DB      "Licensed Material - Program Property of IBM"
+        ENDIF
         ENDIF
 
 INITSIZE        EQU     $-ZERO
@@ -894,12 +912,14 @@ BADCOMJ:JMP     BADCOM
 SETDRV1:
         JMP     SETDRV
 
+        IF CMDEXT
 EXEDEFDRV:
         MOV     AL, [IDLEN]
         OR      AL, AL
         JNZ     BADCOMJ
         MOV     BYTE PTR [IDLEN],1
         JMP     EXTERNAL_IN
+        ENDIF
 DRVCHK:
         DEC     DL              ;Adjust for correct drive number
         DEC     AL              ;Check if anything else is on line
@@ -907,7 +927,9 @@ DRVCHK:
 EXTERNAL:
         MOV     AL,[SPECDRV]
         MOV     [IDLEN],AL
+        IF CMDEXT
 EXTERNAL_IN:
+        ENDIF
         MOV     WORD PTR[COM],4F00H+"C" ;"CO"
         MOV     BYTE PTR[COM+2],"M"
         MOV     DX,OFFSET TRANGROUP:IDLEN
@@ -925,7 +947,11 @@ EXTERNAL_IN:
         MOV     BYTE PTR[COM+2],"T"
         INT     33              ;Check if batch file to be executed
         OR      AL,AL
+        IF CMDEXT
         JNZ     EXEDEFDRV
+        ELSE
+        JNZ     BADCOMJ
+        ENDIF
 BATCOM:
 ;Batch parameters are read with ES set to segment of resident part
         MOV     ES,[RESSEG]
