@@ -89,8 +89,33 @@ and `blank.img`.
 | `asm.com` | [asm.asm](asm.asm) | Seattle Computer Products 8086 Assembler, Version 2.44B (Tim Paterson) |
 | `hex2bin.com` | [hex2bin.asm](hex2bin.asm) | Seattle Computer Products 8086 Hex Converter, Version 1.02A |
 | `trans.com` | [trans.asm](trans.asm) | Seattle Computer Products Z80 to 8086 Translator, Version 2.21A (Tim Paterson) |
+| `mon.com` | [mon.asm](mon.asm) | Seattle Computer Products 8086 Monitor, Version 1.9 (Tim Paterson / Craig Derouen) — adapted for MASM / PC-DOS |
 
-### IBM Utilities Rebuilt From Reverse-Engineered Source
+`mon.com` is the SCP ROM monitor v1.9 ported to run as a DOS `.COM` file. The original targeted
+ROM at `0xFF000` with direct UART and hardware controller access; this version replaces all
+hardware I/O with BIOS calls and restructures it as a relocatable COM.
+
+| Command | Description |
+|---------|-------------|
+| `?` | Help — list all commands |
+| `B` | Reboot — BIOS bootstrap (INT 19h), boots from first drive |
+| `D [addr] [Llen\|end]` | Dump memory in hex + ASCII (default 128 bytes) |
+| `E addr [bytes]` | Enter/edit memory interactively or from command line |
+| `F addr Llen\|end bytes` | Fill memory with repeating byte list |
+| `G [addr] [bp..]` | Go — run at address (or saved CS:IP), up to 10 breakpoints |
+| `I port` | Input — read byte from port, display in hex |
+| `M src Llen\|end dst` | Move — block copy (handles overlapping correctly) |
+| `O port byte` | Output — write byte to port |
+| `Q` | Quit — restore INT vectors, return to DOS |
+| `R [reg]` | Registers — display all, or set one (`R F` edits flags) |
+| `S addr Llen\|end bytes` | Search memory for byte string |
+| `T [count]` | Trace — single-step N instructions, display registers after each |
+
+All addresses and values are hexadecimal. Ranges can use an end address or `L`+length (e.g. `D 100 L20`).
+`G` and `T` use the 8086 trap flag (INT 1) and INT 3 breakpoints; vectors are saved on entry and
+restored on `Q`.
+
+### IBM/Microsoft Utilities Rebuilt From Reverse-Engineered Source
 
 | Command | Source | Description |
 |---------|--------|-------------|
