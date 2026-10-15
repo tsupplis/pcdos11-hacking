@@ -52,8 +52,11 @@ and `blank.img`.
 | `ibmsys.com` | [ibmsys.asm](ibmsys.asm), [sys.asm](sys.asm) | `sys.com` writing the PC-DOS system files |
 | `mssys.com` | [mssys.asm](mssys.asm), [sys.asm](sys.asm) | `sys.com` writing the MS-DOS system files |
 
-[cmdorig.asm](cmdorig.asm) keeps the untouched Microsoft `command.asm` for reference;
+[origcmd.asm](origcmd.asm) keeps the untouched Microsoft `command.asm` for reference;
 [io.asm](io.asm) is the original 86-DOS I/O system.
+| `ibmedlin.com` | [ibmedlin.asm](ibmedlin.asm) | IBM Personal Computer EDITOR (EDLIN), Version 1.00 (C)Copyright IBM Corp 1981 |
+| `msedlin.com` | [msedlin.asm](msedlin.asm) | Microsoft EDITOR (EDLIN), Version 1.02 |
+
 
 ### Added Utilities
 
@@ -114,24 +117,6 @@ hardware I/O with BIOS calls and restructures it as a relocatable COM.
 All addresses and values are hexadecimal. Ranges can use an end address or `L`+length (e.g. `D 100 L20`).
 `G` and `T` use the 8086 trap flag (INT 1) and INT 3 breakpoints; vectors are saved on entry and
 restored on `Q`.
-
-### IBM/Microsoft Utilities Rebuilt From Reverse-Engineered Source
-
-| Command | Source | Description |
-|---------|--------|-------------|
-| `edlin.com` | [edlin.asm](edlin.asm) | IBM Personal Computer EDITOR (EDLIN), Version 1.00 (C)Copyright IBM Corp 1981 |
-
-No source is available for this utility. [edlin.asm](edlin.asm) was reverse engineered from the
-original `bin/edlin.com`: disassembled (IDA), then refined by hand until it reassembles to a
-**byte-for-byte identical** binary (SHA256 `ac27e26913f26f2caa17221c92a1a2439742bed78c365cc862d727622f5fa150`).
-The reconstructed source has named routines, labelled PSP/FCB/work-area addresses, equates and
-a commented description of every command and routine; the command handlers are named after the
-command letters they implement (`A`, `D`, `E`, `I`, `L`, `Q`, `R`, `S`, `W` and line edit).
-
-It is built like the other sources (`make edlin.com`: `msmasm`, `link`, `exe2bin`) and the
-rebuilt `edlin.com` is the one copied onto the disk images. A few instructions use encodings
-the Microsoft assembler 1.10 does not generate (opcode `82h` byte compares, near jumps to a
-nearby label), they are emitted with `db`/`dw` and commented so that the output stays identical.
 
 ### Turbo Pascal
 
