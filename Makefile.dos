@@ -1,5 +1,5 @@
 all: ibmdos.com ibmbio.com ibmcmd.com ibmsys.com ibmedlin.com \
-     mscmd.com mssys.com msedlin.com \
+     msdos.com mscmd.com mssys.com msedlin.com \
      asm.com hex2bin.com trans.com hello.com \
      mem.com cls.com ver.com ballc.com
 
@@ -29,6 +29,15 @@ ibmcmd.exe: ibmcmd.obj
 
 ibmcmd.obj: ibmcmd.asm command.asm
 	bin\msmasm.exe ibmcmd,ibmcmd,ibmcmd,ibmcmd
+
+msdos.com: msdos.exe
+	bin\exe2bin.exe msdos.exe msdos.com
+
+msdos.exe: msdos.obj
+	bin\link.exe msdos,msdos,msdos,msdos,
+
+msdos.obj: msdos.asm dos.asm
+	bin\msmasm.exe msdos,msdos,msdos,msdos
 
 mscmd.com: mscmd.exe 
 	bin\exe2bin.exe mscmd.exe mscmd.com

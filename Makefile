@@ -1,6 +1,6 @@
 DIST_DISKS=pcdos_full.img pcdos_base.img pcdos_dist.img pcdos_diag.img \
      msdos_full.img msdos_base.img msdos_dist.img msdos_diag.img \
-     turbo.img
+     demos.img turbo.img
 
 
 all: ibmcmd.com ibmdos.com ibmbio.com \
@@ -108,15 +108,13 @@ msdos_diag.img: msdos_base.img asm.com trans.com \
 	mdir -w -i $@ ::
 
 msdos_full.img: msdos_base.img asm.com trans.com \
-    hex2bin.com mem.com mssys.com hello.80 mshello.bas mkhello.bat \
-	graph.bas msedlin.com
+    hex2bin.com mem.com mssys.com msedlin.com
 	cp msdos_base.img $@
 	mcopy  -i $@ autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/msmasm.exe ::MASM.EXE
 	mcopy  -i $@ bin/mslink.exe ::LINK.EXE
 	mcopy  -i $@ bin/mscref.exe ::CREF.EXE
 	mcopy  -i $@ bin/mslib.exe ::LIB.EXE
-	#mcopy  -i $@ bin/msbasic.com ::MSBASIC.COM
 	mcopy  -i $@ bin/gwbasic.exe ::GWBASIC.EXE
 	mcopy  -i $@ bin/exe2bin.exe ::EXE2BIN.EXE
 	mcopy  -i $@ bin/chkdsk.com ::CHKDSK.COM
@@ -131,10 +129,6 @@ msdos_full.img: msdos_base.img asm.com trans.com \
 	mcopy  -i $@ trans.com ::TRANS.COM
 	mcopy  -i $@ asm.com ::ASM.COM
 	mcopy  -i $@ hex2bin.com ::HEX2BIN.COM
-	mcopy  -i $@ hello.80 ::HELLO.80
-	mcopy  -i $@ mkhello.bat ::MKHELLO.BAT
-	mcopy  -i $@ mshello.bas ::HELLO.BAS
-	mcopy  -i $@ graph.bas ::GRAPH.BAS
 	mcopy  -i $@ mem.com ::MEM.COM
 	mcopy  -i $@ bin/pceinit.com ::PCEINIT.COM
 	mattrib -i $@ -a ::"*.*"
@@ -212,16 +206,13 @@ pcdos_full.img: pcdos_base.img asm.com trans.com ibmedlin.com \
 	mcopy  -i $@ asm.com ::ASM.COM
 	mcopy  -i $@ trans.com ::TRANS.COM
 	mcopy  -i $@ hex2bin.com ::HEX2BIN.COM
-	mcopy  -i $@ hello.80 ::HELLO.80
-	mcopy  -i $@ mkhello.bat ::MKHELLO.BAT
 	mcopy  -i $@ bin/pceinit.com ::PCEINIT.COM
 	mcopy  -i $@ mem.com ::MEM.COM
-	mcopy  -i $@ graph.bas ::GRAPH.BAS
 	mattrib -i $@ -a ::"*.*"
 	mdir -w -i $@ ::
 
-turbo.img: pcdos_base.img
-	cp pcdos_base.img $@
+turbo.img: disks/formatted.img
+	cp disks/formatted.img $@
 	mcopy  -i $@ turbo/turbo.com ::TURBO.COM
 	mcopy  -i $@ turbo/error.doc ::ERROR.DOC
 	mcopy  -i $@ turbo/turbomsg.ovr ::TURBOMSG.OVR
@@ -232,6 +223,23 @@ turbo.img: pcdos_base.img
 	mcopy  -i $@ turbo/calc.hlp ::CALC.HLP
 	mcopy  -i $@ turbo/calcmain.pas ::CALCMAIN.PAS
 	mcopy  -i $@ turbo/calcdemo.mcs ::CALCDEMO.MCS
+	mattrib -i $@ -a ::"*.*"
+	mdir -w -i $@ ::
+
+demos.img: disks/formatted.img graph.bas hello.80 mkhello.bat ballc.com \
+        mem.com ver.com cls.com samples/ball.bas bin/msbasic.com bin/vi.com
+	cp disks/formatted.img $@
+	mcopy  -i $@ graph.bas ::GRAPH.BAS
+	mcopy  -i $@ mshello.bas ::HELLO.BAS
+	mcopy  -i $@ ballc.com ::BALLC.COM
+	mcopy  -i $@ samples/ball.bas ::BALL.BAS
+	mcopy  -i $@ mem.com ::MEM.COM
+	mcopy  -i $@ ver.com ::VER.COM
+	mcopy  -i $@ cls.com ::CLS.COM
+	mcopy  -i $@ hello.80 ::HELLO.80
+	mcopy  -i $@ mkhello.bat ::MKHELLO.BAT
+	mcopy  -i $@ bin/msbasic.com ::MSBASIC.COM
+	mcopy  -i $@ bin/vi.com ::VI.COM
 	mattrib -i $@ -a ::"*.*"
 	mdir -w -i $@ ::
 
@@ -372,7 +380,7 @@ clean:
 	rm -f *.log
 	rm -f pcdos_*.img empty.img
 	rm -f msdos_*.img
-	rm -f turbo.img
+	rm -f turbo.img demos.img
 
 pcdos: all
 	./pcdos

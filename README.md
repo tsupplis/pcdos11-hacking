@@ -19,7 +19,7 @@ Both flavours booting under PCE/ibmpc, with the added `ver.com` command and the 
 </tr>
 </table>
 
-As an example of applications running on PC-DOS 1.10 `vi`-like editor running on PC-DOS 1.1 (you can find the sources and binaries at ([CP/M-86 and PC-DOS 1.1 vi](https://github.com/tsupplis/cpm86-vi)). It is a port of STevie. A Screen editor is one of the missing parts of those old OSes. You can use the aztec 4.2 c compiler part of ([CP/M-86 and PC-DOS 1.1 cross development](https://github.com/tsupplis/cpm86-crossdev)) to develop, port applications to both CP/M-86 and PC-DOS 1.10 in C, Pascal or Assembler.
+As an example of applications running on PC-DOS 1.10 `vi`-like editor running on PC-DOS 1.1 (you can find the sources and binaries at ([CP/M-86 and PC-DOS 1.1 vi](https://github.com/tsupplis/cpm86-vi)). It is a port of STevie. A Screen editor is one of the missing parts of those old OSes. You can use the aztec 4.2 c compiler part of ([CP/M-86 and PC-DOS 1.1 cross development](https://github.com/tsupplis/cpm86-crossdev)) to develop, port applications to both CP/M-86 and PC-DOS 1.10 in C, Pascal or Assembler. vi.com is included in the demos.img disk image.
 
 ![vi-like editor editing assembly source](images/editor.png)
 
@@ -36,11 +36,12 @@ Each variant builds on top of `*_base.img`.
 | `pcdos_dist.img` | PC-DOS | Base + the original PC-DOS 1.1 distribution tools and the IBM BASIC sample programs |
 | `pcdos_full.img` | PC-DOS | Base + distribution tools, `masm.exe`/`link.exe`/`cref.exe`/`lib.exe`, `basic.com`/`basica.com` and the samples (`asm.com`, `trans.com`, `hex2bin.com`, `mem.com`, `hello.asm`/`hello.bas`, `graph.bas`, `ballc.bas`/`ballc.com`) |
 | `pcdos_diag.img` | PC-DOS | Base + a small diagnostic set (`chkdsk.com`, `debug.com`, `edlin.com` rebuilt from source, `mem.com`) |
-| `turbo.img` | PC-DOS | Base + Turbo Pascal 1.00A (see [Turbo Pascal](#turbo-pascal) below) |
 | `msdos_base.img` | MS-DOS | `io.sys`, `msdos.sys`, `command.com` only |
 | `msdos_dist.img` | MS-DOS | Base + the MS-DOS 1.25 style tool set and the SCP tools (`asm.com`, `hex2bin.com`, `trans.com`) |
 | `msdos_full.img` | MS-DOS | Base + tools, assembler chain, MS-BASIC/GW-BASIC and the samples (`hello.asm`/`hello.bas`, `graph.bas`, `ballc.com`) |
 | `msdos_diag.img` | MS-DOS | Base + the small diagnostic set |
+| `turbo.img` | - | Base + Turbo Pascal 1.00A (see [Turbo Pascal](#turbo-pascal) below) |
+| `demos.img` | - | Small demo programs (msbasic, vi, mem, ballc, hello80.asm, graph.bas...) |
 
 Master (pre-formatted, empty file system) images live in `disks/`: `pcdos.img`, `msdos.img`
 and `blank.img`.
