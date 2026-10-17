@@ -176,7 +176,7 @@ TRANDATA        SEGMENT BYTE
         ORG     0
 ZERO    =       $
 IF MSVER
-VERSTR  DB      "Microsoft DOS Version 1.25C",13,10,"$"
+VERSTR  DB      "Microsoft DOS Version 1.17C",13,10,"$"
 ENDIF
 IF IBMVER
 VERSTR  DB      "IBM PC-DOS Version 1.10C",13,10,"$"
@@ -643,12 +643,12 @@ DRV0:
         IF CMDEXT
 HEADER  DB      13,10,13,10,"Microsoft DOS",13,10
         IF      HIGHMEM
-        DB      "Version 1.25CH (C)Copyright Microsoft 1981, 1982, 2023",13,10,"$"
+        DB      "Version 1.17CH (C)Copyright Microsoft 1981, 1982",13,10,"$"
         ELSE
-        DB      "Version 1.25C (C)Copyright Microsoft 1981, 1982, 2023",13,10,"$"
+        DB      "Version 1.17C (C)Copyright Microsoft 1981, 1982",13,10,"$"
         ENDIF
         ELSE
-HEADER  DB      13,10,"Command v. 1.17"
+HEADER  DB      13,10,"Command v. 1.17C"
         IF      HIGHMEM
         DB      "H"
         ENDIF
