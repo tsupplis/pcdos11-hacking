@@ -232,7 +232,6 @@ demos.img: disks/formatted.img graph.bas hello.80 mkhello.bat ballc.com \
 	mcopy  -i $@ graph.bas ::GRAPH.BAS
 	mcopy  -i $@ mshello.bas ::HELLO.BAS
 	mcopy  -i $@ ballc.com ::BALLC.COM
-	mcopy  -i $@ samples/ball.bas ::BALL.BAS
 	mcopy  -i $@ mem.com ::MEM.COM
 	mcopy  -i $@ ver.com ::VER.COM
 	mcopy  -i $@ cls.com ::CLS.COM
@@ -240,6 +239,18 @@ demos.img: disks/formatted.img graph.bas hello.80 mkhello.bat ballc.com \
 	mcopy  -i $@ mkhello.bat ::MKHELLO.BAT
 	mcopy  -i $@ bin/msbasic.com ::MSBASIC.COM
 	mcopy  -i $@ bin/vi.com ::VI.COM
+	mcopy  -i $@ samples/art.bas ::ART.BAS
+	mcopy  -i $@ samples/ball.bas ::BALL.BAS
+	mcopy  -i $@ samples/calendar.bas ::CALENDAR.BAS
+	mcopy  -i $@ samples/circle.bas ::CIRCLE.BAS
+	mcopy  -i $@ samples/colorbar.bas ::COLORBAR.BAS
+	mcopy  -i $@ samples/comm.bas ::COMM.BAS
+	mcopy  -i $@ samples/donkey.bas ::DONKEY.BAS
+	mcopy  -i $@ samples/mortgage.bas ::MORTGAGE.BAS
+	mcopy  -i $@ samples/music.bas ::MUSIC.BAS
+	mcopy  -i $@ samples/piechart.bas ::PIECHART.BAS
+	mcopy  -i $@ samples/samples.bas ::SAMPLES.BAS
+	mcopy  -i $@ samples/space.bas ::SPACE.BAS
 	mattrib -i $@ -a ::"*.*"
 	mdir -w -i $@ ::
 
