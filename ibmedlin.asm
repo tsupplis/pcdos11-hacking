@@ -4,4 +4,4 @@ TRUE    EQU     NOT FALSE
 MSVER	EQU	FALSE
 IBMVER	EQU	TRUE
 
-include	edlin.asm
+include	edlin101.asm
