@@ -233,37 +233,20 @@ this is really necessary ...
 Those variations beetween IBM and Microsoft seem to be linked to the command.com file being searched on
 the default drive (Microsoft) or on drive A: (IBM).
 
-## Configs
 
-- msdosenh: slightly enhanced PC-DOS 1.1 command.com marked as 1.25A/1.17A
-    - VER command
-    - Addition of command.com search on A: after default drive search failed
-- msdosorg: MS-DOS 1.25 command 1.17 vanilla command.com rebuilt
-    - Addition of FCB Drive 0'ing from Zenith ZDOS before opening command.com
-- pcdosenh: slightly enhanced PC-DOS 1.1 command.com marked as 1.10A
-    - VER command
-    - CLS command (BIOS)
-    - Check for command in A: if not found
-    - External MEM command
-- pcdosorg: PC-DOS 1.1 command.com rebuilt 
-    - Checked against PC-DOS 1.1 distribution 
-    - https://github.com/microsoft/MS-DOS/blob/master/v1.25/bin/COMMAND.COM
-    - SHA256(pcdosorg.com)= 84034261608f7b9d38a6b81b6896bb5cc45dc5ebfae0b0927081f86f354aa571
+## Little changes to the code base
 
-## TODO: Other little changes
-
-- pcdosenh:
+- pcdos:
     - Search path on A: if default drive seach fails
-    - Investigate further other MS-DOS 1.25 variations
-- bios and dos
-- format.com has been patch to format disk that can work with all emulators including qemu. the signature 55AA is added at the end of the 512 byte boot sector.
+    - cls command
+- format.com has been patched to format disk that can work with all emulators including qemu. the signature 55AA is added at the end of the 512 byte boot sector.
 
 ## Build/Test Dependencies
 
 ### Linux/macOS
 
 - pce emulator (test)
-- emu2 (for build from macosx/linux)
+- emu2/emu2-cpm86 (for build from macosx/linux)
 - pc-dos 1.1 floppy image (for test if available)
 - exe2bin.exe from https://github.com/microsoft/MS-DOS/blob/master/v1.25/bin/EXE2BIN.EXE
 - ibm link.exe 1.10 from https://github.com/microsoft/MS-DOS/blob/master/v1.25/bin/LINK.EXE
