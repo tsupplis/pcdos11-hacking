@@ -65,7 +65,7 @@ ARITH:	EQU	8	;Non-pop arithmetic operations
 
 	JMPS	BEGIN
 
-HEADER:	DB	13,10,'Seattle Computer Products 8086 Assembler Version 2.44B'
+HEADER:	DB	13,10,'Seattle Computer Products 8086 Assembler Version 2.44C'
 	DB	13,10,'Copyright 1979-1983 by Seattle Computer Products, Inc.'
 	DB	13,10,13,10,'$'
 
@@ -243,8 +243,26 @@ NEXTCHR:
 	MOV	AL,DL		;Error code back in AL
 	POP	DX
 	CMP	AL,1
-	MOV	AL,1AH		;Possibly signal End of File
-	JZ	NOMOD		;If nothing read
+	JZ	EOFREC		;Nothing read
+	CMP	AL,3		;Partial final record?
+	JNZ	GETCH
+;
+; DOS leaves the unused part of a partial FCB record unchanged.  Put a
+; synthetic logical EOF immediately after the physical end of the file, so
+; the normal character scanner never reads those stale bytes.  A remainder
+; of zero is handled by the AL=1 end-of-file read above.
+	PUSH	AX		;Keep AH, which callers carry through NEXTCHR
+	PUSH	BX
+	MOV	BX,[FCB+16]	;Low word of file size; 64 KiB is a multiple of 1 KiB
+	AND	BX,BUFSIZ-1
+	ADD	BX,SRCBUF
+	MOV	B,[BX],1AH
+	POP	BX
+	POP	AX
+	JMP	GETCH
+EOFREC:
+	MOV	AL,1AH
+	JMP	NOMOD
 GETCH:
 	LODB
 	CMP	SI,SRCBUF+BUFSIZ
@@ -274,7 +292,8 @@ MROPS:
 	MOV	AL,CONST	;Check if the first operand is immediate
 	MOV	CL,26
 	CMP	AL,BH
-	JZ	ERROR		;Error if so
+	JNZ	$+5		;Conditional jumps are short; ERROR is not
+	JMP	ERROR		;necessarily within their 8-bit range
 	POP	CX		;Restore type flags
 	CMP	AL,DH		;If second operand is immediate, then done
 	JZ	RET
@@ -285,12 +304,14 @@ MROPS:
 	JZ	LOAD		;Is source memory?
 	TEST	CL,1		;Check if register-to-register operation OK
 	MOV	CL,27
-	JZ	ERROR
+	JNZ	$+5
+	JMP	ERROR
 	MOV	AL,DH
 	CMP	AL,BH		;Registers must be of same length
 RR:
 	MOV	CL,22
-	JNZ	ERROR
+	JZ	$+5
+	JMP	ERROR
 RR1:
 	AND	AL,1		;Get register length (1=16 bits)
 	OR	AL,CH		;Or in to OP code
