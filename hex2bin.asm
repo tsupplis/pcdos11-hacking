@@ -23,9 +23,9 @@
 ;
 ;  Input safety:
 ;     The 1 KiB FCB buffer can finish with a DOS partial-record status.  GETCH
-;     inserts an invalid NUL after its real bytes, so an absent HEX EOF record
-;     follows the existing malformed-file error path rather than stale DMA
-;     data.  A conventional Ctrl-Z remains accepted as end of input.
+;     inserts a synthetic Ctrl-Z after its real bytes.  Physical EOF therefore
+;     follows the converter's established logical-EOF path rather than stale
+;     DMA data, just as a conventional Ctrl-Z does.
 ;
 ;  Historical program: HEX2BIN version 1.02, SCP; the run-time banner carries
 ;  the local 1.02B identification.
@@ -122,7 +122,10 @@ READHEX:
 	CALL	GETBYT		;Get byte count
 	MOV	CL,AL
 	MOV	CH,0
-	JCXZ	DONE
+	OR	CX,CX
+	JNZ	HAVCOUNT
+	JMP	DONE		;May be beyond a short conditional-branch range
+HAVCOUNT:
 	CALL	GETBYT		;Get high byte of load address
 	MOV	BH,AL
 	CALL	GETBYT		;Get low byte of load address
@@ -162,15 +165,15 @@ GETCH:
 	CMP	AL,3		;DOS: final FCB record is partial
 	JNZ	GOTREC
 ;
-; Mark the byte after the final valid byte as invalid Intel HEX.  This
-; makes a missing Intel EOF record use the normal malformed-file error,
-; rather than continuing into stale bytes in the DMA buffer.
+; DOS leaves the rest of a partial FCB record undefined.  Make its first
+; unused byte a logical EOF so physical EOF cannot be mistaken for stale
+; DMA data.  This converter has always accepted Ctrl-Z as end of input.
 	PUSH	AX
 	PUSH	BX
 	MOV	BX,[FCB+16]	;FCB file size
 	AND	BX,BUFSIZ-1
 	ADD	BX,BUFFER
-	MOV	B,[BX],0
+	MOV	B,[BX],1AH
 	POP	BX
 	POP	AX
 GOTREC:

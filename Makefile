@@ -183,7 +183,7 @@ pcdos_diag.img: pcdos_base.img asm.com trans.com \
 
 
 pcdos_full.img: pcdos_base.img asm.com trans.com ibmedlin.com \
-    hex2bin.com mem.com ibmsys.com hello.80 hello.bas mkhello.bat graph.bas
+    hex2bin.com mem.com ibmsys.com hello.z80 hello.bas mkhello.bat graph.bas
 	cp pcdos_base.img $@
 	mcopy  -i $@ autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/masm.exe ::MASM.EXE
@@ -226,7 +226,7 @@ turbo.img: disks/formatted.img
 	mattrib -i $@ -a ::"*.*"
 	mdir -w -i $@ ::
 
-demos.img: disks/formatted.img graph.bas hello.80 mkhello.bat ballc.com \
+demos.img: disks/formatted.img graph.bas hello.z80 mkhello.bat ballc.com \
         mem.com ver.com cls.com samples/ball.bas bin/msbasic.com bin/vi.com
 	cp disks/formatted.img $@
 	mcopy  -i $@ graph.bas ::GRAPH.BAS
@@ -235,7 +235,7 @@ demos.img: disks/formatted.img graph.bas hello.80 mkhello.bat ballc.com \
 	mcopy  -i $@ mem.com ::MEM.COM
 	mcopy  -i $@ ver.com ::VER.COM
 	mcopy  -i $@ cls.com ::CLS.COM
-	mcopy  -i $@ hello.80 ::HELLO.80
+	mcopy  -i $@ hello.z80 ::HELLO.z80
 	mcopy  -i $@ mkhello.bat ::MKHELLO.BAT
 	mcopy  -i $@ bin/msbasic.com ::MSBASIC.COM
 	mcopy  -i $@ bin/vi.com ::VI.COM
@@ -361,8 +361,8 @@ hello.com: hello.asm asm.com hex2bin.com
 	emu2 asm.com hello.  z
 	emu2 hex2bin.com hello
 
-hello.asm: hello.80 trans.com
-	emu2 trans.com hello.80
+hello.asm: hello.z80 trans.com
+	emu2 trans.com hello.z80
 
 trans.com: trans.asm asm.com hex2bin.com
 	emu2 asm.com trans.  z

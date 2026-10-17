@@ -12,4 +12,4 @@
 	RET
 
 MESSAGE:
-	DB	 'Hello from 8080 via TRANS.COM!',13,10,'$'
+	DB	 'Hello from Z80 via TRANS.COM!',13,10,'$'
