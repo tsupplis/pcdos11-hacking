@@ -17,7 +17,7 @@ Both flavours booting under PCE/ibmpc, with the added `ver.com` command and the 
 </tr>
 </table>
 
-A `vi`-like editor running on PC-DOS 1.1:
+A `vi`-like editor running on PC-DOS 1.1 (you can find the sources and binaries at ([CP/M-86 and PC-DOS 1.1 vi](https://github.com/tsupplis/cpm86-vi)). It is a port of STevie.
 
 ![vi-like editor editing assembly source](images/editor.png)
 
