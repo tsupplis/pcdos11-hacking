@@ -1,3 +1,8 @@
+DIST_DISKS=pcdos_full.img pcdos_base.img pcdos_dist.img pcdos_diag.img \
+     msdos_full.img msdos_base.img msdos_dist.img msdos_diag.img \
+     turbo.img
+
+
 all: ibmcmd.com ibmdos.com ibmbio.com \
      mscmd.com \
      asm.com hex2bin.com trans.com hello.com \
@@ -5,9 +10,13 @@ all: ibmcmd.com ibmdos.com ibmbio.com \
      ibmsys.com mssys.com \
 	 ibmedlin.com msedlin.com \
 	 mon.com \
-     pcdos_full.img pcdos_base.img pcdos_dist.img pcdos_diag.img \
-     msdos_full.img msdos_base.img msdos_dist.img msdos_diag.img \
-     turbo.img
+     $(DIST_DISKS)
+
+dist: disks.zip
+
+disks.zip: $(DIST_DISKS) LICENSE.md 
+	zip -j $@ $(DIST_DISKS) LICENSE.md 
+    
 
 ibmbio.com: ibmbio.exe
 	echo 60|emu2 bin/exe2bin.exe ibmbio.exe ibmbio.com
