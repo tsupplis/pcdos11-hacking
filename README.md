@@ -36,7 +36,7 @@ Each variant builds on top of `*_base.img`.
 | `pcdos_dist.img` | PC-DOS | Base + the original PC-DOS 1.1 distribution tools and the IBM BASIC sample programs |
 | `pcdos_full.img` | PC-DOS | Base + distribution tools, `masm.exe`/`link.exe`/`cref.exe`/`lib.exe`, `basic.com`/`basica.com` and the samples (`asm.com`, `trans.com`, `hex2bin.com`, `mem.com`, `hello.asm`/`hello.bas`, `graph.bas`, `ballc.bas`/`ballc.com`) |
 | `pcdos_diag.img` | PC-DOS | Base + a small diagnostic set (`chkdsk.com`, `debug.com`, `edlin.com` rebuilt from source, `mem.com`) |
-| `turbo.img` | PC-DOS | Base + Turbo Pascal 2.00B (see [Turbo Pascal](#turbo-pascal) below) |
+| `turbo.img` | PC-DOS | Base + Turbo Pascal 1.00A (see [Turbo Pascal](#turbo-pascal) below) |
 | `msdos_base.img` | MS-DOS | `io.sys`, `msdos.sys`, `command.com` only |
 | `msdos_dist.img` | MS-DOS | Base + the MS-DOS 1.25 style tool set and the SCP tools (`asm.com`, `hex2bin.com`, `trans.com`) |
 | `msdos_full.img` | MS-DOS | Base + tools, assembler chain, MS-BASIC/GW-BASIC and the samples (`hello.asm`/`hello.bas`, `graph.bas`, `ballc.com`) |
@@ -128,11 +128,11 @@ restored on `Q`.
 
 ### Turbo Pascal
 
-Turbo Pascal 2.00B starting up on the system:
+Turbo Pascal 1.00A starting up on the system:
 
-![Turbo Pascal 2.00B startup](images/turbo.png)
+![Turbo Pascal 1.00A startup](images/turbo.png)
 
-`turbo.img` (built from `turbo/`) carries Turbo Pascal 2.00B on top of `pcdos_base.img`:
+`turbo.img` (built from `turbo/`) carries Turbo Pascal 1.00A on top of `pcdos_base.img`:
 
 | Files | Description |
 |-------|-------------|
@@ -184,7 +184,7 @@ Microsoft EDLIN 1.02.
 - https://github.com/tsupplis/pcdos11-hacking/blob/master/LICENSE.md
 - https://github.com/microsoft/MS-DOS/blob/master/LICENSE.md
 
-Turbo Pascal 2.00B (`turbo/`, [Turbo Pascal](#turbo-pascal) section) is not covered by the MIT
+Turbo Pascal 1.00A (`turbo/`, [Turbo Pascal](#turbo-pascal) section) is not covered by the MIT
 license above: it is proprietary software, distributed here under Borland/Embarcadero's
 [Turbo Pascal museum program](https://www.embarcadero.com/free-tools/turbo-pascal), which makes
 it available free of charge for personal/non-commercial use.

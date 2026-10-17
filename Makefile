@@ -217,27 +217,15 @@ pcdos_full.img: pcdos_base.img asm.com trans.com ibmedlin.com \
 turbo.img: pcdos_base.img
 	cp pcdos_base.img $@
 	mcopy  -i $@ turbo/turbo.com ::TURBO.COM
-	mcopy  -i $@ turbo/turbo-87.com ::TURBO-87.COM
-	mcopy  -i $@ turbo/turbo.msg ::TURBO.MSG
+	mcopy  -i $@ turbo/error.doc ::ERROR.DOC
+	mcopy  -i $@ turbo/turbomsg.ovr ::TURBOMSG.OVR
 	mcopy  -i $@ turbo/tinst.com ::TINST.COM
-	mcopy  -i $@ turbo/tinst.msg ::TINST.MSG
+	mcopy  -i $@ turbo/tinstmsg.ovr ::TINSTMSG.OVR
 	mcopy  -i $@ turbo/tlist.com ::TLIST.COM
-	mcopy  -i $@ turbo/read.me ::READ.ME
-	mcopy  -i $@ turbo/art.pas ::ART.PAS
 	mcopy  -i $@ turbo/calc.pas ::CALC.PAS
 	mcopy  -i $@ turbo/calc.hlp ::CALC.HLP
 	mcopy  -i $@ turbo/calcmain.pas ::CALCMAIN.PAS
 	mcopy  -i $@ turbo/calcdemo.mcs ::CALCDEMO.MCS
-	mcopy  -i $@ turbo/sheet.mcs ::SHEET.MCS
-	mcopy  -i $@ turbo/cls.pas ::CLS.PAS
-	mcopy  -i $@ turbo/color.pas ::COLOR.PAS
-	mcopy  -i $@ turbo/sound.pas ::SOUND.PAS
-	mcopy  -i $@ turbo/window.pas ::WINDOW.PAS
-	mcopy  -i $@ turbo/hilb.pas ::HILB.PAS
-	mcopy  -i $@ turbo/test.pas ::TEST.PAS
-	mcopy  -i $@ turbo/dosfcall.doc ::DOSFCALL.DOC
-	mcopy  -i $@ turbo/external.doc ::EXTERNAL.DOC
-	mcopy  -i $@ turbo/intrptcl.doc ::INTRPTCL.DOC
 	mattrib -i $@ -a ::"*.*"
 	mdir -w -i $@ ::
 
