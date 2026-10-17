@@ -1,6 +1,31 @@
-; Seattle Computer Products 8086 Assembler  version 2.44
-;   by Tim Paterson
-; Runs on the 8086 under MS-DOS
+;*-------------------------------------------------------------------------
+;  ASM.ASM - Seattle Computer Products 8086 Assembler, version 2.44
+;
+;  Build:   make asm.com
+;
+;  Purpose:
+;     A self-hosting, two-pass 8086 assembler for 86-DOS/MS-DOS 1.x.  It
+;     reads source through an FCB, builds and resolves symbols in pass 1, and
+;     emits Intel HEX plus optional listing output in pass 2.  The command
+;     tail supplies the source, HEX, and listing FCB specifications.
+;
+;  Operation:
+;     Source is read into a 1 KiB DTA buffer.  The scanner turns characters
+;     into tokens, expressions, directives, operands, and opcode-table
+;     entries; output is accumulated in a 70-byte Intel HEX buffer.  Symbol
+;     storage and the source/listing buffers share the COM program segment.
+;
+;  Input safety:
+;     A DOS FCB sequential read with status 3 supplies only part of its final
+;     record; bytes beyond the physical file end are undefined.  NEXTCHR
+;     writes a synthetic Ctrl-Z after the valid data, so source lacking an
+;     explicit Ctrl-Z ends exactly at physical EOF.  Full-record files still
+;     obtain EOF on the following read.
+;
+;  The original SCP revision history is retained below.  This source's banner
+;  identifies the locally maintained 2.44C build.  Original author: Tim
+;  Paterson; designed to run on the 8086 under MS-DOS.
+;-------------------------------------------------------------------------
 
 ;* * * * * * REVISION HISTORY * * * * * *
 ;
@@ -4025,4 +4050,3 @@ SRCBUF:	DS	BUFSIZ
 	ALIGN
 STACK:	EQU	$
 START:	EQU	$
-

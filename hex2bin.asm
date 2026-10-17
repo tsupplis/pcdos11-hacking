@@ -1,5 +1,35 @@
-; HEX2BIN  version 1.02
-; Converts Intel hex format files to straight binary
+;*-------------------------------------------------------------------------
+;  HEX2BIN.ASM - Seattle Computer Products Intel HEX to binary converter
+;
+;  Build:   make hex2bin.com
+;
+;  Purpose:
+;     Reads the early Intel HEX format used by SCP ASM and writes a flat
+;     .COM file.  The command-tail FCB names the input (default extension
+;     .HEX); the program changes that FCB's extension to .COM for the output.
+;
+;  Operation:
+;     1. Parses the optional signed load-offset field and uses -100h by
+;        default, converting assembler output for COM origin 100h to an
+;        image beginning at offset zero.
+;     2. Clears its available load segment, reads ':'-introduced HEX records,
+;        and deposits data at the adjusted addresses.
+;     3. Tracks the greatest byte written, then creates the .COM file and
+;        writes the contiguous image up to that point.  Holes remain zero.
+;
+;  This is an 8-bit Intel HEX reader: a zero byte-count ends conversion and
+;  the record-type byte is consumed but not otherwise interpreted.  It is not
+;  an Intel HEX checksum validator or an extended-address-format converter.
+;
+;  Input safety:
+;     The 1 KiB FCB buffer can finish with a DOS partial-record status.  GETCH
+;     inserts an invalid NUL after its real bytes, so an absent HEX EOF record
+;     follows the existing malformed-file error path rather than stale DMA
+;     data.  A conventional Ctrl-Z remains accepted as end of input.
+;
+;  Historical program: HEX2BIN version 1.02, SCP; the run-time banner carries
+;  the local 1.02B identification.
+;-------------------------------------------------------------------------
 
 FCB:	EQU	5CH
 READ:	EQU	20
@@ -129,9 +159,26 @@ GETCH:
 	INT	21H
 	CMP	AL,1
 	JZ	ERROR
+	CMP	AL,3		;DOS: final FCB record is partial
+	JNZ	GOTREC
+;
+; Mark the byte after the final valid byte as invalid Intel HEX.  This
+; makes a missing Intel EOF record use the normal malformed-file error,
+; rather than continuing into stale bytes in the DMA buffer.
+	PUSH	AX
+	PUSH	BX
+	MOV	BX,[FCB+16]	;FCB file size
+	AND	BX,BUFSIZ-1
+	ADD	BX,BUFFER
+	MOV	B,[BX],0
+	POP	BX
+	POP	AX
+GOTREC:
 	MOV	SI,BUFFER
 NOREAD:
 	LODB
+	OR	AL,AL
+	JZ	ERROR
 	CMP	AL,1AH
 	JZ	DONE
 	RET
@@ -204,7 +251,7 @@ NOROOM:
 	MOV	DX,DIRFUL
 	JMP	QUIT
 
-HEADER:	DB	13,10,'Seattle Computer Products 8086 Hex Converter Version 1.02A'
+HEADER:	DB	13,10,'Seattle Computer Products 8086 Hex Converter Version 1.02B'
 	DB	13,10,'Copyright 1979-1983 by Seattle Computer Products, Inc.'
 	DB	13,10,13,10,'$'
 HEX:	DB	"HEX"
@@ -221,4 +268,3 @@ BUFFER:	DS	BUFSIZ
 
 START:
 STARTSEG EQU	(START+15)/16
-

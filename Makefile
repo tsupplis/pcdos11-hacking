@@ -101,7 +101,7 @@ msdos_diag.img: msdos_base.img asm.com trans.com \
 	mdir -w -i $@ ::
 
 msdos_full.img: msdos_base.img asm.com trans.com \
-    hex2bin.com mem.com mssys.com hello.asm mshello.bas mkhello.bat \
+    hex2bin.com mem.com mssys.com hello.80 mshello.bas mkhello.bat \
 	graph.bas ballc.com msedlin.com
 	cp msdos_base.img $@
 	mcopy  -i $@ autoexec.bat ::AUTOEXEC.BAT
@@ -124,7 +124,7 @@ msdos_full.img: msdos_base.img asm.com trans.com \
 	mcopy  -i $@ trans.com ::TRANS.COM
 	mcopy  -i $@ asm.com ::ASM.COM
 	mcopy  -i $@ hex2bin.com ::HEX2BIN.COM
-	mcopy  -i $@ hello.asm ::HELLO.ASM
+	mcopy  -i $@ hello.80 ::HELLO.80
 	mcopy  -i $@ mkhello.bat ::MKHELLO.BAT
 	mcopy  -i $@ mshello.bas ::HELLO.BAS
 	mcopy  -i $@ graph.bas ::GRAPH.BAS
@@ -182,7 +182,7 @@ pcdos_diag.img: pcdos_base.img asm.com trans.com \
 
 
 pcdos_full.img: pcdos_base.img asm.com trans.com ibmedlin.com \
-    hex2bin.com mem.com ibmsys.com hello.asm hello.bas mkhello.bat graph.bas ballc.bas ballc.com
+    hex2bin.com mem.com ibmsys.com hello.80 hello.bas mkhello.bat graph.bas ballc.bas ballc.com
 	cp pcdos_base.img $@
 	mcopy  -i $@ autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/masm.exe ::MASM.EXE
@@ -205,7 +205,7 @@ pcdos_full.img: pcdos_base.img asm.com trans.com ibmedlin.com \
 	mcopy  -i $@ asm.com ::ASM.COM
 	mcopy  -i $@ trans.com ::TRANS.COM
 	mcopy  -i $@ hex2bin.com ::HEX2BIN.COM
-	mcopy  -i $@ hello.asm ::HELLO.ASM
+	mcopy  -i $@ hello.80 ::HELLO.80
 	mcopy  -i $@ mkhello.bat ::MKHELLO.BAT
 	mcopy  -i $@ bin/pceinit.com ::PCEINIT.COM
 	mcopy  -i $@ mem.com ::MEM.COM
@@ -347,6 +347,9 @@ hello.com: hello.asm asm.com hex2bin.com
 	unix2dos hello.asm
 	emu2 asm.com hello.  z
 	emu2 hex2bin.com hello
+
+hello.asm: hello.80 trans.com
+	emu2 trans.com hello.80
 
 trans.com: trans.asm asm.com hex2bin.com
 	unix2dos trans.asm

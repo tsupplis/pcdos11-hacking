@@ -1,6 +1,36 @@
-; Z80 to 8086 Translator  version 2.21
-;  Runs on the 8086 under 86-DOS
-; by Tim Paterson
+;*-------------------------------------------------------------------------
+;  TRANS.ASM - Seattle Computer Products Z80-to-8086 source translator
+;
+;  Build:   make trans.com
+;
+;  Purpose:
+;     Translates Z80 assembly-language source into the Intel-style 8086
+;     source accepted by SCP ASM.  It is a source translator, not a binary
+;     instruction translator or Z80 emulator.  Its opcode table and special
+;     handlers map Z80 registers, condition codes, addressing forms, and
+;     pseudo-operations to their 8086 counterparts.
+;
+;  File handling:
+;     The source is opened through the command-tail FCB.  TRANS creates an
+;     output file with the same base name and an .ASM extension, so its input
+;     must use a different extension (for example, HELLO.Z80 -> HELLO.ASM).
+;     Both files use 128-byte FCB records.  Output is Ctrl-Z padded to the
+;     final record boundary, as expected by the DOS 1.x tools.
+;
+;  Input safety:
+;     DOS returns status 3 for a partial final FCB record but leaves the
+;     unused DMA bytes undefined.  GETCH places a synthetic Ctrl-Z directly
+;     after the valid bytes of such a record, letting the existing logical
+;     EOF path finish translation without interpreting stale memory.
+;
+;  Workspace (COM image, org 100h):
+;     80-byte opcode and two operand fields, separate 128-byte input/output
+;     record buffers, an output FCB, and a stack.  The translator also builds
+;     short generated labels for conditional CALL transformations.
+;
+;  Historical program: Z80 to 8086 Translator version 2.21, by Tim Paterson;
+;  the local run-time banner identifies version 2.21B.  Runs under 86-DOS.
+;-------------------------------------------------------------------------
 ;
 	ORG	100H
 EOF:	EQU	1AH	;End of file
@@ -200,7 +230,17 @@ GETCH:
 	CMP	AL,0		; Entire record read OK?
 	JE	OKRECORD
 	CMP	AL,3		; Partial record read?
-	JE	OKRECORD
+	JNZ	NORECORD
+;
+; DOS does not define the bytes after a partial FCB record.  Make the first
+; one a logical EOF so a source file without an explicit Ctrl-Z cannot cause
+; the translator to consume stale data from the previous DMA buffer contents.
+	MOV	BX,[FCB+16]	; Low word: 64 KiB is divisible by 128.
+	AND	BX,7FH
+	ADD	BX,GETBUF
+	MOV	B,[BX],EOF
+	JP	OKRECORD
+NORECORD:
 	MOV	AL,EOF		; Force end-of-file character in case
 	JP	TESEND		;  there is nothing in the record.
 OKRECORD:
@@ -1179,7 +1219,7 @@ RWTAB:
 	DB	'ABCDEHLBDHSACNZNPMPPII'
 LENRW:	EQU	$-RWTAB
 	DB	0,0,0,0,0,0,0,'CELPF',0,'C',0,'Z',0,0,'OEYX'
-HEADER:	DB	13,10,'Seattle Computer Products Z80 to 8086 Translator Version 2.21A',13,10,'$'
+HEADER:	DB	13,10,'Seattle Computer Products Z80 to 8086 Translator Version 2.21B',13,10,'$'
 NOROOM:	DB	13,10,'File creation error',13,10,'$'
 NOFILE:	DB	13,10,'File not found',13,10,'$'
 NOSPEC:	DB	13,10,'No source specified',13,10,'$'
