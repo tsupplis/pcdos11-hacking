@@ -1,3 +1,33 @@
+;*-------------------------------------------------------------------------
+;  IO.ASM - 86-DOS 1.20 and later I/O system
+;
+;  Purpose:
+;     Implements the hardware-dependent BIOS half of the original 86-DOS
+;     design.  DOS calls the fixed jump table at the start of this image for
+;     console, auxiliary and printer I/O; disk I/O; clock services; and
+;     device mapping.  This source drives SCP hardware directly, unlike the
+;     PC-specific IBMBIO.ASM, which performs the same role through IBM ROM
+;     BIOS services.
+;
+;  Configuration:
+;     The switches immediately below select the character-I/O hardware,
+;     disk controller, drive geometry, and optional compatibility mode.  The
+;     resulting image is located at BIOSSEG (40h) and moves DOS to DOSSEG at
+;     initialization.  BIOSLEN and DOSLEN therefore form part of the boot
+;     memory-layout contract.
+;
+;  Interface:
+;     The first fifteen far jump entries are the BIOS service table consumed
+;     by DOS.ASM: initialization; console, printer, and auxiliary I/O; disk
+;     read/write and change detection; date/time; keyboard flush; and device
+;     mapping.  Interrupt 38h is used for the serial keyboard path when
+;     interrupt-driven input is selected.
+;
+;  Historical record:
+;     Original source title, configuration comments, and in-line annotations
+;     below are retained.  They identify this as the 86-DOS I/O system for
+;     version 1.20 and later, revised 8-02-82.
+;-------------------------------------------------------------------------
 ; I/O System for 86-DOS version 1.20 and later. Revised 8-02-82.
 ;
 ; Assumes a CPU Support card at F0 hex for character I/O,
