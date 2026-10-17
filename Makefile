@@ -81,7 +81,10 @@ msdos_diag.img: msdos_base.img asm.com trans.com \
 	cp msdos_base.img $@
 	mcopy  -i $@ autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/chkdsk.com ::CHKDSK.COM
+	mcopy  -i $@ bin/format.com ::FORMAT.COM
+	mcopy  -i $@ mssys.com ::SYS.COM
 	mcopy  -i $@ bin/debug.com ::DEBUG.COM
+	mcopy  -i $@ mon.com ::MON.COM
 	mcopy  -i $@ msedlin.com ::EDLIN.COM
 	mcopy  -i $@ mem.com ::MEM.COM
 	mcopy  -i $@ bin/pceinit.com ::PCEINIT.COM
@@ -158,12 +161,16 @@ pcdos_diag.img: pcdos_base.img asm.com trans.com \
 	cp pcdos_base.img $@
 	mcopy  -i $@ autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/chkdsk.com ::CHKDSK.COM
+	mcopy  -i $@ bin/format.com ::FORMAT.COM
+	mcopy  -i $@ ibmsys.com ::SYS.COM
 	mcopy  -i $@ bin/debug.com ::DEBUG.COM
+	mcopy  -i $@ mon.com ::MON.COM
 	mcopy  -i $@ ibmedlin.com ::EDLIN.COM
 	mcopy  -i $@ mem.com ::MEM.COM
 	mcopy  -i $@ bin/pceinit.com ::PCEINIT.COM
 	mattrib -i $@ -a ::"*.*"
 	mdir -w -i $@ ::
+
 
 pcdos_full.img: pcdos_base.img asm.com trans.com ibmedlin.com \
     hex2bin.com mem.com ibmsys.com hello.asm hello.bas mkhello.bat graph.bas ballc.bas ballc.com
