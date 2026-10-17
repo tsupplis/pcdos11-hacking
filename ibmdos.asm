@@ -26,4 +26,8 @@ HIGHMEM	EQU	FALSE
 
 DSKTEST	EQU	FALSE
 
+; Opt-in demonstration extensions to the historical DOS 1.25 dispatcher.
+; FALSE preserves the original function range and binary behavior.
+DOSEXT	EQU	TRUE
+
 INCLUDE	DOS.ASM

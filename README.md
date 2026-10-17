@@ -62,6 +62,12 @@ and `blank.img`.
 [origcmd.asm](origcmd.asm) keeps the untouched Microsoft `command.asm` for reference;
 [io.asm](io.asm) is the original 86-DOS I/O system.
 
+`DOSEXT` is an explicitly opt-in source-level demonstration extension in the
+DOS wrappers.  It adds only `INT 21h` / `AH=30h`: the MS-DOS configuration
+reports version 1.25 and OEM `FFh` (Microsoft), while PC-DOS reports 1.10 and
+OEM `00h` (IBM); both use an unassigned serial number.  Leave it `FALSE` for
+the historical dispatcher.
+
 `edlin101.asm` also reconstructs the 86-DOS/Microsoft EDLIN 1.01 variant when
 built with `MSVER`. EDLIN 1.02 changes the default `S`/`R` range: without a
 starting line number, it begins after the current line rather than at line 1.

@@ -93,8 +93,31 @@ NUMDEV  EQU     5       	;Number of I/O device names
 ZEROEXT EQU     FALSE
 	ENDIF
 
+;
+; Identity reported by the DOSEXT AH=30h demonstration service.  The
+; command processor uses the same IBMVER/MSVER distinction for its version
+; banner: IBM PC-DOS is 1.10, while Microsoft MS-DOS is 1.25.
+;
+; AH=30h returns an OEM *number* in BH, not a string.  00h identifies IBM
+; PC-DOS; FFh is Microsoft's conventional MS-DOS identity.
+        IF      IBMVER
+DOSVERSION EQU   0A01H           ; AH=10 (minor), AL=1 (major): 1.10
+DOSOEM     EQU   00H             ; IBM PC-DOS
+        ELSE
+DOSVERSION EQU   1901H           ; AH=25 (minor), AL=1 (major): 1.25
+DOSOEM     EQU   0FFH            ; Microsoft MS-DOS
+        ENDIF
+
 MAXCALL EQU     36
+;
+; The 1.25 dispatcher historically accepts functions 00h through 2Fh.
+; DOSEXT is an explicitly opt-in demo facility supplied by the wrapper.
+; It adds only AH=30h; leaving it FALSE retains the historical limit.
+        IF      DOSEXT
+MAXCOM  EQU     48
+        ELSE
 MAXCOM  EQU     47
+        ENDIF
 INTBASE EQU     80H
 INTTAB  EQU     20H
 ENTRYPOINTSEG   EQU     0CH
@@ -422,6 +445,39 @@ DISPATCH DW     ABORT   	;0
 	DW      SETTIME 	;45
 	DW      VERIFY
 	DW      GETDMA
+	IF      DOSEXT
+	DW      GETVERSION      ;30h -- demonstration extension (see below)
+	ENDIF
+
+;
+; INT 21h, AH=30h -- Get DOS version (demonstration extension)
+;
+; Input:
+;       AH = 30h
+; Output:
+;       AX = version number: AL = major version, AH = minor version
+;       BL:CX = user serial number (000000h: no serial number assigned)
+;       BH = OEM number (00h for IBM PC-DOS, FFh for Microsoft MS-DOS;
+;            no later-version flag semantics)
+;
+; This call was introduced solely as an opt-in demonstration of adding a
+; DOS dispatcher service; it is not part of the historical 86-DOS/DOS 1.25
+; interface.  Set DOSEXT to TRUE in ibmdos.asm or msdos.asm to include it.
+;
+; Handlers normally return their status in AL: LEAVE writes that byte into
+; the saved caller AX.  This interface returns several complete registers,
+; so update the saved caller frame directly.  It is restored by LEAVE after
+; this routine returns.
+;
+	IF      DOSEXT
+GETVERSION:
+	LDS     SI,CS:DWORD PTR [SPSAVE]
+	MOV     WORD PTR [SI.AXSAVE],DOSVERSION
+	MOV     WORD PTR [SI.BXSAVE],DOSOEM*256 ; BH=OEM, BL=serial high byte
+	MOV     WORD PTR [SI.CXSAVE],0     ; serial low word
+	MOV     AL,1                       ; Preserve the saved AX low byte at LEAVE
+	RET
+	ENDIF
 
 INUSE:
 GETIO:

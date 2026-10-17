@@ -1,5 +1,11 @@
 ;*-------------------------------------------------------------------------
-;  VER.ASM - Simple demonstration tool: DOS version guessing
+;  VER.ASM - INT 21h/AH=30h demonstration-version probe
+;
+;  This utility demonstrates the optional DOSEXT AH=30h dispatcher service.
+;  The service returns its major version in AL.  When DOSEXT is absent, the
+;  DOS 1.25 BADCALL path returns AL=0 and leaves the other input registers
+;  unspecified; report that condition rather than interpreting AH=30h as a
+;  version number.
 ;*-------------------------------------------------------------------------
 program     segment
             assume cs:program, ds:program
@@ -8,13 +14,9 @@ program     segment
 _start:
             mov     ah, 30h
             int     21h
-            cmp     al, 1
-            jg      newdos
-            mov     ah, 9
-            lea     dx, [olddos]
-            int     21h
-            jmp     short exit
-newdos:
+            or      al, al
+            jz      no30
+displayversion:
             push    ax
             xor     ah,ah
             call    convert
@@ -33,6 +35,11 @@ newdos:
 nz_minor:
             xor     ah, ah
             call    convert
+            jmp     short exit
+no30:
+            mov     ah, 9
+            lea     dx, [noservice]
+            int     21h
 exit:
             mov     ah, 9
             lea     dx, [eol]
@@ -53,8 +60,8 @@ cvtloop:
             mov     dx, di
             int     21h
             ret
-olddos:
-            db "1.x0$"
+noservice:
+            db "INT 21h/AH=30h unavailable$"
             db "000000"
 digitend:   
             db "$"

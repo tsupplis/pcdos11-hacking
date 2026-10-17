@@ -26,4 +26,8 @@ HIGHMEM	EQU	FALSE
 
 DSKTEST	EQU	FALSE
 
+; Enable the documented AH=30h version-query demonstration extension.
+; Set FALSE for the unextended historical DOS 1.25 dispatcher.
+DOSEXT	EQU	TRUE
+
 INCLUDE	DOS.ASM
