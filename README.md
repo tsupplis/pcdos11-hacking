@@ -17,7 +17,7 @@ Both flavours booting under PCE/ibmpc, with the added `ver.com` command and the 
 </tr>
 </table>
 
-A `vi`-like editor running on PC-DOS 1.1 (you can find the sources and binaries at ([CP/M-86 and PC-DOS 1.1 vi](https://github.com/tsupplis/cpm86-vi)). It is a port of STevie.
+As an example of applications running on PC-DOS 1.10 `vi`-like editor running on PC-DOS 1.1 (you can find the sources and binaries at ([CP/M-86 and PC-DOS 1.1 vi](https://github.com/tsupplis/cpm86-vi)). It is a port of STevie. A Screen editor is one of the missing parts of those old OSes. You can use the aztec 4.2 c compiler part of ([CP/M-86 and PC-DOS 1.1 cross development](https://github.com/tsupplis/cpm86-vi)) to develop, port applications to both CP/M-86 and PC-DOS 1.10 in C, Pascal or Assembler.
 
 ![vi-like editor editing assembly source](images/editor.png)
 
