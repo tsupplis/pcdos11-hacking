@@ -50,7 +50,8 @@ and `blank.img`.
 | Binary | Source | Description |
 |--------|--------|-------------|
 | `ibmbio.com`   | [ibmbio.asm](ibmbio.asm) | PC-DOS 1.1 BIOS, installed as `ibmbio.com` / `io.sys`, reconstructed sources |
-| `ibmdos.com`   | [ibmdos.asm](ibmdos.asm), [dos.asm](dos.asm) | DOS kernel, installed as `ibmdos.com` / `msdos.sys` |
+| `ibmdos.com`   | [ibmdos.asm](ibmdos.asm), [dos.asm](dos.asm) | DOS kernel, installed as `ibmdos.com` |
+| `msdos.com`   | [msdos.asm](msdos.asm), [dos.asm](dos.asm) | DOS kernel, installed as `msdos.sys` |
 | `ibmcmd.com`   | [ibmcmd.asm](ibmcmd.asm), [command.asm](command.asm) | PC-DOS flavour of `command.com` (`IBMVER`) |
 | `mscmd.com`    | [mscmd.asm](mscmd.asm), [command.asm](command.asm) | MS-DOS flavour of `command.com` (`MSVER`) |
 | `ibmsys.com`   | [ibmsys.asm](ibmsys.asm), [sys.asm](sys.asm) | `sys.com` writing the PC-DOS system files |
