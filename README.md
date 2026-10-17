@@ -238,8 +238,8 @@ the default drive (Microsoft) or on drive A: (IBM).
 
 ## Little changes to the code base
 
-- pcdos:
-    - Search path on A: if default drive seach fails
+- dos:
+    - search path on A: if default drive seach fails
     - cls command
 - format.com has been patched to format disk that can work with all emulators including qemu. the signature 55AA is added at the end of the 512 byte boot sector.
 

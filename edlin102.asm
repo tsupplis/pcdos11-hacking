@@ -144,7 +144,7 @@ IF MSVER
 ENDIF
 IF IBMVER
                 db      "The IBM Personal Computer EDITOR", cr, lf
-                db      "Version 1.00N (C)Copyright IBM Corp 1981", cr, lf, "$"
+                db      "Version 1.00C (C)Copyright IBM Corp 1981", cr, lf, "$"
                 db      "Licensed Material - Program Property of IBM"
 ENDIF
 ; ---------------------------------------------------------------------------
