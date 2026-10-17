@@ -47,11 +47,11 @@ msdos.obj: msdos.asm dos.asm
 
 msdos_base.img: mscmd.com ibmbio.com msdos.com disks/msdos.img
 	cp disks/msdos.img $@
-	mattrib -i $@ -h -s ::MSDOS.SYS
-	mattrib -i $@ -h -s ::IO.SYS
-	mcopy  -o -p -i $@ ibmbio.com ::IO.SYS
-	mcopy  -o -p -i $@ msdos.com ::MSDOS.SYS
-	mcopy  -o -i $@ mscmd.com ::COMMAND.COM
+	mattrib -i $@ -h -s ::COMMAND.COM ::MSDOS.SYS ::IO.SYS
+	mdel -i $@ ::COMMAND.COM ::MSDOS.SYS ::IO.SYS
+	mcopy  -i $@ ibmbio.com ::IO.SYS
+	mcopy  -i $@ msdos.com ::MSDOS.SYS
+	mcopy  -i $@ mscmd.com ::COMMAND.COM
 	mattrib -i $@ -a ::"*.*"
 	mattrib -i $@ +h +s ::MSDOS.SYS
 	mattrib -i $@ +h +s ::IO.SYS
@@ -59,11 +59,11 @@ msdos_base.img: mscmd.com ibmbio.com msdos.com disks/msdos.img
 
 pcdos_base.img: ibmcmd.com ibmbio.com ibmdos.com disks/pcdos.img
 	cp disks/pcdos.img $@
-	mattrib -i $@ -h -s ::IBMDOS.COM
-	mattrib -i $@ -h -s ::IBMBIO.COM
-	mcopy  -o -p -i $@ ibmbio.com ::IBMBIO.COM
-	mcopy  -o -p -i $@ ibmdos.com ::IBMDOS.COM
-	mcopy  -o -i $@ ibmcmd.com ::COMMAND.COM
+	mattrib -i $@ -h -s ::COMMAND.COM ::IBMDOS.COM ::IBMBIO.COM
+	mdel -i $@ ::COMMAND.COM ::IBMDOS.COM ::IBMBIO.COM
+	mcopy  -i $@ ibmbio.com ::IBMBIO.COM
+	mcopy  -i $@ ibmdos.com ::IBMDOS.COM
+	mcopy  -i $@ ibmcmd.com ::COMMAND.COM
 	mattrib -i $@ -a ::"*.*"
 	mattrib -i $@ +h +s ::IBMDOS.COM
 	mattrib -i $@ +h +s ::IBMBIO.COM
