@@ -1,6 +1,7 @@
-all: ibmcmd.com \
-     ibmdos.com ibmbio.com asm.com hex2bin.com xtrans.com hello.com \
-     mem.com cls.com
+all: ibmdos.com ibmbio.com ibmcmd.com ibmsys.com ibmedlin.com \
+     mscmd.com mssys.com msedlin.com \
+     asm.com hex2bin.com trans.com hello.com \
+     mem.com cls.com ver.com ballc.com
 
 ibmbio.com: ibmbio.exe
 	echo 60|bin\exe2bin.exe ibmbio.exe ibmbio.com
@@ -9,7 +10,7 @@ ibmbio.exe: ibmbio.obj
 	bin\link.exe ibmbio,ibmbio,ibmbio,ibmbio,
 
 ibmbio.obj: ibmbio.asm 
-	bin\masm.exe ibmbio,ibmbio,ibmbio,ibmbio
+	bin\msmasm.exe ibmbio,ibmbio,ibmbio,ibmbio
 
 ibmdos.com: ibmdos.exe
 	bin\exe2bin.exe ibmdos.exe ibmdos.com
@@ -18,7 +19,7 @@ ibmdos.exe: ibmdos.obj
 	bin\link.exe ibmdos,ibmdos,ibmdos,ibmdos,
 
 ibmdos.obj: ibmdos.asm dos.asm
-	bin\masm.exe ibmdos,ibmdos,ibmdos,ibmdos
+	bin\msmasm.exe ibmdos,ibmdos,ibmdos,ibmdos
 
 ibmcmd.com: ibmcmd.exe 
 	bin\exe2bin.exe ibmcmd.exe ibmcmd.com
@@ -27,7 +28,70 @@ ibmcmd.exe: ibmcmd.obj
 	bin\link.exe ibmcmd,ibmcmd,ibmcmd,ibmcmd,
 
 ibmcmd.obj: ibmcmd.asm command.asm
-	bin\masm.exe ibmcmd,ibmcmd,ibmcmd,ibmcmd
+	bin\msmasm.exe ibmcmd,ibmcmd,ibmcmd,ibmcmd
+
+mscmd.com: mscmd.exe 
+	bin\exe2bin.exe mscmd.exe mscmd.com
+
+mscmd.exe: mscmd.obj
+	bin\link.exe mscmd,mscmd,mscmd,mscmd,
+
+mscmd.obj: mscmd.asm command.asm
+	bin\msmasm.exe mscmd,mscmd,mscmd,mscmd
+
+ibmsys.com: ibmsys.exe 
+	bin\exe2bin.exe ibmsys.exe ibmsys.com
+
+ibmsys.exe: ibmsys.obj
+	bin\link.exe ibmsys,ibmsys,ibmsys,ibmsys,
+
+ibmsys.obj: ibmsys.asm sys.asm
+	bin\msmasm.exe ibmsys,ibmsys,ibmsys,ibmsys
+
+mssys.com: mssys.exe 
+	bin\exe2bin.exe mssys.exe mssys.com
+
+mssys.exe: mssys.obj
+	bin\link.exe mssys,mssys,mssys,mssys,
+
+mssys.obj: mssys.asm sys.asm
+	bin\msmasm.exe mssys,mssys,mssys,mssys
+
+ibmedlin.com: ibmedlin.exe
+	bin\exe2bin.exe ibmedlin.exe ibmedlin.com
+
+ibmedlin.exe: ibmedlin.obj
+	bin\link.exe ibmedlin,ibmedlin,ibmedlin,ibmedlin, 
+
+ibmedlin.obj: ibmedlin.asm edlin102.asm
+	bin\msmasm.exe ibmedlin,ibmedlin,ibmedlin,ibmedlin
+
+msedlin.com: msedlin.exe
+	bin\exe2bin.exe msedlin.exe msedlin.com
+
+msedlin.exe: msedlin.obj
+	bin\link.exe msedlin,msedlin,msedlin,msedlin, 
+
+msedlin.obj: msedlin.asm edlin102.asm
+	bin\msmasm.exe msedlin,msedlin,msedlin,msedlin
+
+ballc.com: ballc.exe
+	bin\exe2bin.exe ballc.exe ballc.com
+
+ballc.exe: ballc.obj
+	bin\link.exe ballc,ballc,ballc,ballc, 
+
+ballc.obj: ballc.asm
+	bin\msmasm.exe ballc,ballc,ballc,ballc
+
+ver.com: ver.exe
+	bin\exe2bin.exe ver.exe ver.com
+
+ver.exe: ver.obj
+	bin\link.exe ver,ver,ver,ver, 
+
+ver.obj: ver.asm
+	bin\msmasm.exe ver,ver,ver,ver
 
 mem.com: mem.exe
 	bin\exe2bin.exe mem.exe mem.com
@@ -36,7 +100,7 @@ mem.exe: mem.obj
 	bin\link.exe mem,mem,mem,mem, 
 
 mem.obj: mem.asm
-	bin\masm.exe mem,mem,mem,mem
+	bin\msmasm.exe mem,mem,mem,mem
 
 cls.com: cls.exe
 	bin\exe2bin.exe cls.exe cls.com
@@ -45,13 +109,13 @@ cls.exe: cls.obj
 	bin\link.exe cls,cls,cls,cls, 
 
 cls.obj: cls.asm
-	bin\masm.exe cls,cls,cls,cls
+	bin\msmasm.exe cls,cls,cls,cls
 
 hello.com: hello.asm asm.com hex2bin.com
 	asm.com hello.  z
 	hex2bin.com hello
 
-xtrans.com: trans.asm asm.com hex2bin.com
+trans.com: trans.asm asm.com hex2bin.com
 	asm.com trans.  z
 	hex2bin.com trans
 
@@ -64,14 +128,14 @@ hex2bin.com: hex2bin.asm
 	bin\hex2bin.com hex2bin
 
 clean:
-	del *.com
-	del *.exe
-	del *.obj
-	del *.crf
-	del *.err
-	del *.lst
-	del *.map
-	del *.hex
-	del *.prn
-	del *.log
+	-del *.com
+	-del *.exe
+	-del *.obj
+	-del *.crf
+	-del *.err
+	-del *.lst
+	-del *.map
+	-del *.hex
+	-del *.prn
+	-del *.log
 
