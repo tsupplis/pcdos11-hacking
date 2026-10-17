@@ -1,4 +1,6 @@
-
+;*-------------------------------------------------------------------------
+;  VER.ASM - Simple demonstration tool: DOS version guessing
+;*-------------------------------------------------------------------------
 program     segment
             assume cs:program, ds:program
             org 100h

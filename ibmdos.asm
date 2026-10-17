@@ -1,3 +1,6 @@
+;*-------------------------------------------------------------------------
+;  IBMDOS.ASM - DOS configuration for IBM
+;*-------------------------------------------------------------------------
 	TITLE	MS-DOS version 1.25 by Tim Paterson     March 3, 1982
 	PAGE	60,132
 ; Use the following booleans to set the switches 
@@ -19,4 +22,4 @@ HIGHMEM	EQU	FALSE
 
 DSKTEST	EQU	FALSE
 
-	INCLUDE	DOS.ASM
+INCLUDE	DOS.ASM

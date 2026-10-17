@@ -1,3 +1,33 @@
+;*-------------------------------------------------------------------------
+;  COMMAND.ASM - DOS 1.25 command processor (COMMAND.COM)
+;
+;  Build:   make ibmcmd.com       (IBMVER: IBM PC-DOS 1.10C personality)
+;           make mscmd.com        (MSVER:  Microsoft MS-DOS 1.25C personality)
+;
+;  Purpose:
+;     Provides the command prompt, batch processing, internal commands, and
+;     loading of external programs.  The wrapper selects the IBM or Microsoft
+;     conventions; it also controls the small local command extensions.
+;
+;  Memory organization:
+;     COMMAND is intentionally split into a permanent resident portion, a
+;     disposable initialization portion, and a transient command processor.
+;     The transient portion runs at the top of memory and may be overwritten
+;     by applications.  On regaining control, the resident portion verifies
+;     its checksum and reloads COMMAND.COM when necessary.
+;
+;  Layout:
+;     RESGROUP contains resident code/data, initialization code, and the
+;     loadable tail; TRANGROUP contains transient code/data/workspace.  The
+;     command table dispatches built-ins such as DIR, COPY, TYPE, DATE, and
+;     TIME, while other commands are loaded as external programs.
+;
+;  Historical record:
+;     The original source identifies itself as "COMMAND version 1.17".  Its
+;     contemporary architectural description immediately below is preserved
+;     verbatim because it records the intended resident/transient contract.
+;-------------------------------------------------------------------------
+;
 ; COMMAND version 1.17
 ;
 ; This version of COMMAND is divided into three distinct parts. First

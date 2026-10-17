@@ -1,5 +1,6 @@
-    ORG 100H
-
+;*-------------------------------------------------------------------------
+;  CLS.ASM - Simple demonstration tool: BIOS clear screen
+;*-------------------------------------------------------------------------
 program     segment
             assume cs:program, ds:program
             org 100h

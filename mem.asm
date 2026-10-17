@@ -1,3 +1,6 @@
+;*-------------------------------------------------------------------------
+;  MEM.ASM - Simple demonstration tool: Available memory guessing
+;*-------------------------------------------------------------------------
 program     segment
             assume cs:program, ds:program
             org 100h

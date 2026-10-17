@@ -1,3 +1,34 @@
+;*-------------------------------------------------------------------------
+;  IBMBIO.ASM - PC-DOS 1.1 BIOS component (IBMBIO.COM / IO.SYS)
+;
+;  Build:   make ibmbio.com
+;
+;  Purpose:
+;     Implements the BIOS-facing half of DOS for the IBM PC.  DOS.ASM calls
+;     the fixed jump table at the beginning of this image; this module maps
+;     those requests to the IBM ROM BIOS and supplies the DOS disk drivers.
+;     The resulting image is installed as IBMBIO.COM for PC-DOS and as IO.SYS
+;     by the MS-DOS disk-image build.
+;
+;  Interface:
+;     The initial, fixed-size jump entries provide initialization, console,
+;     printer, auxiliary, disk, disk-change, date/time, input-flush, and
+;     device-mapping services.  Console, video, serial, printer, keyboard,
+;     clock, and disk hardware are reached through ROM BIOS INT 10h, 13h,
+;     14h, 16h, 17h, and 1Ah calls.  DOS therefore remains independent of
+;     the PC hardware details.
+;
+;  Placement:
+;     The build links the BIOS image for segment 60h, matching the IBM DOS
+;     kernel BIOSSEG convention.  DOS_SEG names the adjoining DOS segment
+;     at BFh for the inter-component references used by this source.
+;
+;  Provenance:
+;     This is reconstructed PC-DOS 1.1 BIOS source, retrieved from the
+;     OS/2 Museum "PC DOS 1.1 from scratch" material (also recorded in the
+;     project README).  Existing in-line comments and behavior are retained.
+;-------------------------------------------------------------------------
+
 DOS_SEG SEGMENT AT 0BFH
 MSDOS   LABEL   FAR
 DOS_SEG ENDS
