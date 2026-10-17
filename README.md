@@ -97,10 +97,12 @@ starting line number, it begins after the current line rather than at line 1.
 
 | Command | Source | Description |
 |---------|--------|-------------|
-| `asm.com` | [asm.asm](asm.asm) | Seattle Computer Products 8086 Assembler, Version 2.44B (SCP, Tim Paterson) |
-| `hex2bin.com` | [hex2bin.asm](hex2bin.asm) | Seattle Computer Products 8086 Hex Converter, Version 1.02A (SCP, Tim Paterson) |
-| `trans.com` | [trans.asm](trans.asm) | Seattle Computer Products Z80 to 8086 Translator, Version 2.21A (SCP, Tim Paterson) |
+| `asm.com` | [asm.asm](asm.asm) | Seattle Computer Products 8086 Assembler, Version 2.44C (SCP, Tim Paterson) |
+| `hex2bin.com` | [hex2bin.asm](hex2bin.asm) | Seattle Computer Products 8086 Hex Converter, Version 1.02B (SCP, Tim Paterson) |
+| `trans.com` | [trans.asm](trans.asm) | Seattle Computer Products Z80 to 8086 Translator, Version 2.21B (SCP, Tim Paterson) |
 | `mon.com` | [mon.asm](mon.asm) | Seattle Computer Products 8086 Monitor, Version 1.9 (SCP, Tim Paterson / Craig Derouen) — adapted for MASM / PC-DOS |
+
+`asm.com`, `hex2bin.com`, and `trans.com` treat the physical end of a partial FCB record as logical EOF, so their input files no longer require a trailing Ctrl-Z.
 
 `mon.com` is the SCP ROM monitor v1.9 ported to run as a DOS `.COM` file. The original targeted
 ROM at `0xFF000` with direct UART and hardware controller access; this version replaces all
