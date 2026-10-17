@@ -37,7 +37,6 @@
 13DO
 14END
 15OF
-16PROCEDURE FUNCTION
 17THEN
 18TO DOWNTO
 20Boolean
@@ -93,13 +92,8 @@
 73 FORWARD procedure(s)
 74INLINE error
 75 use of ABSOLUTE
-76Overlays forwarded
-77Overlays in direct mode
 90 not found
 91Unexpected end of source
-92Unable to create overlay
-93 compiler directive
-96Nested include
 97Too many nested WITH's
 98Memory
-99Compiler
+99Compiler
