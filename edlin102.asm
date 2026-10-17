@@ -1,8 +1,8 @@
 ;*-------------------------------------------------------------------------
-;  EDLIN.ASM - IBM Personal Computer line editor ("EDITOR"), version 1.00
+;  EDLIN102.ASM - Microsoft line editor (EDLIN), version 1.02
 ;
-;  Build:   make edlin.com
-;           (msmasm edlin -> link edlin -> exe2bin edlin.exe edlin.com)
+;  Build:   make msedlin.com
+;           (msmasm msedlin -> link msedlin -> exe2bin msedlin.exe msedlin.com)
 ;
 ;  Usage:   EDLIN [d:]filename
 ;           Edits filename; the previous version is kept as filename.BAK.
@@ -14,7 +14,9 @@
 ;     [n][,m]D         Delete lines
 ;     [n]I             Insert lines before line n (end with ^Z or ^Break)
 ;     [n][,m][?]Sstr   Search for str, ? asks "O.K.?" for each match
+;                       (default start: line after the current line)
 ;     [n][,m][?]Rstr^Zrepl   Replace str by repl, ? asks "O.K.?"
+;                       (default start: line after the current line)
 ;     [n]A             Append n lines from the file (fill memory by default)
 ;     [n]W             Write n lines to disk (frees memory for A)
 ;     E                End edit: save, rename old file to .BAK
@@ -126,7 +128,7 @@ numlim          equ     1999h           ; 6553 = 65535 / 10: next digit would ov
 combuf_size     equ     128                     ; Command line max length
 strbuf_size     equ     128                     ; Search / replace string max length
 editbuf_max     equ     255                     ; Edited line max length
-stack_size      equ     40                      ; Bytes reserved for the stack
+stack_size      equ     128                     ; Bytes reserved for the stack
 max_linelen     equ     254             ; Longest line allowed after a replace
 list_before     equ     11              ; List: lines shown before the current line
 list_count      equ     23              ; List: default number of lines shown
@@ -138,11 +140,11 @@ _start:
 ; ---------------------------------------------------------------------------
                 db      cr, lf
 IF MSVER
-                db     "EDLIN  version 1.01", cr, lf, "$"
+                db     "EDLIN  version 1.02", cr, lf, "$"
 ENDIF
 IF IBMVER
                 db      "The IBM Personal Computer EDITOR", cr, lf
-                db      "Version 1.00 (C)Copyright IBM Corp 1981", cr, lf, "$"
+                db      "Version 1.00N (C)Copyright IBM Corp 1981", cr, lf, "$"
                 db      "Licensed Material - Program Property of IBM"
 ENDIF
 ; ---------------------------------------------------------------------------
@@ -1045,8 +1047,8 @@ prompt_yesno    endp
 ;          string, then optionally ^Z and the replacement string, up to CR
 ; Returns: ZF set if a match was found (see find_match for the state), ZF
 ;          clear if the search string is empty or the range holds no match
-; Sets srch_len, rplc_len, and the search range: from line param1 (default 1)
-; to line param2 (default the end of the text).
+; Sets srch_len, rplc_len, and the search range: from line param1 (default
+; the line after the current one) to line param2 (default the end of text).
 ; ---------------------------------------------------------------------------
 
 parse_search_args proc near
@@ -1064,8 +1066,11 @@ parse_search_args proc near
 parse_srch_find_range:
                 mov     word ptr ds:[rplc_len], cx
                 mov     bx, word ptr ds:[param1]
-                cmp     bx, 1
-                adc     bx, 0                   ; 0 becomes 1
+                or      bx, bx
+                jnz     short parse_srch_start
+                mov     bx, word ptr ds:[curlin]
+                inc     bx                      ; Default: line after current
+parse_srch_start:
                 call    findlin
                 mov     word ptr ds:[srch_ptr], di ; Start of the range
                 mov     word ptr ds:[srch_lineptr], di
@@ -1523,13 +1528,14 @@ eofmsg          db      "End of input file", cr, lf, "$"
 abort_prompt    db      "Abort edit (Y/N)? $"
 
 ; ===========================================================================
-; Uninitialised work area, past the end of the COM image (0A58h and up).
-; Nothing here is stored in the file; it is addressed with equates only.
+; Work area.  Version 1.02 stores its first 125 bytes as zeroes in the COM
+; image, then addresses the rest with equates only.
 ; ===========================================================================
 
 
 ; FCB 2: the temporary file filename.$$$ (standard 37 byte FCB layout)
-fcb2            label   byte                    ; 0A58h
+fcb2            label   byte
+                db      125 dup (0)             ; 1.02's stored work-area prefix
 fcb2_ext        equ     fcb2 + 9                ; Extension
 fcb2_recsiz     equ     fcb2 + 14               ; Record size word (0A66h)
 fcb2_newname    equ     fcb2 + fcb_newname      ; Rename: new name field (0A68h)
@@ -1542,7 +1548,9 @@ newfile_flg     equ     fcb2 + 38               ; Byte: non zero = no more to re
 modflg          equ     fcb2 + 39               ; Byte: 1 once the E command has started (0A7Fh)
 
 ; Command arguments and search state
-param1          equ     fcb2 + 40               ; Word: first number on the command line (0A80h)
+; EDLIN 1.02 pads here so all following word values are even-aligned.
+word_align       equ     fcb2 + 40
+param1          equ     fcb2 + 41               ; Word: first number on the command line (0A80h)
 param2          equ     param1 + 2              ; Word: second number (0A82h)
 srch_len        equ     param2 + 2              ; Word: search string length (0A84h); the line
                                                 ; edit also keeps the old line length here

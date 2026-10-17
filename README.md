@@ -54,8 +54,15 @@ and `blank.img`.
 
 [origcmd.asm](origcmd.asm) keeps the untouched Microsoft `command.asm` for reference;
 [io.asm](io.asm) is the original 86-DOS I/O system.
-| `ibmedlin.com` | [ibmedlin.asm](ibmedlin.asm) | IBM Personal Computer EDITOR (EDLIN), Version 1.00 (C)Copyright IBM Corp 1981 |
-| `msedlin.com` | [msedlin.asm](msedlin.asm) | Microsoft EDITOR (EDLIN), Version 1.02 |
+
+| Binary | Source | Description |
+|--------|--------|-------------|
+| `ibmedlin.com` | [ibmedlin.asm](ibmedlin.asm), [edlin101.asm](edlin101.asm) | Byte-exact IBM Personal Computer EDITOR (EDLIN), Version 1.00 |
+| `msedlin.com` | [msedlin.asm](msedlin.asm), [edlin102.asm](edlin102.asm) | Byte-exact Microsoft EDLIN, Version 1.02 |
+
+`edlin101.asm` also reconstructs the 86-DOS/Microsoft EDLIN 1.01 variant when
+built with `MSVER`. EDLIN 1.02 changes the default `S`/`R` range: without a
+starting line number, it begins after the current line rather than at line 1.
 
 
 ### Added Utilities
@@ -166,8 +173,10 @@ https://github.com/microsoft/MS-DOS/blob/master/v1.25/source/COMMAND.ASM
 
 ibmbio.com sources are retrieved from https://www.os2museum.com/wp/pc-dos-1-1-from-scratch
 
-[edlin.asm](edlin.asm) has no upstream source: it is reverse engineered from the PC-DOS 1.1 `edlin.com`
-(see [IBM Utilities Rebuilt From Reverse-Engineered Source](#ibm-utilities-rebuilt-from-reverse-engineered-source)).
+The EDLIN sources have no upstream source. [edlin101.asm](edlin101.asm) is a
+byte-exact reconstruction of IBM EDLIN 1.00 and the 86-DOS/Microsoft 1.01
+variant; [edlin102.asm](edlin102.asm) is a byte-exact reconstruction of
+Microsoft EDLIN 1.02.
 
 ## MIT License (In line with Source License):
 
