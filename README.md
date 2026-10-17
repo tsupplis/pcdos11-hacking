@@ -1,6 +1,8 @@
 # PC-DOS 1.1 Hacking - Playing with PC-DOS 1.10 bios/dos and utilities
 
-This project is slowly but surely taking the sources and binaries of PC-DOS/MS-DOS by Microsoft and creating a full source based rebuild and distribution. Now that the system files are rebuilt (and mildly patched) we are adding one by one each of the utilities, trying to be very faithful to the original. Why? because it is fun and cool .... Original MS-DOS and CP/M-86 were barely more than program launchers as kernels but provided everything to allow developers to start their journey. They are a unique piece of history and they are small enough to be understood in details.
+This project is slowly but surely taking the sources and binaries of PC-DOS/MS-DOS by Microsoft and creating a full source based rebuild and distribution. Now that the system files are rebuilt (and mildly patched) we are adding one by one each of the utilities, trying to be very faithful to the original. Why? because it is fun and cool .... 
+
+Original MS-DOS and CP/M-86 were barely more than program launchers as kernels but provided everything to allow developers to start their journey. They are a unique piece of history and they are small enough to be understood in details.
 
 ## Screenshots
 
