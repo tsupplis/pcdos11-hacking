@@ -48,7 +48,7 @@ and `blank.img`.
 | `ibmbio.com` | [ibmbio.asm](ibmbio.asm) | PC-DOS 1.1 BIOS, installed as `ibmbio.com` / `io.sys`, reconstructed sources |
 | `ibmdos.com` | [ibmdos.asm](ibmdos.asm), [dos.asm](dos.asm) | DOS kernel, installed as `ibmdos.com` / `msdos.sys` |
 | `ibmcmd.com` | [ibmcmd.asm](ibmcmd.asm), [command.asm](command.asm) | PC-DOS flavour of `command.com` (`IBMVER`) |
-| `xmscmd.com` | [mscmd.asm](mscmd.asm), [command.asm](command.asm) | MS-DOS flavour of `command.com` (`MSVER`) |
+| `mscmd.com`  | [mscmd.asm](mscmd.asm), [command.asm](command.asm) | MS-DOS flavour of `command.com` (`MSVER`) |
 | `ibmsys.com` | [ibmsys.asm](ibmsys.asm), [sys.asm](sys.asm) | `sys.com` writing the PC-DOS system files |
 | `mssys.com` | [mssys.asm](mssys.asm), [sys.asm](sys.asm) | `sys.com` writing the MS-DOS system files |
 
