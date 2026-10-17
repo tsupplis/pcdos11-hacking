@@ -13,4 +13,3 @@
 
 MESSAGE:
 	DB	 'Hello from 8080 via TRANS.COM!',13,10,'$'
-

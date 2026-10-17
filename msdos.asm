@@ -1,3 +1,6 @@
+;*-------------------------------------------------------------------------
+;  MSDOS.ASM - DOS configuration for MS-DOS
+;*-------------------------------------------------------------------------
 	TITLE	MS-DOS version 1.25 by Tim Paterson     March 3, 1982
 	PAGE	60,132
 ; Use the following booleans to set the switches 
@@ -10,6 +13,10 @@ MSVER	EQU	TRUE
 IBMVER	EQU	FALSE
 NEWVER  EQU TRUE
 
+; This MS-DOS personality is paired with the PC-specific IBMBIO.COM BIOS.
+; Its service jump table is at 60h; original SCP I/O-system builds use 40h.
+BIOSSEG EQU	60H
+
 ; Set this switch to cause DOS to move itself to the end of memory
 HIGHMEM	EQU	FALSE
 
@@ -19,4 +26,4 @@ HIGHMEM	EQU	FALSE
 
 DSKTEST	EQU	FALSE
 
-	INCLUDE	DOS.ASM
+INCLUDE	DOS.ASM

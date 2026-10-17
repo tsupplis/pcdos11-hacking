@@ -4,7 +4,7 @@ DIST_DISKS=pcdos_full.img pcdos_base.img pcdos_dist.img pcdos_diag.img \
 
 
 all: ibmcmd.com ibmdos.com ibmbio.com \
-     mscmd.com \
+     mscmd.com msdos.com \
      asm.com hex2bin.com trans.com hello.com \
      mem.com ver.com cls.com ballc.com mon.com \
      ibmsys.com mssys.com \
@@ -25,7 +25,6 @@ ibmbio.exe: ibmbio.obj
 	emu2 bin/link.exe ibmbio,ibmbio,ibmbio,ibmbio,
 
 ibmbio.obj: ibmbio.asm 
-	unix2dos $<
 	emu2 bin/msmasm.exe ibmbio,ibmbio,ibmbio,ibmbio || rm -f ibmbio.obj
 
 ibmdos.com: ibmdos.exe
@@ -35,16 +34,23 @@ ibmdos.exe: ibmdos.obj
 	emu2 bin/link.exe ibmdos,ibmdos,ibmdos,ibmdos,
 
 ibmdos.obj: ibmdos.asm dos.asm
-	unix2dos ibmdos.asm
-	unix2dos dos.asm
 	emu2 bin/msmasm.exe ibmdos,ibmdos,ibmdos,ibmdos || rm -f ibmdos.obj
 
-msdos_base.img: mscmd.com ibmbio.com ibmdos.com disks/msdos.img
+msdos.com: msdos.exe
+	emu2 bin/exe2bin.exe msdos.exe msdos.com
+
+msdos.exe: msdos.obj
+	emu2 bin/link.exe msdos,msdos,msdos,msdos,
+
+msdos.obj: msdos.asm dos.asm
+	emu2 bin/msmasm.exe msdos,msdos,msdos,msdos || rm -f msdos.obj
+
+msdos_base.img: mscmd.com ibmbio.com msdos.com disks/msdos.img
 	cp disks/msdos.img $@
 	mattrib -i $@ -h -s ::MSDOS.SYS
 	mattrib -i $@ -h -s ::IO.SYS
 	mcopy  -o -p -i $@ ibmbio.com ::IO.SYS
-	mcopy  -o -p -i $@ ibmdos.com ::MSDOS.SYS
+	mcopy  -o -p -i $@ msdos.com ::MSDOS.SYS
 	mcopy  -o -i $@ mscmd.com ::COMMAND.COM
 	mattrib -i $@ -a ::"*.*"
 	mattrib -i $@ +h +s ::MSDOS.SYS
@@ -102,7 +108,7 @@ msdos_diag.img: msdos_base.img asm.com trans.com \
 
 msdos_full.img: msdos_base.img asm.com trans.com \
     hex2bin.com mem.com mssys.com hello.80 mshello.bas mkhello.bat \
-	graph.bas ballc.com msedlin.com
+	graph.bas msedlin.com
 	cp msdos_base.img $@
 	mcopy  -i $@ autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/msmasm.exe ::MASM.EXE
@@ -128,7 +134,6 @@ msdos_full.img: msdos_base.img asm.com trans.com \
 	mcopy  -i $@ mkhello.bat ::MKHELLO.BAT
 	mcopy  -i $@ mshello.bas ::HELLO.BAS
 	mcopy  -i $@ graph.bas ::GRAPH.BAS
-	mcopy  -i $@ ballc.com ::BALLC.COM
 	mcopy  -i $@ mem.com ::MEM.COM
 	mcopy  -i $@ bin/pceinit.com ::PCEINIT.COM
 	mattrib -i $@ -a ::"*.*"
@@ -236,8 +241,6 @@ mscmd.exe: mscmd.obj
 	emu2 bin/link.exe mscmd,mscmd,mscmd,mscmd,
 
 mscmd.obj: mscmd.asm command.asm
-	unix2dos mscmd.asm
-	unix2dos command.asm
 	emu2 bin/msmasm.exe mscmd,mscmd,mscmd,mscmd  || rm -f mscmd.obj
 
 ibmcmd.com: ibmcmd.exe 
@@ -256,7 +259,6 @@ ver.exe: ver.obj
 	emu2 bin/link.exe ver,ver,ver,ver, 
 
 ver.obj: ver.asm
-	unix2dos $<
 	emu2 bin/msmasm.exe ver,ver,ver,ver || rm -f ver.obj
 
 mem.com: mem.exe
@@ -266,7 +268,6 @@ mem.exe: mem.obj
 	emu2 bin/link.exe mem,mem,mem,mem, 
 
 mem.obj: mem.asm
-	unix2dos $<
 	emu2 bin/msmasm.exe mem,mem,mem,mem || rm -f mem.obj
 
 
@@ -277,7 +278,6 @@ mon.exe: mon.obj
 	emu2 bin/link.exe mon,mon,mon,mon,
 
 mon.obj: dosmon.asm mon.asm
-	unix2dos dosmon.asm mon.asm
 	emu2 bin/msmasm.exe dosmon,mon,mon,mon || rm -f mon.obj
 
 
@@ -288,7 +288,6 @@ ibmedlin.exe: ibmedlin.obj
 	emu2 bin/link.exe ibmedlin,ibmedlin,ibmedlin,ibmedlin,
 
 ibmedlin.obj: ibmedlin.asm
-	unix2dos $<
 	emu2 bin/msmasm.exe ibmedlin,ibmedlin,ibmedlin,ibmedlin || rm -f ibmedlin.obj
 
 
@@ -299,7 +298,6 @@ msedlin.exe: msedlin.obj
 	emu2 bin/link.exe msedlin,msedlin,msedlin,msedlin,
 
 msedlin.obj: msedlin.asm
-	unix2dos $<
 	emu2 bin/msmasm.exe msedlin,msedlin,msedlin,msedlin || rm -f msedlin.obj
 
 
@@ -310,8 +308,6 @@ mssys.exe: mssys.obj
 	emu2 bin/link.exe mssys,mssys,mssys,mssys, 
 
 mssys.obj: mssys.asm sys.asm
-	unix2dos mssys.asm
-	unix2dos sys.asm
 	emu2 bin/msmasm.exe mssys,mssys,mssys,mssys || rm -f mssys.obj
 
 ibmsys.com: ibmsys.exe
@@ -330,7 +326,6 @@ cls.exe: cls.obj
 	emu2 bin/link.exe cls,cls,cls,cls, 
 
 cls.obj: cls.asm
-	unix2dos $<
 	emu2 bin/msmasm.exe cls,cls,cls,cls || rm -f cls.obj
 
 ballc.com: ballc.exe
@@ -340,11 +335,9 @@ ballc.exe: ballc.obj
 	emu2 bin/link.exe ballc,ballc,ballc,ballc, 
 
 ballc.obj: ballc.asm
-	unix2dos $<
 	emu2 bin/msmasm.exe ballc,ballc,ballc,ballc || rm -f ballc.obj
 
 hello.com: hello.asm asm.com hex2bin.com
-	unix2dos hello.asm
 	emu2 asm.com hello.  z
 	emu2 hex2bin.com hello
 
@@ -352,21 +345,17 @@ hello.asm: hello.80 trans.com
 	emu2 trans.com hello.80
 
 trans.com: trans.asm asm.com hex2bin.com
-	unix2dos trans.asm
 	emu2 asm.com trans.  z
 	emu2 hex2bin.com trans
 
 asm.com: asm.asm
-	unix2dos $<
 	emu2 bin/asm.com asm.  z
 	emu2 bin/hex2bin.com asm
 
 hex2bin.obj: hex2bin.asm
-	unix2dos $<
 	emu2 bin/msmasm.exe hex2bin,hex2bin,hex2bin,hex2bin || rm -f hex2bin.obj
 
 hex2bin.com: hex2bin.asm
-	unix2dos $<
 	emu2 bin/asm.com hex2bin.  z
 	emu2 bin/hex2bin.com hex2bin
 

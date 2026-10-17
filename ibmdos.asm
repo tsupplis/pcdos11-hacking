@@ -13,6 +13,10 @@ MSVER	EQU	FALSE
 IBMVER	EQU	TRUE
 NEWVER  EQU TRUE
 
+; Physical location of the PC-specific BIOS service jump table in IBMBIO.COM.
+; This is a hardware/integration setting, independent of the DOS personality.
+BIOSSEG EQU	60H
+
 ; Set this switch to cause DOS to move itself to the end of memory
 HIGHMEM	EQU	FALSE
 

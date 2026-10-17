@@ -7,8 +7,9 @@
 ;     Implements the BIOS-facing half of DOS for the IBM PC.  DOS.ASM calls
 ;     the fixed jump table at the beginning of this image; this module maps
 ;     those requests to the IBM ROM BIOS and supplies the DOS disk drivers.
-;     The resulting image is installed as IBMBIO.COM for PC-DOS and as IO.SYS
-;     by the MS-DOS disk-image build.
+;     The resulting image is installed as IBMBIO.COM for PC-DOS.  It can
+;     also support an MS-DOS personality on the PC when its wrapper selects
+;     BIOSSEG = 60h; it is not compatible with an unadapted 40h I/O system.
 ;
 ;  Interface:
 ;     The initial, fixed-size jump entries provide initialization, console,

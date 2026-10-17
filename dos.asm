@@ -1,3 +1,36 @@
+;*-------------------------------------------------------------------------
+;  DOS.ASM - 86-DOS / DOS 1.25 kernel shared by PC-DOS and MS-DOS builds
+;
+;  Build:   make ibmdos.com       (IBMVER)
+;           make msdos.com        (MSVER, paired with the PC BIOS at 60h)
+;           ibmdos.asm and msdos.asm select the variant before including
+;           this shared kernel source.
+;
+;  Purpose:
+;     Implements the DOS kernel: the system-call entry path, FCB and device
+;     I/O, directory and FAT management, memory/process services, error and
+;     Ctrl-C handling, date/time support, and initialization of the DOS/BIOS
+;     boundary.  It is the component installed as IBMDOS.COM or MSDOS.SYS.
+;
+;  Interfaces and layout:
+;     The kernel calls the BIOS jump table supplied by the companion BIOS
+;     image (IBMBIO.COM / IO.SYS).  Its fixed low-memory interrupt table and
+;     long CALL entry are described in the original notes below.  FCBLOCK and
+;     DPBLOCK document the on-memory FCB and drive-parameter formats on which
+;     the file system depends.
+;
+;  Variant controls:
+;     IBMVER/MSVER choose the IBM and Microsoft compatibility details;
+;     BIOSSEG is supplied by the wrapper and names the compatible BIOS jump
+;     table (60h for the PC IBMBIO.COM, 40h for the original SCP I/O system).
+;     HIGHMEM optionally relocates DOS to the end of memory; DSKTEST enables
+;     a separate disk-I/O stack for debugging.
+;
+;  Historical record:
+;     Original source title: "86-DOS High-performance operating system for
+;     the 8086", version 1.25, by Tim Paterson.  The complete original
+;     revision history immediately below is retained verbatim.
+;-------------------------------------------------------------------------
 ; 86-DOS  High-performance operating system for the 8086  version 1.25
 ;       by Tim Paterson
 
@@ -163,14 +196,8 @@ SEGBIOS SEGMENT
 SEGBIOS ENDS
 
 
-; BOIS entry point definitions
-
-	IF      IBMVER
-BIOSSEG EQU     60H
-	ENDIF
-	IF      NOT IBMVER
-BIOSSEG EQU     40H
-	ENDIF
+; BIOS entry point definitions.  BIOSSEG is a wrapper-defined integration
+; parameter; it must name the segment containing this 15-entry jump table.
 
 SEGBIOS 	SEGMENT AT BIOSSEG
 		ORG     0
