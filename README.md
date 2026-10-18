@@ -73,6 +73,21 @@ the historical dispatcher.
 built with `MSVER`. EDLIN 1.02 changes the default `S`/`R` range: without a
 starting line number, it begins after the current line rather than at line 1.
 
+### High-memory layout
+
+`HIGHMEM` is an opt-in assembly switch in the matching DOS and COMMAND
+wrappers.  It relocates their permanent portions to the top of ordinary
+conventional memory; it is not the later DOS high-memory area (HMA) or upper
+memory blocks.  The `H` suffix in the DOS and COMMAND banners identifies such
+a build.
+
+For the current MS-DOS build, relocation moves 6,784 bytes (424 paragraphs)
+from low addresses: 5,632 bytes of DOS and 1,152 bytes of resident COMMAND.
+It does not add RAM or increase the maximum DOS allocation; it makes the
+program area start lower and keeps the permanent system area together at the
+top of RAM.  `mem.com` reports its current PSP allocation limit rather than
+mistaking relocated high-resident code for free memory.
+
 
 ### Added Utilities
 
@@ -80,7 +95,7 @@ starting line number, it begins after the current line rather than at line 1.
 |---------|--------|-------------|
 | `ver.com` | [ver.asm](ver.asm) | Reports the DOS version (external counterpart of the built-in) |
 | `cls` | [command.asm](command.asm)| Clears the screen through the video BIOS (external counterpart of the built-in [command](command.asm#L201-L206) implemented in `command.com`) |
-| `mem.com` | [mem.asm](mem.asm) | Reports conventional memory size from `INT 12h` |
+| `mem.com` | [mem.asm](mem.asm) | Reports the current DOS PSP allocation limit and BIOS conventional-memory total |
 | `date10.com` | [date10.asm](date10.asm) | PC-DOS 1.0 DATE, added for Y2K compatibility: two-digit years mean 2000-2099 |
 | `time10.com` | [time10.asm](time10.asm) | PC-DOS 1.0 TIME, added alongside DATE for the Y2K-compatible date/time command set |
 

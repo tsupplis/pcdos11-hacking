@@ -17,6 +17,6 @@ IBMVER	EQU	FALSE
 CMDEXT  EQU TRUE
 
 ; Set this switch to cause DOS to move itself to the end of memory
-HIGHMEM	EQU	FALSE
+HIGHMEM	EQU	TRUE
 
 INCLUDE	COMMAND.ASM
