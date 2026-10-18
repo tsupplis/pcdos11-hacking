@@ -16,7 +16,6 @@ dist: disks.zip
 
 disks.zip: $(DIST_DISKS) LICENSE.md 
 	zip -j $@ $(DIST_DISKS) LICENSE.md 
-    
 
 ibmbio.com: ibmbio.exe
 	echo 60|emu2 bin/exe2bin.exe ibmbio.exe ibmbio.com
@@ -69,7 +68,7 @@ pcdos_base.img: ibmcmd.com ibmbio.com ibmdos.com disks/pcdos.img
 	mattrib -i $@ +h +s ::IBMBIO.COM
 	mdir -w -i $@ ::
 
-msdos_dist.img: msdos_base.img mssys.com asm.com hex2bin.com trans.com msedlin.com
+msdos_dist.img: msdos_base.img mssys.com msedlin.com
 	cp msdos_base.img $@
 	mcopy  -i $@ bin/msmasm.exe ::MASM.EXE
 	mcopy  -i $@ bin/mslink.exe ::LINK.EXE
@@ -91,8 +90,8 @@ msdos_dist.img: msdos_base.img mssys.com asm.com hex2bin.com trans.com msedlin.c
 	mattrib -i $@ -a ::"*.*"
 	mdir -w -i $@ ::
 
-msdos_diag.img: msdos_base.img asm.com trans.com \
-    hex2bin.com msedlin.com mem.com ver.com
+msdos_diag.img: msdos_base.img \
+    msedlin.com mem.com ver.com
 	cp msdos_base.img $@
 	mcopy  -i $@ autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/chkdsk.com ::CHKDSK.COM
@@ -107,8 +106,9 @@ msdos_diag.img: msdos_base.img asm.com trans.com \
 	mattrib -i $@ -a ::"*.*"
 	mdir -w -i $@ ::
 
-msdos_full.img: msdos_base.img asm.com trans.com \
-    hex2bin.com mem.com mssys.com msedlin.com
+msdos_full.img: msdos_base.img upx/asm.com upx/trans.com \
+    hex2bin.com mem.com mssys.com \
+    upx/filcom.com upx/msformat.com
 	cp msdos_base.img $@
 	mcopy  -i $@ autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/msmasm.exe ::MASM.EXE
@@ -120,14 +120,14 @@ msdos_full.img: msdos_base.img asm.com trans.com \
 	mcopy  -i $@ bin/chkdsk.com ::CHKDSK.COM
 	mcopy  -i $@ mssys.com ::SYS.COM
 	mcopy  -i $@ msedlin.com ::EDLIN.COM
-	mcopy  -i $@ bin/msformat.com ::FORMAT.COM
+	mcopy  -i $@ upx/msformat.com ::FORMAT.COM
 	mcopy  -i $@ bin/diskcopy.com ::DISKCOPY.COM
 	mcopy  -i $@ bin/diskcomp.com ::DISKCOMP.COM
-	mcopy  -i $@ bin/filcom.com ::FILCOM.COM
+	mcopy  -i $@ upx/filcom.com ::FILCOM.COM
 	mcopy  -i $@ bin/debug.com ::DEBUG.COM
 	mcopy  -i $@ bin/mode.com ::MODE.COM
-	mcopy  -i $@ trans.com ::TRANS.COM
-	mcopy  -i $@ asm.com ::ASM.COM
+	mcopy  -i $@ upx/trans.com ::TRANS.COM
+	mcopy  -i $@ upx/asm.com ::ASM.COM
 	mcopy  -i $@ hex2bin.com ::HEX2BIN.COM
 	mcopy  -i $@ mem.com ::MEM.COM
 	mcopy  -i $@ bin/pceinit.com ::PCEINIT.COM
@@ -139,7 +139,7 @@ pcdos_dist.img: msdos_base.img ibmsys.com ibmedlin.com
 	cp msdos_base.img $@
 	mcopy  -i $@ bin/link.exe ::LINK.EXE
 	mcopy  -i $@ bin/basic.com ::BASIC.COM
-	mcopy  -i $@ bin/basica.com ::BASICA.COM
+	mcopy  -i $@ upx/basica.com ::BASICA.COM
 	mcopy  -i $@ bin/exe2bin.exe ::EXE2BIN.EXE
 	mcopy  -i $@ bin/chkdsk.com ::CHKDSK.COM
 	mcopy  -i $@ ibmsys.com ::SYS.COM
@@ -165,8 +165,8 @@ pcdos_dist.img: msdos_base.img ibmsys.com ibmedlin.com
 	mattrib -i $@ -a ::"*.*"
 	mdir -w -i $@ ::
 
-pcdos_diag.img: pcdos_base.img asm.com trans.com \
-    hex2bin.com ibmedlin.com mem.com ver.com
+pcdos_diag.img: pcdos_base.img \
+    ibmedlin.com mon.com mem.com ver.com
 	cp pcdos_base.img $@
 	mcopy  -i $@ autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/chkdsk.com ::CHKDSK.COM
@@ -182,29 +182,30 @@ pcdos_diag.img: pcdos_base.img asm.com trans.com \
 	mdir -w -i $@ ::
 
 
-pcdos_full.img: pcdos_base.img asm.com trans.com ibmedlin.com \
-    hex2bin.com mem.com ibmsys.com hello.z80 hello.bas mkhello.bat graph.bas
+pcdos_full.img: pcdos_base.img upx/asm.com upx/trans.com ibmedlin.com \
+    hex2bin.com mem.com ibmsys.com \
+    upx/msbasic.com upx/basic.com upx/basica.com upx/format.com
 	cp pcdos_base.img $@
 	mcopy  -i $@ autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/masm.exe ::MASM.EXE
 	mcopy  -i $@ bin/link.exe ::LINK.EXE
-	mcopy  -i $@ bin/cref.exe ::CREF.EXE
 	mcopy  -i $@ bin/lib.exe ::LIB.EXE
-	mcopy  -i $@ bin/basic.com ::BASIC.COM
-	mcopy  -i $@ bin/basica.com ::BASICA.COM
-	mcopy  -i $@ bin/msbasic.com ::MSBASIC.COM
+	mcopy  -i $@ bin/cref.exe ::CREF.EXE
+	mcopy  -i $@ upx/basic.com ::BASIC.COM
+	mcopy  -i $@ upx/basica.com ::BASICA.COM
+	mcopy  -i $@ upx/msbasic.com ::MSBASIC.COM
 	mcopy  -i $@ bin/exe2bin.exe ::EXE2BIN.EXE
 	mcopy  -i $@ bin/chkdsk.com ::CHKDSK.COM
 	mcopy  -i $@ ibmsys.com ::SYS.COM
 	mcopy  -i $@ ibmedlin.com ::EDLIN.COM
-	mcopy  -i $@ bin/format.com ::FORMAT.COM
+	mcopy  -i $@ upx/format.com ::FORMAT.COM
 	mcopy  -i $@ bin/diskcopy.com ::DISKCOPY.COM
 	mcopy  -i $@ bin/diskcomp.com ::DISKCOMP.COM
 	mcopy  -i $@ bin/comp.com ::COMP.COM
 	mcopy  -i $@ bin/debug.com ::DEBUG.COM
 	mcopy  -i $@ bin/mode.com ::MODE.COM
-	mcopy  -i $@ asm.com ::ASM.COM
-	mcopy  -i $@ trans.com ::TRANS.COM
+	mcopy  -i $@ upx/asm.com ::ASM.COM
+	mcopy  -i $@ upx/trans.com ::TRANS.COM
 	mcopy  -i $@ hex2bin.com ::HEX2BIN.COM
 	mcopy  -i $@ bin/pceinit.com ::PCEINIT.COM
 	mcopy  -i $@ mem.com ::MEM.COM
@@ -227,7 +228,7 @@ turbo.img: disks/formatted.img
 	mdir -w -i $@ ::
 
 demos.img: disks/formatted.img graph.bas hello.z80 mkhello.bat ballc.com \
-        mem.com ver.com cls.com samples/ball.bas bin/msbasic.com bin/vi.com
+        mem.com ver.com cls.com samples/ball.bas upx/msbasic.com upx/vi.com
 	cp disks/formatted.img $@
 	mcopy  -i $@ graph.bas ::GRAPH.BAS
 	mcopy  -i $@ mshello.bas ::HELLO.BAS
@@ -237,8 +238,8 @@ demos.img: disks/formatted.img graph.bas hello.z80 mkhello.bat ballc.com \
 	mcopy  -i $@ cls.com ::CLS.COM
 	mcopy  -i $@ hello.z80 ::HELLO.z80
 	mcopy  -i $@ mkhello.bat ::MKHELLO.BAT
-	mcopy  -i $@ bin/msbasic.com ::MSBASIC.COM
-	mcopy  -i $@ bin/vi.com ::VI.COM
+	mcopy  -i $@ upx/msbasic.com ::MSBASIC.COM
+	mcopy  -i $@ upx/vi.com ::VI.COM
 	mcopy  -i $@ samples/art.bas ::ART.BAS
 	mcopy  -i $@ samples/ball.bas ::BALL.BAS
 	mcopy  -i $@ samples/calendar.bas ::CALENDAR.BAS
@@ -253,6 +254,51 @@ demos.img: disks/formatted.img graph.bas hello.z80 mkhello.bat ballc.com \
 	mcopy  -i $@ samples/space.bas ::SPACE.BAS
 	mattrib -i $@ -a ::"*.*"
 	mdir -w -i $@ ::
+
+#-------------------------------------------------------------------------
+#  UPX
+#-------------------------------------------------------------------------
+
+upx/basica.com: bin/basica.com
+	mkdir -p upx
+	upx --8086 -o $@ $<
+
+upx/basic.com: bin/basic.com
+	mkdir -p upx
+	upx --8086 -o $@ $<
+
+upx/msbasic.com: bin/msbasic.com
+	mkdir -p upx
+	upx --8086 -o $@ $<
+
+upx/vi.com: bin/vi.com
+	mkdir -p upx
+	upx --8086 -o $@ $<
+
+upx/asm.com: asm.com
+	mkdir -p upx
+	upx --8086 -o $@ $<
+
+upx/trans.com: trans.com
+	mkdir -p upx
+	upx --8086 -o $@ $<
+
+upx/filcom.com: bin/filcom.com
+	mkdir -p upx
+	upx --8086 -o $@ $<
+
+upx/msformat.com: bin/msformat.com
+	mkdir -p upx
+	upx --8086 -o $@ $<
+
+upx/format.com: bin/format.com
+	mkdir -p upx
+	upx --8086 -o $@ $<
+
+
+#-------------------------------------------------------------------------
+#  Code Build
+#-------------------------------------------------------------------------
 
 mscmd.com: mscmd.exe 
 	emu2 bin/exe2bin.exe mscmd.exe mscmd.com
@@ -299,7 +345,6 @@ mon.exe: mon.obj
 
 mon.obj: dosmon.asm mon.asm
 	emu2 bin/msmasm.exe dosmon,mon,mon,mon || rm -f mon.obj
-
 
 ibmedlin.com: ibmedlin.exe
 	emu2 bin/exe2bin.exe ibmedlin.exe ibmedlin.com
@@ -392,6 +437,7 @@ clean:
 	rm -f pcdos_*.img empty.img
 	rm -f msdos_*.img
 	rm -f turbo.img demos.img
+	rm -rf upx
 
 pcdos: all
 	./pcdos
