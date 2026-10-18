@@ -81,6 +81,8 @@ starting line number, it begins after the current line rather than at line 1.
 | `ver.com` | [ver.asm](ver.asm) | Reports the DOS version (external counterpart of the built-in) |
 | `cls` | [command.asm](command.asm)| Clears the screen through the video BIOS (external counterpart of the built-in [command](command.asm#L201-L206) implemented in `command.com`) |
 | `mem.com` | [mem.asm](mem.asm) | Reports conventional memory size from `INT 12h` |
+| `date10.com` | [date10.asm](date10.asm) | PC-DOS 1.0 DATE, added for Y2K compatibility: two-digit years mean 2000-2099 |
+| `time10.com` | [time10.asm](time10.asm) | PC-DOS 1.0 TIME, added alongside DATE for the Y2K-compatible date/time command set |
 
 ### Samples
 
