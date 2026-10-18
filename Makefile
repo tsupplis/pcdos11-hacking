@@ -9,6 +9,7 @@ all: ibmcmd.com ibmdos.com ibmbio.com \
      mem.com ver.com cls.com ballc.com mon.com \
      ibmsys.com mssys.com \
 	 ibmedlin.com msedlin.com \
+     date10.com time10.com \
 	 mon.com \
      $(DIST_DISKS)
 
@@ -336,6 +337,23 @@ mem.exe: mem.obj
 mem.obj: mem.asm
 	emu2 bin/msmasm.exe mem,mem,mem,mem || rm -f mem.obj
 
+time10.com: time10.exe
+	emu2 bin/exe2bin.exe time10.exe time10.com
+
+time10.exe: time10.obj
+	emu2 bin/link.exe time10,time10,time10,time10,
+
+time10.obj: time10.asm
+	emu2 bin/msmasm.exe time10,time10,time10,time10 || rm -f time10.obj
+
+date10.com: date10.exe
+	emu2 bin/exe2bin.exe date10.exe date10.com
+
+date10.exe: date10.obj
+	emu2 bin/link.exe date10,date10,date10,date10,
+
+date10.obj: date10.asm 
+	emu2 bin/msmasm.exe date10,date10,date10,date10 || rm -f date10.obj
 
 mon.com: mon.exe
 	emu2 bin/exe2bin.exe mon.exe mon.com
