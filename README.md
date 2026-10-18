@@ -211,10 +211,8 @@ Microsoft EDLIN 1.02.
 - https://github.com/tsupplis/pcdos11-hacking/blob/master/LICENSE.md
 - https://github.com/microsoft/MS-DOS/blob/master/LICENSE.md
 
-Turbo Pascal 1.00A (`turbo/`, [Turbo Pascal](#turbo-pascal) section) is not covered by the MIT
-license above: it is proprietary software, distributed here under Borland/Embarcadero's
-[Turbo Pascal museum program](https://www.embarcadero.com/free-tools/turbo-pascal), which makes
-it available free of charge for personal/non-commercial use.
+- Turbo Pascal 1.00A (`turbo/`, [Turbo Pascal](#turbo-pascal) section) is not covered by the MIT license above: it is proprietary software, distributed here under Borland/Embarcadero's [Turbo Pascal museum program](https://www.embarcadero.com/free-tools/turbo-pascal), which makes it available free of charge for personal/non-commercial use.
+- PCE tools are under GPL 2 license (pce directory)
 
 ## First Contact
 
@@ -275,7 +273,7 @@ the default drive (Microsoft) or on drive A: (IBM).
 
 ### Linux/macOS
 
-- pce emulator (test)
+- pce emulator (test) (pce tools sources are in pce, you need nasm if you wish to recompile them, my default binaries are prebuilt, pceexit and pceinit are automatically added to full and diagnostics images)
 - emu2/emu2-cpm86 (for build from macosx/linux)
 - pc-dos 1.1 floppy image (for test if available)
 - exe2bin.exe from https://github.com/microsoft/MS-DOS/blob/master/v1.25/bin/EXE2BIN.EXE

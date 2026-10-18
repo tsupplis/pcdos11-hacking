@@ -103,7 +103,8 @@ msdos_diag.img: msdos_base.img \
 	mcopy  -i $@ msedlin.com ::EDLIN.COM
 	mcopy  -i $@ mem.com ::MEM.COM
 	mcopy  -i $@ ver.com ::VER.COM
-	mcopy  -i $@ bin/pceinit.com ::PCEINIT.COM
+	mcopy  -i $@ pce/pceinit.com ::PCEINIT.COM
+	mcopy  -i $@ pce/pceexit.com ::PCEEXIT.COM
 	mattrib -i $@ -a ::"*.*"
 	mdir -w -i $@ ::
 
@@ -131,7 +132,8 @@ msdos_full.img: msdos_base.img upx/asm.com upx/trans.com \
 	mcopy  -i $@ upx/asm.com ::ASM.COM
 	mcopy  -i $@ hex2bin.com ::HEX2BIN.COM
 	mcopy  -i $@ mem.com ::MEM.COM
-	mcopy  -i $@ bin/pceinit.com ::PCEINIT.COM
+	mcopy  -i $@ pce/pceinit.com ::PCEINIT.COM
+	mcopy  -i $@ pce/pceexit.com ::PCEEXIT.COM
 	mattrib -i $@ -a ::"*.*"
 	mdir -w -i $@ ::
 
@@ -178,7 +180,8 @@ pcdos_diag.img: pcdos_base.img \
 	mcopy  -i $@ ibmedlin.com ::EDLIN.COM
 	mcopy  -i $@ mem.com ::MEM.COM
 	mcopy  -i $@ ver.com ::VER.COM
-	mcopy  -i $@ bin/pceinit.com ::PCEINIT.COM
+	mcopy  -i $@ pce/pceinit.com ::PCEINIT.COM
+	mcopy  -i $@ pce/pceexit.com ::PCEEXIT.COM
 	mattrib -i $@ -a ::"*.*"
 	mdir -w -i $@ ::
 
@@ -208,7 +211,8 @@ pcdos_full.img: pcdos_base.img upx/asm.com upx/trans.com ibmedlin.com \
 	mcopy  -i $@ upx/asm.com ::ASM.COM
 	mcopy  -i $@ upx/trans.com ::TRANS.COM
 	mcopy  -i $@ hex2bin.com ::HEX2BIN.COM
-	mcopy  -i $@ bin/pceinit.com ::PCEINIT.COM
+	mcopy  -i $@ pce/pceinit.com ::PCEINIT.COM
+	mcopy  -i $@ pce/pceexit.com ::PCEEXIT.COM
 	mcopy  -i $@ mem.com ::MEM.COM
 	mattrib -i $@ -a ::"*.*"
 	mdir -w -i $@ ::
