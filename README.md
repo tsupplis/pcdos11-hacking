@@ -102,17 +102,21 @@ The standalone boot sectors use the same loader code as FORMAT:
 sectors, `ibmboot.asm` / `msboot.asm` include `bootsect.asm`, which supplies the
 segment, origin and encoding macros before including `fmtboot.inc`.
 
-Run `make -B check-utilities` to rebuild and compare the utilities and boot sectors.
+Run `make -B check-parity` to rebuild and compare the utilities and boot sectors.
 Exact byte coverage and source locations are recorded in [mappings/](mappings/).
 Missing local maps can be checked from a current MASM listing without creating
-TSV files. The checker supports both EDLIN and SYS variants; SYS reports linked
-image/source verification when `reference/ibmsys.com` or `reference/mssys.com`
-is absent, rather than claiming historical byte parity.
+TSV files. The checker supports both EDLIN and SYS variants; IBM SYS is compared with `reference/sys.com`. Microsoft SYS reports linked
+image/source verification until `reference/mssys.com` is supplied.
 [tools/utility_smoke.py](tools/utility_smoke.py) also compares original and rebuilt
 FILCOM/EXE2BIN output on representative emulator cases.
 [tools/debug_smoke.py](tools/debug_smoke.py) checks DEBUG commands, G/T execution,
 file transfers and all 256 disassembler opcode entries against the original.
 These are representative execution checks, not exhaustive hardware testing.
+
+`make check-command-reference` separately builds IBM COMMAND with `CMDEXT=FALSE`
+and `HIGHMEM=FALSE` in a temporary directory and compares it with
+`reference/command.com`. This historical build is also part of `check-parity`;
+the normal configured COMMAND build retains its enabled extensions.
 
 ### High-memory layout
 

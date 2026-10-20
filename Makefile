@@ -1,5 +1,5 @@
 .PHONY: check-parity check-format-boot check-utility-maps inject-format-boot \
-	check-exe2bin check-utility-runtime check-debug all clean test dist
+	check-exe2bin check-utility-runtime check-debug check-command-reference all clean test dist
 
 DIST_DISKS=pcdos_full.img pcdos_base.img pcdos_dist.img pcdos_diag.img \
      msdos_full.img msdos_base.img msdos_dist.img msdos_diag.img \
@@ -587,7 +587,7 @@ msboot.obj: msboot.asm bootsect.asm fmtboot.inc
 #  Byte-exact PC DOS 1.10 utility reconstructions
 #-------------------------------------------------------------------------
 
-check-parity: $(UTILITIES) check-format-boot check-utility-maps check-exe2bin check-utility-runtime check-debug
+check-parity: $(UTILITIES) check-format-boot check-utility-maps check-exe2bin check-utility-runtime check-debug check-command-reference
 	cmp reference/chkdsk.com chkdsk.com
 	cmp reference/diskcopy.com diskcopy.com
 	cmp reference/diskcomp.com diskcomp.com
@@ -598,6 +598,10 @@ check-parity: $(UTILITIES) check-format-boot check-utility-maps check-exe2bin ch
 	cmp reference/filcom.com filcom.com
 	cmp reference/format.com ibmfmt.com
 	cmp reference/msformat.com msfmt.com
+	cmp reference/sys.com ibmsys.com
+
+check-command-reference: ibmcmd.asm command.asm reference/command.com tools/check_command_reference.py
+	python3 tools/check_command_reference.py
 
 check-utility-maps: $(UTILITIES) $(BOOT)
 	python3 tools/asm_byte_map.py --check diskcopy diskcomp chkdsk mode comp filcom \

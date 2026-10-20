@@ -175,11 +175,14 @@ DATARES ENDS
 TRANDATA        SEGMENT BYTE
         ORG     0
 ZERO    =       $
+; VER text belongs to the optional command extension, just like its handler.
+IF CMDEXT
 IF MSVER
 VERSTR  DB      "Microsoft DOS Version 1.17C",13,10,"$"
 ENDIF
 IF IBMVER
 VERSTR  DB      "IBM PC-DOS Version 1.10C",13,10,"$"
+ENDIF
 ENDIF
 BADNAM  DB      "Bad command or file name",13,10,"$"
 MISNAM  DB      "Missing file name$"

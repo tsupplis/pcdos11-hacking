@@ -8,7 +8,7 @@ instruction count or offset requires a new mapping rather than silently reusing
 the old instruction boundaries. When a local map is missing, a current clean
 MASM listing supplies the boundaries; --check does not create a TSV.
 
-SYS originals are optional: without reference/ibmsys.com or reference/mssys.com,
+SYS originals are optional: without reference/sys.com (IBM) or reference/mssys.com,
 only source/map and linked-image consistency can be verified. The historical
 ibmdelin spelling is accepted as an alias for ibmedlin.
 """
@@ -232,9 +232,13 @@ def audit(name, check):
     name = ALIASES.get(name, name)
     reference = {'ibmfmt': 'format', 'msfmt': 'msformat',
                  'ibmboot': 'format', 'msboot': 'msformat',
-                 'ibmedlin': 'edlin'}.get(name, name)
+                 'ibmedlin': 'edlin', 'ibmsys': 'sys'}.get(name, name)
     extension = '.exe' if name == 'exe2bin' else '.com'
     reference_path = ROOT / 'reference' / (reference + extension)
+    if name in SYS_VARIANTS and not reference_path.exists():
+        canonical_reference = ROOT / 'reference' / (name + extension)
+        if canonical_reference.exists():
+            reference_path = canonical_reference
     boot_only = name in ('ibmboot', 'msboot')
     built = ROOT / (name + ('.bin' if boot_only else extension))
     built_image = built.read_bytes()
