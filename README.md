@@ -34,13 +34,13 @@ plus `turbo.img` and `demos.img`. The DOS variants build on top of `*_base.img`.
 |-------|---------|---------|
 | `pcdos_base.img` | PC-DOS | `ibmbio.com`, `ibmdos.com`, `command.com` only (minimal bootable system) |
 | `pcdos_dist.img` | PC-DOS | Base + PC-DOS distribution utilities (rebuilt where available) and IBM BASIC samples |
-| `pcdos_full.img` | PC-DOS | Base + distribution tools, `masm.exe`/`link.exe`/`cref.exe`/`lib.exe`, `basic.com`/`basica.com` and the samples (`asm.com`, `trans.com`, `hex2bin.com`, `mem.com`, `hello.asm`/`hello.bas`, `graph.bas`, `ballc.bas`/`ballc.com`) |
+| `pcdos_full.img` | PC-DOS | Base + distribution utilities, IBM assembler tools, IBM/Microsoft BASIC, SCP tools and `mem.com` |
 | `pcdos_diag.img` | PC-DOS | Base + diagnostic utilities, including rebuilt CHKDSK/FORMAT/SYS/EDLIN and the original DEBUG |
 | `msdos_base.img` | MS-DOS | `io.sys`, `msdos.sys`, `command.com` only |
 | `msdos_dist.img` | MS-DOS | Base + the MS-DOS 1.25 style tool set and the SCP tools (`asm.com`, `hex2bin.com`, `trans.com`) |
-| `msdos_full.img` | MS-DOS | Base + tools, assembler chain, MS-BASIC/GW-BASIC and the samples (`hello.asm`/`hello.bas`, `graph.bas`, `ballc.com`) |
+| `msdos_full.img` | MS-DOS | Base + distribution utilities, Microsoft assembler tools, GW-BASIC, SCP tools and diagnostic helpers |
 | `msdos_diag.img` | MS-DOS | Base + the small diagnostic set |
-| `turbo.img` | - | Base + Turbo Pascal 1.00A (see [Turbo Pascal](#turbo-pascal) below) |
+| `turbo.img` | - | Turbo Pascal 1.00A files on a formatted data disk (see [Turbo Pascal](#turbo-pascal)) |
 | `demos.img` | - | Small demo programs (msbasic, vi, mem, ballc, hello80.asm, graph.bas...) |
 
 Master (pre-formatted, empty file system) images live in `disks/`: `pcdos.img`, `msdos.img`
@@ -142,8 +142,8 @@ mistaking relocated high-resident code for free memory.
 | Command | Source | Description |
 |---------|--------|-------------|
 | `hello.com` | [hello.asm](hello.asm), [hello.bas](hello.bas) | Minimal assembler and BASIC samples, built by [mkhello.bat](mkhello.bat) |
-| `graph.bas` | [graph.bas](graph.bas) | BASICA demo plotting `f(x) = cosine(x)` in `SCREEN 2` (640x200), with arrowed axes (`pcdos_full.img` only) |
-| `ballc.bas`, `ballc.com` | [ballc.bas](ballc.bas), [ballc.asm](ballc.asm) | BASICA and MASM ports of the [cpm86-hacking](https://github.com/tsupplis/cpm86-hacking) `ball.c` bouncing-ball demo, 320x200 4-color CGA (`pcdos_full.img` only) |
+| `graph.bas` | [graph.bas](samples/graph.bas) | BASICA demo plotting `f(x) = cosine(x)` in `SCREEN 2` (640x200), with arrowed axes (`demos.img`) |
+| `ball.bas`, `ballc.com` | [ball.bas](samples/ball.bas), [ballc.asm](ballc.asm) | BASICA and MASM ports of the [cpm86-hacking](https://github.com/tsupplis/cpm86-hacking) `ball.c` bouncing-ball demo, 320x200 4-color CGA (`demos.img`) |
 
 <table>
 <tr>
@@ -197,7 +197,7 @@ Turbo Pascal 1.00A starting up on the system:
 
 ![Turbo Pascal 1.00A startup](images/turbo.png)
 
-`turbo.img` (built from `turbo/`) carries Turbo Pascal 1.00A on top of `pcdos_base.img`:
+`turbo.img` packages the files from `turbo/` on `disks/formatted.img`:
 
 | Files | Description |
 |-------|-------------|
