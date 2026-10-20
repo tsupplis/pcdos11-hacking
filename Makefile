@@ -1,3 +1,6 @@
+.PHONY: check-parity check-format-boot check-utility-maps inject-format-boot \
+	check-exe2bin check-utility-runtime check-debug all clean test dist
+
 DIST_DISKS=pcdos_full.img pcdos_base.img pcdos_dist.img pcdos_diag.img \
      msdos_full.img msdos_base.img msdos_dist.img msdos_diag.img \
      demos.img turbo.img
@@ -9,8 +12,9 @@ UPX_UTILITIES=upx/asm.com upx/trans.com upx/filcom.com upx/msfmt.com \
 	upx/msbasic.com upx/basic.com upx/basica.com upx/ibmfmt.com upx/vi.com
 DEMOS=samples/graph.bas hello.z80 mkhello.bat ballc.com samples/ball.bas
 CORE=ibmbio.com msdos.com ibmdos.com ibmcmd.com mscmd.com
-
-all: $(UTILITIES) $(DIST_DISKS) $(CORE)
+BOOT=ibmboot.bin msboot.bin
+	
+all: $(UTILITIES) $(DIST_DISKS) $(CORE) $(BOOT)
 
 #-------------------------------------------------------------------------
 #  Distribution
@@ -455,26 +459,6 @@ hex2bin.com: hex2bin.asm
 empty.img:
 	dd if=/dev/zero of=a.img bs=327680 count=1
 
-#-------------------------------------------------------------------------
-#  Byte-exact PC DOS 1.10 utility reconstructions
-#-------------------------------------------------------------------------
-
-.PHONY: utilities check-utilities check-format-boot check-utility-maps inject-format-boot check-exe2bin check-utility-runtime check-debug
-utilities: diskcopy.com diskcomp.com chkdsk.com mode.com comp.com filcom.com debug.com \
-	exe2bin.exe ibmfmt.com msfmt.com ibmedlin.com msedlin.com
-
-check-utilities: utilities check-format-boot check-utility-maps check-exe2bin check-utility-runtime check-debug
-	cmp reference/chkdsk.com chkdsk.com
-	cmp reference/diskcopy.com diskcopy.com
-	cmp reference/diskcomp.com diskcomp.com
-	cmp reference/edlin.com ibmedlin.com
-	cmp reference/msedlin.com msedlin.com
-	cmp reference/mode.com mode.com
-	cmp reference/comp.com comp.com
-	cmp reference/filcom.com filcom.com
-	cmp reference/format.com ibmfmt.com
-	cmp reference/msformat.com msfmt.com
-
 mode.com: mode.exe
 	emu2 bin/exe2bin.exe mode.exe mode.com
 
@@ -599,14 +583,27 @@ msboot.exe: msboot.obj
 msboot.obj: msboot.asm bootsect.asm fmtboot.inc
 	emu2 bin/msmasm.exe msboot,msboot,msboot,msboot || rm -f msboot.obj
 
-# Compatibility name for the IBM reconstruction.
-format.com: ibmfmt.com
-	cp ibmfmt.com format.com
+#-------------------------------------------------------------------------
+#  Byte-exact PC DOS 1.10 utility reconstructions
+#-------------------------------------------------------------------------
 
-check-utility-maps: utilities ibmboot.bin msboot.bin
-	python3 tools/asm_byte_map.py --check diskcopy diskcomp chkdsk mode comp filcom debug exe2bin ibmfmt msfmt ibmboot msboot
+check-parity: $(UTILITIES) check-format-boot check-utility-maps check-exe2bin check-utility-runtime check-debug
+	cmp reference/chkdsk.com chkdsk.com
+	cmp reference/diskcopy.com diskcopy.com
+	cmp reference/diskcomp.com diskcomp.com
+	cmp reference/edlin.com ibmedlin.com
+	cmp reference/msedlin.com msedlin.com
+	cmp reference/mode.com mode.com
+	cmp reference/comp.com comp.com
+	cmp reference/filcom.com filcom.com
+	cmp reference/format.com ibmfmt.com
+	cmp reference/msformat.com msfmt.com
 
-check-format-boot: ibmboot.bin msboot.bin tools/format_boot.py
+check-utility-maps: $(UTILITIES) $(BOOT)
+	python3 tools/asm_byte_map.py --check diskcopy diskcomp chkdsk mode comp filcom \
+		debug exe2bin ibmfmt msfmt ibmboot msboot msedlin ibmdelin
+
+check-format-boot: $(BOOT) tools/format_boot.py
 	python3 tools/format_boot.py check reference/format.com ibmboot.bin
 	python3 tools/format_boot.py check reference/msformat.com msboot.bin
 
@@ -617,7 +614,7 @@ inject-format-boot: ibmfmt.com
 	python3 tools/format_boot.py inject ibmfmt.com "$(BOOT_IMAGE)" --output format-injected.com
 
 clean:
-	rm -f ibmboot.bin msboot.bin
+	rm -f $(UTILITIES) $(BOOT) $(CORE)
 	rm -f *.com
 	rm -f *.exe
 	rm -f *.sys
