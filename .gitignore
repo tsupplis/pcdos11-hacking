@@ -93,3 +93,7 @@ format-injected.com
 
 /ibmboot.bin
 /ibmboot.exe
+
+# DEBUG reconstruction outputs
+/debug.com
+/debug.exe

@@ -160,7 +160,7 @@ def audit(name, check):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('names', nargs='+', choices=['diskcopy', 'diskcomp', 'chkdsk',
-        'mode', 'comp', 'filcom', 'exe2bin', 'ibmfmt', 'msfmt', 'ibmboot', 'msboot'])
+        'mode', 'comp', 'filcom', 'debug', 'exe2bin', 'ibmfmt', 'msfmt', 'ibmboot', 'msboot'])
     parser.add_argument('--check', action='store_true')
     args = parser.parse_args()
     try:

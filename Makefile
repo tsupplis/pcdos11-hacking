@@ -1,7 +1,7 @@
 DIST_DISKS=pcdos_full.img pcdos_base.img pcdos_dist.img pcdos_diag.img \
      msdos_full.img msdos_base.img msdos_dist.img msdos_diag.img \
      demos.img turbo.img
-UTILITIES=diskcopy.com diskcomp.com chkdsk.com mode.com comp.com filcom.com \
+UTILITIES=diskcopy.com diskcomp.com chkdsk.com mode.com comp.com filcom.com debug.com \
 	exe2bin.exe ibmfmt.com msfmt.com ibmedlin.com msedlin.com mssys.com ibmsys.com \
 	ver.com mem.com cls.com \
 	asm.com hex2bin.com trans.com
@@ -63,7 +63,7 @@ msdos_dist.img: msdos_base.img $(UTILITIES)
 	mcopy  -i $@ diskcopy.com ::DISKCOPY.COM
 	mcopy  -i $@ diskcomp.com ::DISKCOMP.COM
 	mcopy  -i $@ filcom.com ::FILCOM.COM
-	mcopy  -i $@ reference/debug.com ::DEBUG.COM
+	mcopy  -i $@ debug.com ::DEBUG.COM
 	mcopy  -i $@ mode.com ::MODE.COM
 	mcopy  -i $@ asm.com ::ASM.COM
 	mcopy  -i $@ hex2bin.com ::HEX2BIN.COM
@@ -77,7 +77,7 @@ msdos_diag.img: msdos_base.img $(UTILITIES)
 	mcopy  -i $@ chkdsk.com ::CHKDSK.COM
 	mcopy  -i $@ msfmt.com ::FORMAT.COM
 	mcopy  -i $@ mssys.com ::SYS.COM
-	mcopy  -i $@ reference/debug.com ::DEBUG.COM
+	mcopy  -i $@ debug.com ::DEBUG.COM
 	mcopy  -i $@ mon.com ::MON.COM
 	mcopy  -i $@ msedlin.com ::EDLIN.COM
 	mcopy  -i $@ mem.com ::MEM.COM
@@ -103,7 +103,7 @@ msdos_full.img: msdos_base.img $(UTILITIES) $(UPX_UTILITIES)
 	mcopy  -i $@ diskcopy.com ::DISKCOPY.COM
 	mcopy  -i $@ diskcomp.com ::DISKCOMP.COM
 	mcopy  -i $@ upx/filcom.com ::FILCOM.COM
-	mcopy  -i $@ reference/debug.com ::DEBUG.COM
+	mcopy  -i $@ debug.com ::DEBUG.COM
 	mcopy  -i $@ mode.com ::MODE.COM
 	mcopy  -i $@ upx/trans.com ::TRANS.COM
 	mcopy  -i $@ upx/asm.com ::ASM.COM
@@ -128,7 +128,7 @@ pcdos_dist.img: pcdos_base.img $(UTILITIES)
 	mcopy  -i $@ diskcopy.com ::DISKCOPY.COM
 	mcopy  -i $@ diskcomp.com ::DISKCOMP.COM
 	mcopy  -i $@ comp.com ::COMP.COM
-	mcopy  -i $@ reference/debug.com ::DEBUG.COM
+	mcopy  -i $@ debug.com ::DEBUG.COM
 	mcopy  -i $@ reference/mode.com ::MODE.COM
 	mcopy  -i $@ samples/art.bas ::ART.BAS
 	mcopy  -i $@ samples/ball.bas ::BALL.BAS
@@ -146,13 +146,13 @@ pcdos_dist.img: pcdos_base.img $(UTILITIES)
 	mdir -w -i $@ ::
 
 pcdos_diag.img: pcdos_base.img \
-    ibmedlin.com mon.com mem.com ver.com
+    ibmedlin.com mon.com mem.com ver.com debug.com chkdsk.com ibmfmt.com ibmsys.com
 	cp pcdos_base.img $@
 	mcopy  -i $@ autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ chkdsk.com ::CHKDSK.COM
 	mcopy  -i $@ ibmfmt.com ::FORMAT.COM
 	mcopy  -i $@ ibmsys.com ::SYS.COM
-	mcopy  -i $@ reference/debug.com ::DEBUG.COM
+	mcopy  -i $@ debug.com ::DEBUG.COM
 	mcopy  -i $@ mon.com ::MON.COM
 	mcopy  -i $@ ibmedlin.com ::EDLIN.COM
 	mcopy  -i $@ mem.com ::MEM.COM
@@ -180,7 +180,7 @@ pcdos_full.img: pcdos_base.img $(UTILITIES) $(UPX_UTILITIES)
 	mcopy  -i $@ diskcopy.com ::DISKCOPY.COM
 	mcopy  -i $@ diskcomp.com ::DISKCOMP.COM
 	mcopy  -i $@ comp.com ::COMP.COM
-	mcopy  -i $@ reference/debug.com ::DEBUG.COM
+	mcopy  -i $@ debug.com ::DEBUG.COM
 	mcopy  -i $@ mode.com ::MODE.COM
 	mcopy  -i $@ upx/asm.com ::ASM.COM
 	mcopy  -i $@ upx/trans.com ::TRANS.COM
@@ -459,11 +459,11 @@ empty.img:
 #  Byte-exact PC DOS 1.10 utility reconstructions
 #-------------------------------------------------------------------------
 
-.PHONY: utilities check-utilities check-format-boot check-utility-maps inject-format-boot check-exe2bin check-utility-runtime
-utilities: diskcopy.com diskcomp.com chkdsk.com mode.com comp.com filcom.com \
+.PHONY: utilities check-utilities check-format-boot check-utility-maps inject-format-boot check-exe2bin check-utility-runtime check-debug
+utilities: diskcopy.com diskcomp.com chkdsk.com mode.com comp.com filcom.com debug.com \
 	exe2bin.exe ibmfmt.com msfmt.com ibmedlin.com msedlin.com
 
-check-utilities: utilities check-format-boot check-utility-maps check-exe2bin check-utility-runtime
+check-utilities: utilities check-format-boot check-utility-maps check-exe2bin check-utility-runtime check-debug
 	cmp reference/chkdsk.com chkdsk.com
 	cmp reference/diskcopy.com diskcopy.com
 	cmp reference/diskcomp.com diskcomp.com
@@ -512,6 +512,20 @@ check-exe2bin: exe2bin.exe
 	emu2 exe2bin.exe exbimage.exe exbtest.bin
 	cmp exe2bin.exe exbtest.bin
 	rm -f exbtest.bin
+
+debug.com: debug.exe
+	emu2 bin/exe2bin.exe debug.exe debug.com
+
+debug.exe: debug.obj
+	emu2 bin/link.exe debug,debug,debug,debug,
+
+debug.obj: debug.asm
+	emu2 bin/msmasm.exe debug,debug,debug,debug || rm -f debug.obj
+
+check-debug: debug.com
+	cmp reference/debug.com debug.com
+	python3 tools/asm_byte_map.py --check debug
+	python3 tools/debug_smoke.py
 
 filcom.com: filcom.exe
 	emu2 bin/exe2bin.exe filcom.exe filcom.com
@@ -590,7 +604,7 @@ format.com: ibmfmt.com
 	cp ibmfmt.com format.com
 
 check-utility-maps: utilities ibmboot.bin msboot.bin
-	python3 tools/asm_byte_map.py --check diskcopy diskcomp chkdsk mode comp filcom exe2bin ibmfmt msfmt ibmboot msboot
+	python3 tools/asm_byte_map.py --check diskcopy diskcomp chkdsk mode comp filcom debug exe2bin ibmfmt msfmt ibmboot msboot
 
 check-format-boot: ibmboot.bin msboot.bin tools/format_boot.py
 	python3 tools/format_boot.py check reference/format.com ibmboot.bin

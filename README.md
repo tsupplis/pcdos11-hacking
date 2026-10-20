@@ -35,7 +35,7 @@ plus `turbo.img` and `demos.img`. The DOS variants build on top of `*_base.img`.
 | `pcdos_base.img` | PC-DOS | `ibmbio.com`, `ibmdos.com`, `command.com` only (minimal bootable system) |
 | `pcdos_dist.img` | PC-DOS | Base + PC-DOS distribution utilities (rebuilt where available) and IBM BASIC samples |
 | `pcdos_full.img` | PC-DOS | Base + distribution utilities, IBM assembler tools, IBM/Microsoft BASIC, SCP tools and `mem.com` |
-| `pcdos_diag.img` | PC-DOS | Base + diagnostic utilities, including rebuilt CHKDSK/FORMAT/SYS/EDLIN and the original DEBUG |
+| `pcdos_diag.img` | PC-DOS | Base + diagnostic utilities, including rebuilt CHKDSK/FORMAT/SYS/EDLIN and DEBUG |
 | `msdos_base.img` | MS-DOS | `io.sys`, `msdos.sys`, `command.com` only |
 | `msdos_dist.img` | MS-DOS | Base + the MS-DOS 1.25 style tool set and the SCP tools (`asm.com`, `hex2bin.com`, `trans.com`) |
 | `msdos_full.img` | MS-DOS | Base + distribution utilities, Microsoft assembler tools, GW-BASIC, SCP tools and diagnostic helpers |
@@ -85,6 +85,7 @@ IBM and Microsoft FORMAT share one implementation selected by their wrappers.
 | `chkdsk.com` | [chkdsk.asm](chkdsk.asm) | Disk allocation and FAT12 consistency checks |
 | `comp.com` | [comp.asm](comp.asm) | IBM file comparison utility |
 | `mode.com` | [mode.asm](mode.asm) | Display, printer, serial-port configuration and printer redirection |
+| `debug.com` | [debug.asm](debug.asm) | Debugger with memory/register editing, breakpoints, single stepping, binary/EXE loading and table-driven 8086 disassembly |
 | `ibmfmt.com` | [ibmfmt.asm](ibmfmt.asm), [format.asm](format.asm), [fmtboot.inc](fmtboot.inc) | IBM format; rebuilt output corresponds to `reference/format.com` |
 | `msfmt.com` | [msfmt.asm](msfmt.asm), [format.asm](format.asm), [fmtboot.inc](fmtboot.inc) | Microsoft format; rebuilt output corresponds to `reference/msformat.com` |
 | `filcom.com` | [filcom.asm](filcom.asm) | Microsoft binary/text comparison with line resynchronization |
@@ -104,12 +105,10 @@ segment, origin and encoding macros before including `fmtboot.inc`.
 Run `make -B check-utilities` to rebuild and compare the utilities and boot sectors.
 Exact byte coverage and source locations are recorded in [mappings/](mappings/).
 [tools/utility_smoke.py](tools/utility_smoke.py) also compares original and rebuilt
-FILCOM/EXE2BIN output on representative emulator cases. These are representative
-execution checks, not exhaustive hardware testing.
-
-| Next binary | Current status |
-|-------------|----------------|
-| `debug.com` | Original in [reference/debug.com](reference/debug.com); reconstruction is next |
+FILCOM/EXE2BIN output on representative emulator cases.
+[tools/debug_smoke.py](tools/debug_smoke.py) checks DEBUG commands, G/T execution,
+file transfers and all 256 disassembler opcode entries against the original.
+These are representative execution checks, not exhaustive hardware testing.
 
 ### High-memory layout
 
@@ -218,7 +217,7 @@ Original DOS utility baselines are kept separately in `reference/`.
 |-------|-------|
 | Build chain | `masm.exe` (IBM Personal Computer MACRO Assembler, Version 2.00; PC-DOS), `msmasm.exe` (Microsoft MACRO Assembler, Version 1.10, patched; used for the build and on MS-DOS images), `link.exe` (IBM Personal Computer Linker, Version 1.10; PC-DOS), `mslink.exe` (Microsoft Object Linker, Version 1.10; MS-DOS), `lib.exe` (Microsoft Library Manager, Version 2.00; PC-DOS), `mslib.exe` (Microsoft Librarian, Version 2.00; MS-DOS), `cref.exe` (Microsoft Cross Reference, Version 1.00; PC-DOS), `mscref.exe` (Microsoft Cross Reference, Version 1.00; MS-DOS), `exe2bin.exe` (bootstrap copy; the rebuilt output is listed above) |
 | Bootstrap tools | `asm.com`, `hex2bin.com`, `trans.com` |
-| Original utility references (`reference/`) | `chkdsk.com`, `comp.com`, `diskcomp.com`, `diskcopy.com`, `edlin.com`, `msedlin.com`, `exe2bin.exe`, `filcom.com`, `format.com`, `msformat.com`, `mode.com` (byte-exact rebuild baselines), and `debug.com` (next to reconstruct) |
+| Original utility references (`reference/`) | `chkdsk.com`, `comp.com`, `diskcomp.com`, `diskcopy.com`, `edlin.com`, `msedlin.com`, `exe2bin.exe`, `filcom.com`, `format.com`, `msformat.com`, `mode.com` (byte-exact rebuild baselines), and `debug.com` (byte-exact rebuild baseline) |
 | BASIC | `basic.com`, `basica.com` (IBM BASIC/BASICA, Version A1.10; require an IBM PC with the BASIC ROM, e.g. `rom/ibm-basic-1.10.rom`; PC-DOS images only), `msbasic.com` (Microsoft BASIC, Version 5.50, [Reconstructed from Microsoft Sources](https://github.com/tsupplis/cpm86-msbasic)), `gwbasic.exe` (GW-BASIC, Version 1.14; MS-DOS images only) |
 
 ### Emulation
