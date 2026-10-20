@@ -3,8 +3,14 @@
 
 Tables retain verified instruction boundaries. Regeneration refreshes statements
 and source locations after documentation/label edits, and derives data lengths
-from DB/DW declarations. A changed instruction count or offset requires a new
-mapping rather than silently reusing the old instruction boundaries.
+from DB/DW/DD declarations, including labeled data and DUP storage. A changed
+instruction count or offset requires a new mapping rather than silently reusing
+the old instruction boundaries. When a local map is missing, a current clean
+MASM listing supplies the boundaries; --check does not create a TSV.
+
+SYS originals are optional: without reference/ibmsys.com or reference/mssys.com,
+only source/map and linked-image consistency can be verified. The historical
+ibmdelin spelling is accepted as an alias for ibmedlin.
 """
 import argparse
 import bisect
@@ -177,6 +183,11 @@ def listing_boundaries(name, statements, image, origin):
                     if not re.fullmatch(r'(?:[0-9A-F]{2}){1,4}', token):
                         raise ValueError(f'{listing.name}: unsupported byte field {payload!r}')
                     encoded.extend(int(token, 16).to_bytes(len(token) // 2, 'little'))
+                if 'R' in payload and len(encoded) == 3 and encoded[0] in (0xE8, 0xE9):
+                    # LINK resolves MASM's target-offset fixup into a displacement.
+                    target = int.from_bytes(encoded[1:], 'little')
+                    displacement = (target - int(address, 16) - 3) & 0xFFFF
+                    encoded[1:] = displacement.to_bytes(2, 'little')
                 if image[offset:offset + len(encoded)] != encoded:
                     raise ValueError(f'{listing.name}: encoded bytes differ at {offset:04X}h; '
                                      f'run make -B {build_target}')

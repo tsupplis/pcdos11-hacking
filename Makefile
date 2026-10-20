@@ -122,8 +122,8 @@ msdos_full.img: msdos_base.img $(UTILITIES) $(UPX_UTILITIES)
 pcdos_dist.img: pcdos_base.img $(UTILITIES)
 	cp pcdos_base.img $@
 	mcopy  -i $@ bin/link.exe ::LINK.EXE
-	mcopy  -i $@ bin/basic.com ::BASIC.COM
-	mcopy  -i $@ upx/basica.com ::BASICA.COM
+	mcopy  -i $@ reference/basic.com ::BASIC.COM
+	mcopy  -i $@ reference/basica.com ::BASICA.COM
 	mcopy  -i $@ exe2bin.exe ::EXE2BIN.EXE
 	mcopy  -i $@ chkdsk.com ::CHKDSK.COM
 	mcopy  -i $@ ibmsys.com ::SYS.COM
@@ -241,11 +241,11 @@ demos.img: disks/formatted.img $(UTILITIES) $(UPX_UTILITIES) $(DEMOS)
 #  UPX
 #-------------------------------------------------------------------------
 
-upx/basica.com: bin/basica.com
+upx/basica.com: reference/basica.com
 	mkdir -p upx
 	upx --8086 -o $@ $<
 
-upx/basic.com: bin/basic.com
+upx/basic.com: reference/basic.com
 	mkdir -p upx
 	rm -f $@
 	upx --8086 -o $@ $<
@@ -270,7 +270,7 @@ upx/trans.com: trans.com
 	rm -f $@
 	upx --8086 -o $@ $<
 
-upx/filcom.com: bin/filcom.com
+upx/filcom.com: reference/filcom.com
 	mkdir -p upx
 	rm -f $@
 	upx --8086 -o $@ $<
@@ -386,7 +386,7 @@ ibmedlin.com: ibmedlin.exe exe2bin.exe
 ibmedlin.exe: ibmedlin.obj
 	emu2 bin/link.exe ibmedlin,ibmedlin,ibmedlin,ibmedlin,
 
-ibmedlin.obj: ibmedlin.asm
+ibmedlin.obj: ibmedlin.asm edlin101.asm
 	emu2 bin/msmasm.exe ibmedlin,ibmedlin,ibmedlin,ibmedlin || rm -f ibmedlin.obj
 
 msedlin.com: msedlin.exe exe2bin.exe
@@ -395,7 +395,7 @@ msedlin.com: msedlin.exe exe2bin.exe
 msedlin.exe: msedlin.obj
 	emu2 bin/link.exe msedlin,msedlin,msedlin,msedlin,
 
-msedlin.obj: msedlin.asm
+msedlin.obj: msedlin.asm edlin102.asm
 	emu2 bin/msmasm.exe msedlin,msedlin,msedlin,msedlin || rm -f msedlin.obj
 
 mssys.com: mssys.exe exe2bin.exe

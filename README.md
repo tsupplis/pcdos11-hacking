@@ -104,7 +104,10 @@ segment, origin and encoding macros before including `fmtboot.inc`.
 
 Run `make -B check-utilities` to rebuild and compare the utilities and boot sectors.
 Exact byte coverage and source locations are recorded in [mappings/](mappings/).
-These tables retain verified instruction boundaries and are inputs to the audits.
+Missing local maps can be checked from a current MASM listing without creating
+TSV files. The checker supports both EDLIN and SYS variants; SYS reports linked
+image/source verification when `reference/ibmsys.com` or `reference/mssys.com`
+is absent, rather than claiming historical byte parity.
 [tools/utility_smoke.py](tools/utility_smoke.py) also compares original and rebuilt
 FILCOM/EXE2BIN output on representative emulator cases.
 [tools/debug_smoke.py](tools/debug_smoke.py) checks DEBUG commands, G/T execution,
