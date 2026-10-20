@@ -246,12 +246,12 @@ upx/basic.com: bin/basic.com
 	rm -f $@
 	upx --8086 -o $@ $<
 
-upx/msbasic.com: bin/msbasic.com
+upx/msbasic.com: extras/msbasic.com
 	mkdir -p upx
 	rm -f $@
 	upx --8086 -o $@ $<
 
-upx/vi.com: bin/vi.com
+upx/vi.com: extras/vi.com
 	mkdir -p upx
 	rm -f $@
 	upx --8086 -o $@ $<
