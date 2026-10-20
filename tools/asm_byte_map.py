@@ -134,7 +134,7 @@ def data_size(statement):
     return total
 
 
-def listing_boundaries(name, statements, image_length, origin):
+def listing_boundaries(name, statements, image, origin):
     """Bootstrap missing local maps from a current MASM 1.10 listing.
 
     Macro expansion rows belong to the invocation, not separate source lines.
@@ -154,6 +154,7 @@ def listing_boundaries(name, statements, image_length, origin):
     if not summary or summary[-1] != ('0', '0'):
         raise ValueError(f'{listing.name}: MASM listing is not a clean build')
     addresses = set()
+    image_length = len(image)
     expanding = False
     for line in contents.splitlines():
         if not re.match(r'^\d+\s', line):
@@ -166,6 +167,19 @@ def listing_boundaries(name, statements, image_length, origin):
             offset = int(address, 16) - origin
             if 0 <= offset < image_length and (not macro or not expanding):
                 addresses.add(offset)
+            # MASM displays operand words in numeric order, unlike byte tokens.
+            # DUP rows display a repeat count, so they are not literal bytes.
+            if 0 <= offset < image_length and '[' not in payload:
+                encoded = bytearray()
+                for token in payload.replace('/', ' ').replace(':', ' ').split():
+                    if token == 'R':
+                        continue
+                    if not re.fullmatch(r'(?:[0-9A-F]{2}){1,4}', token):
+                        raise ValueError(f'{listing.name}: unsupported byte field {payload!r}')
+                    encoded.extend(int(token, 16).to_bytes(len(token) // 2, 'little'))
+                if image[offset:offset + len(encoded)] != encoded:
+                    raise ValueError(f'{listing.name}: encoded bytes differ at {offset:04X}h; '
+                                     f'run make -B {build_target}')
         expanding = macro
     if not addresses or min(addresses) != 0:
         raise ValueError(f'{listing.name}: no complete COM/image address listing')
@@ -233,7 +247,7 @@ def audit(name, check):
     statements = list(source_statements(
         name + '.asm', msver=name in ('msfmt', 'msboot', 'msedlin', 'mssys'), boot_only=boot_only))
     origin = 0 if boot_only or name == 'exe2bin' else 0x100
-    boundaries = listing_boundaries(name, statements, len(image), origin) if old is None else None
+    boundaries = listing_boundaries(name, statements, image, origin) if old is None else None
     instructions = iter(row for row in (old or []) if row['kind'] == 'code')
     cursor = 0
     rows = []

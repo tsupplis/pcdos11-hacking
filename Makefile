@@ -601,7 +601,7 @@ check-parity: $(UTILITIES) check-format-boot check-utility-maps check-exe2bin ch
 
 check-utility-maps: $(UTILITIES) $(BOOT)
 	python3 tools/asm_byte_map.py --check diskcopy diskcomp chkdsk mode comp filcom \
-		debug exe2bin ibmfmt msfmt ibmboot msboot msedlin ibmdelin mssys ibmsys
+		debug exe2bin ibmfmt msfmt ibmboot msboot msedlin ibmedlin mssys ibmsys
 
 check-format-boot: $(BOOT) tools/format_boot.py
 	python3 tools/format_boot.py check reference/format.com ibmboot.bin
