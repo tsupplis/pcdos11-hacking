@@ -379,6 +379,8 @@ default_backup_extension                label   byte
 separator_printed                       label   byte
                 db       0h
 
+; Input descriptor words: byte callback, end-position pointer, buffer-base
+; pointer, and EOF-flag pointer. The callback returns through a saved continuation.
 first_input_desc                        label   word
                 dw       offset read_first_byte
                 dw       offset first_buffer_end
@@ -391,6 +393,8 @@ second_input_desc                       label   word
                 dw       offset second_buffer_base
                 dw       offset second_input_end
 
+; Search descriptor words: line numbers, line positions, buffer base,
+; current position, end position, EOF flag, and byte callback.
 first_search_desc                       label   word
                 dw       offset first_line_numbers
                 dw       offset first_line_poss
@@ -417,6 +421,8 @@ second_line_window                      label   word
                 dw       offset second_line_poss
                 dw       offset second_line_numbers
 
+; Output descriptor words: buffer base, current/end positions, EOF flag,
+; byte callback, and line-number window.
 first_output_desc                       label   word
                 dw       offset first_buffer_base
                 dw       offset first_text_pos
@@ -744,11 +750,11 @@ resync_lines:
                 mov      byte ptr ds:[first_search_exhausted],al
                 mov      byte ptr ds:[search_limit_reached],al
 
-resync_lines_sub:
+reset_resync_count:
                 sub      al,al
                 mov      byte ptr ds:[resync_work],al
 
-resync_lines_sub_2:
+restart_text_search:
                 sub      al,al
                 mov      byte ptr ds:[second_search_exhausted],al
                 call     init_text_cmp
@@ -756,102 +762,102 @@ resync_lines_sub_2:
                 mov      cx,bx
                 mov      al,ds:[line_match_state]
                 cmp      al,1
-                jne      resync_lines_load
-                jmpn     resync_lines_load_17
+                jne      check_text_end_flags
+                jmpn     check_matching_line_ends
 
-resync_lines_load:
+check_text_end_flags:
                 mov      al,ds:[first_text_end]
                 mov      bx,offset second_text_end
                 or       al,[bx]
-                je       resync_lines_load_2
-                jmpn     resync_lines_load_5
+                je       check_first_empty_line
+                jmpn     restart_matching_run
 
-resync_lines_load_2:
+check_first_empty_line:
                 mov      al,ds:[first_char]
                 or       al,al
-                jne      resync_lines_test
-                jmpn     resync_lines_load_4
+                jne      check_first_comment_line
+                jmpn     check_other_line_content
 
-resync_lines_test:
+check_first_comment_line:
                 cmp      al,3Bh
-                jne      resync_lines_load_3
-                jmpn     resync_lines_load_4
+                jne      check_second_empty_line
+                jmpn     check_other_line_content
 
-resync_lines_load_3:
+check_second_empty_line:
                 mov      al,ds:[second_char]
                 or       al,al
-                jne      resync_lines_test_2
-                jmpn     resync_lines_load_23
+                jne      check_second_comment_line
+                jmpn     check_second_search_done
 
-resync_lines_test_2:
+check_second_comment_line:
                 cmp      al,3Bh
-                jne      resync_lines_resume
-                jmpn     resync_lines_load_23
+                jne      begin_difference_search
+                jmpn     check_second_search_done
 
-resync_lines_resume:
-                jmpn     resync_lines_load_5
+begin_difference_search:
+                jmpn     restart_matching_run
 
-resync_lines_load_4:
+check_other_line_content:
                 mov      al,ds:[second_char]
                 or       al,al
-                jne      resync_lines_test_3
-                jmpn     resync_lines_load_21
+                jne      check_other_line_comment
+                jmpn     shift_first_matching_window
 
-resync_lines_test_3:
+check_other_line_comment:
                 cmp      al,3Bh
-                jne      resync_lines_sub_3
-                jmpn     resync_lines_load_21
+                jne      mark_second_search_done
+                jmpn     shift_first_matching_window
 
-resync_lines_sub_3:
+mark_second_search_done:
                 sub      al,al
                 inc      al
                 mov      byte ptr ds:[second_search_exhausted],al
-                jmpn     resync_lines_load_21
+                jmpn     shift_first_matching_window
 
-resync_lines_load_5:
+restart_matching_run:
                 mov      al,ds:[required_matching_lines]
                 mov      byte ptr ds:[matching_lines_left],al
                 mov      al,1
                 mov      byte ptr ds:[resync_result],al
                 mov      al,ds:[search_limit_reached]
                 or       al,al
-                je       resync_lines_load_6
-                jmpn     resync_lines_load_7
+                je       check_search_input_ends
+                jmpn     select_search_direction
 
-resync_lines_load_6:
+check_search_input_ends:
                 mov      al,ds:[first_text_end]
                 mov      bx,offset second_text_end
                 or       al,[bx]
-                je       resync_lines_sub_4
-                jmpn     resync_lines_load_7
+                je       try_candidate_line_pairs
+                jmpn     select_search_direction
 
-resync_lines_sub_4:
+try_candidate_line_pairs:
                 sub      al,al
                 mov      byte ptr ds:[resync_work],al
                 call     search_matching_lines
                 mov      al,ds:[line_match_state]
                 sbb      al,1
-                jne      resync_lines_sub_5
-                jmpn     resync_lines_load_17
+                jne      mark_search_limit
+                jmpn     check_matching_line_ends
 
-resync_lines_sub_5:
+mark_search_limit:
                 sub      al,al
                 inc      al
                 mov      byte ptr ds:[search_limit_reached],al
 
-resync_lines_load_7:
+select_search_direction:
                 mov      al,ds:[first_search_exhausted]
                 or       al,al
-                je       resync_lines_load_8
-                jmpn     resync_lines_load_12
+                je       check_second_search_end
+                jmpn     try_first_search_direction
 
-resync_lines_load_8:
+check_second_search_end:
                 mov      al,ds:[second_text_end]
                 or       al,al
-                je       resync_lines_load_9
-                jmpn     resync_lines_sub_6
+                je       shift_second_search_window
+                jmpn     reset_second_search_origin
 
-resync_lines_load_9:
+shift_second_search_window:
                 mov      bx,offset second_line_window
                 call     shift_line_window
                 mov      bx,word ptr ds:[second_line_poss]
@@ -862,10 +868,10 @@ resync_lines_load_9:
                 xchg     bx,dx
                 mov      bx,word ptr ds:[second_buffer_end]
                 sub      bx,dx
-                je       resync_lines_sub_6
-                jmpn     resync_lines_sub
+                je       reset_second_search_origin
+                jmpn     reset_resync_count
 
-resync_lines_sub_6:
+reset_second_search_origin:
                 sub      al,al
                 inc      al
                 mov      byte ptr ds:[first_search_exhausted],al
@@ -875,31 +881,31 @@ resync_lines_sub_6:
                 xchg     bx,dx
                 mov      bx,word ptr ds:[first_line_poss]
                 sub      bx,dx
-                jne      resync_lines_load_10
-                jmpn     resync_lines_load_16
+                jne      check_first_search_end
+                jmpn     return_search_failure
 
-resync_lines_load_10:
+check_first_search_end:
                 mov      al,ds:[first_text_end]
                 or       al,al
-                je       resync_lines_load_11
-                jmpn     resync_lines_load_16
+                je       advance_first_search_origin
+                jmpn     return_search_failure
 
-resync_lines_load_11:
+advance_first_search_origin:
                 mov      bx,word ptr ds:[first_line_poss]
                 xchg     bx,dx
                 mov      bx,word ptr ds:[first_line_numbers]
                 call     wrap_buffer_pos
                 mov      word ptr ds:[first_line_poss],bx
                 mov      word ptr ds:[saved_first_pos],bx
-                jmpn     resync_lines_sub
+                jmpn     reset_resync_count
 
-resync_lines_load_12:
+try_first_search_direction:
                 mov      al,ds:[first_text_end]
                 or       al,al
-                je       resync_lines_load_13
-                jmpn     resync_lines_sub_7
+                je       advance_first_candidate
+                jmpn     retry_first_search
 
-resync_lines_load_13:
+advance_first_candidate:
                 mov      bx,word ptr ds:[first_line_poss]
                 xchg     bx,dx
                 mov      bx,word ptr ds:[first_line_numbers]
@@ -908,26 +914,26 @@ resync_lines_load_13:
                 xchg     bx,dx
                 mov      bx,word ptr ds:[first_buffer_end]
                 sub      bx,dx
-                je       resync_lines_sub_7
-                jmpn     resync_lines_sub
+                je       retry_first_search
+                jmpn     reset_resync_count
 
-resync_lines_sub_7:
+retry_first_search:
                 sub      al,al
                 mov      byte ptr ds:[first_search_exhausted],al
                 mov      bx,word ptr ds:[second_line_poss]
                 xchg     bx,dx
                 mov      bx,word ptr ds:[second_buffer_end]
                 sub      bx,dx
-                jne      resync_lines_load_14
-                jmpn     resync_lines_load_16
+                jne      check_second_candidate_end
+                jmpn     return_search_failure
 
-resync_lines_load_14:
+check_second_candidate_end:
                 mov      al,ds:[second_text_end]
                 or       al,al
-                je       resync_lines_load_15
-                jmpn     resync_lines_load_16
+                je       advance_second_search_origin
+                jmpn     return_search_failure
 
-resync_lines_load_15:
+advance_second_search_origin:
                 mov      bx,word ptr ds:[second_line_poss]
                 xchg     bx,dx
                 mov      bx,word ptr ds:[second_line_numbers]
@@ -936,9 +942,9 @@ resync_lines_load_15:
                 mov      word ptr ds:[saved_second_pos],bx
                 mov      bx,word ptr ds:[saved_first_pos]
                 mov      word ptr ds:[first_line_poss],bx
-                jmpn     resync_lines_sub
+                jmpn     reset_resync_count
 
-resync_lines_load_16:
+return_search_failure:
                 mov      al,2
                 mov      byte ptr ds:[resync_result],al
                 mov      bx,0
@@ -946,39 +952,39 @@ resync_lines_load_16:
                 mov      word ptr ds:[second_line_numbers],bx
                 ret      
 
-resync_lines_load_17:
+check_matching_line_ends:
                 mov      bx,offset first_text_end
                 mov      al,ds:[second_text_end]
                 or       al,[bx]
-                je       resync_lines_load_18
-                jmpn     resync_lines_load_5
+                je       check_matching_comment_state
+                jmpn     restart_matching_run
 
-resync_lines_load_18:
+check_matching_comment_state:
                 mov      al,ds:[first_comment_state]
                 or       al,al
-                je       resync_lines_load_19
-                jmpn     resync_lines_load_20
+                je       check_matching_first_char
+                jmpn     count_matching_line
 
-resync_lines_load_19:
+check_matching_first_char:
                 mov      al,ds:[first_char]
                 or       al,al
-                jne      resync_lines_test_4
-                jmpn     resync_lines_load_21
+                jne      test_matching_comment_start
+                jmpn     shift_first_matching_window
 
-resync_lines_test_4:
+test_matching_comment_start:
                 cmp      al,3Bh
-                jne      resync_lines_load_20
-                jmpn     resync_lines_load_21
+                jne      count_matching_line
+                jmpn     shift_first_matching_window
 
-resync_lines_load_20:
+count_matching_line:
                 mov      bx,offset resync_work
                 inc      byte ptr [bx]
                 mov      al,ds:[matching_lines_left]
                 cmp      al,[bx]
-                jne      resync_lines_load_21
-                jmpn     mark_resync_failure_sub
+                jne      shift_first_matching_window
+                jmpn     finish_matching_run
 
-resync_lines_load_21:
+shift_first_matching_window:
                 mov      bx,offset line_window_descs
                 call     shift_line_window
                 mov      bx,word ptr ds:[first_line_poss]
@@ -989,10 +995,10 @@ resync_lines_load_21:
                 xchg     bx,dx
                 mov      bx,word ptr ds:[first_buffer_end]
                 sub      bx,dx
-                je       resync_lines_load_22
-                jmpn     resync_lines_load_23
+                je       advance_second_matching_line
+                jmpn     check_second_search_done
 
-resync_lines_load_22:
+advance_second_matching_line:
                 mov      bx,word ptr ds:[second_line_poss]
                 xchg     bx,dx
                 mov      bx,word ptr ds:[second_line_numbers]
@@ -1000,21 +1006,21 @@ resync_lines_load_22:
                 xchg     bx,dx
                 mov      bx,word ptr ds:[second_buffer_end]
                 sub      bx,dx
-                je       resync_lines_xchg
-                jmpn     resync_lines_sub_7
+                je       save_second_matching_pos
+                jmpn     retry_first_search
 
-resync_lines_xchg:
+save_second_matching_pos:
                 xchg     bx,dx
                 mov      word ptr ds:[second_line_poss],bx
                 ret      
 
-resync_lines_load_23:
+check_second_search_done:
                 mov      al,ds:[second_search_exhausted]
                 or       al,al
-                je       resync_lines_load_24
-                jmpn     resync_lines_sub_2
+                je       shift_second_matching_window
+                jmpn     restart_text_search
 
-resync_lines_load_24:
+shift_second_matching_window:
                 mov      bx,offset second_line_window
                 call     shift_line_window
                 mov      bx,word ptr ds:[second_line_poss]
@@ -1025,11 +1031,11 @@ resync_lines_load_24:
                 xchg     bx,dx
                 mov      bx,word ptr ds:[second_buffer_end]
                 sub      bx,dx
-                je       resync_lines_resume_2
-                jmpn     resync_lines_sub_2
+                je       restart_second_search
+                jmpn     restart_text_search
 
-resync_lines_resume_2:
-                jmpn     resync_lines_sub_6
+restart_second_search:
+                jmpn     reset_second_search_origin
 
 mark_resync_failure:
                 mov      al,2
@@ -1039,20 +1045,20 @@ mark_resync_failure:
                 mov      word ptr ds:[second_line_numbers],bx
                 ret      
 
-mark_resync_failure_sub:
+finish_matching_run:
                 sub      al,al
                 mov      byte ptr ds:[search_limit_reached],al
                 mov      al,ds:[resync_result]
                 cmp      al,1
-                jne      mark_resync_failure_load
-                jmpn     mark_resync_failure_load_2
+                jne      require_one_more_match
+                jmpn     adjust_matched_line_numbers
 
-mark_resync_failure_load:
+require_one_more_match:
                 mov      al,1
                 mov      byte ptr ds:[matching_lines_left],al
                 ret      
 
-mark_resync_failure_load_2:
+adjust_matched_line_numbers:
                 mov      al,ds:[matching_lines_left]
                 dec      al
                 mov      bl,al
@@ -1096,22 +1102,22 @@ search_matching_lines:
                 push     ax
                 mov      byte ptr ds:[search_lines_left],al
 
-search_matching_lines_rest:
+next_search_depth:
                 pop      ax
                 sahf     
                 dec      al
                 lahf     
                 push     ax
-                je       search_matching_lines_load
-                jmpn     search_matching_lines_load_2
+                je       test_first_search_done
+                jmpn     choose_candidate_source
 
-search_matching_lines_load:
+test_first_search_done:
                 mov      al,ds:[first_search_exhausted]
                 or       al,al
-                je       search_matching_lines_advance
-                jmpn     search_matching_lines_rest_4
+                je       mark_first_candidate_search
+                jmpn     unwind_candidate_search
 
-search_matching_lines_advance:
+mark_first_candidate_search:
                 inc      al
                 mov      byte ptr ds:[first_search_exhausted],al
                 pop      ax
@@ -1127,55 +1133,55 @@ search_matching_lines_advance:
                 call     wrap_buffer_pos
                 mov      word ptr ds:[saved_first_pos],bx
                 mov      word ptr ds:[first_line_poss],bx
-                jmpn     search_matching_lines_xchg_2
+                jmpn     test_first_candidate_limit
 
-search_matching_lines_load_2:
+choose_candidate_source:
                 mov      al,ds:[first_search_exhausted]
                 or       al,al
-                je       search_matching_lines_load_3
-                jmpn     search_matching_lines_load_5
+                je       calculate_second_candidate
+                jmpn     calculate_first_candidate
 
-search_matching_lines_load_3:
+calculate_second_candidate:
                 mov      bx,word ptr ds:[second_line_poss]
                 xchg     bx,dx
                 mov      bx,word ptr ds:[second_line_numbers]
                 call     wrap_buffer_pos
                 mov      word ptr ds:[second_line_poss],bx
 
-search_matching_lines_xchg:
+test_second_candidate_limit:
                 xchg     bx,dx
                 mov      bx,word ptr ds:[second_buffer_end]
                 sub      bx,dx
-                je       search_matching_lines_load_4
-                jmpn     search_matching_lines_next
+                je       mark_second_candidate_end
+                jmpn     compare_candidate_text
 
-search_matching_lines_load_4:
+mark_second_candidate_end:
                 mov      al,1
                 mov      byte ptr ds:[second_text_end],al
 
-search_matching_lines_rest_2:
+restore_candidate_counters:
                 pop      ax
                 sahf     
                 pop      ax
                 xchg     al,ah
                 sahf     
-                jmpn     search_matching_lines_rest_5
+                jmpn     restore_candidate_done_flag
 
-search_matching_lines_load_5:
+calculate_first_candidate:
                 mov      bx,word ptr ds:[first_line_poss]
                 xchg     bx,dx
                 mov      bx,word ptr ds:[first_line_numbers]
                 call     wrap_buffer_pos
                 mov      word ptr ds:[first_line_poss],bx
 
-search_matching_lines_xchg_2:
+test_first_candidate_limit:
                 xchg     bx,dx
                 mov      bx,word ptr ds:[first_buffer_end]
                 sub      bx,dx
-                je       search_matching_lines_rest_3
-                jmpn     search_matching_lines_next
+                je       restore_first_candidate_flags
+                jmpn     compare_candidate_text
 
-search_matching_lines_rest_3:
+restore_first_candidate_flags:
                 pop      ax
                 xchg     al,ah
                 sahf     
@@ -1184,48 +1190,48 @@ search_matching_lines_rest_3:
                 sahf     
                 mov      al,1
                 mov      byte ptr ds:[first_text_end],al
-                jmpn     search_matching_lines_rest_5
+                jmpn     restore_candidate_done_flag
 
-search_matching_lines_next:
+compare_candidate_text:
                 call     init_text_cmp
                 mov      al,ds:[first_comment_state]
                 or       al,al
-                je       search_matching_lines_load_6
-                jmpn     search_matching_lines_load_7
+                je       check_candidate_case_mode
+                jmpn     test_candidate_line_match
 
-search_matching_lines_load_6:
+check_candidate_case_mode:
                 mov      al,ds:[ignore_case]
                 or       al,al
-                jne      search_matching_lines_load_7
-                jmpn     search_matching_lines_sub
+                jne      test_candidate_line_match
+                jmpn     reset_candidate_match_count
 
-search_matching_lines_load_7:
+test_candidate_line_match:
                 mov      al,ds:[line_match_state]
                 cmp      al,1
-                jne      search_matching_lines_sub
-                jmpn     search_matching_lines_load_8
+                jne      reset_candidate_match_count
+                jmpn     count_candidate_matches
 
-search_matching_lines_sub:
+reset_candidate_match_count:
                 sub      al,al
                 mov      byte ptr ds:[resync_work],al
                 mov      al,ds:[first_text_end]
                 mov      bx,offset second_text_end
                 or       al,[bx]
-                jne      search_matching_lines_resume
-                jmpn     search_matching_lines_rest
+                jne      candidate_search_unwind
+                jmpn     next_search_depth
 
-search_matching_lines_resume:
-                jmpn     search_matching_lines_rest_4
+candidate_search_unwind:
+                jmpn     unwind_candidate_search
 
-search_matching_lines_load_8:
+count_candidate_matches:
                 mov      bx,offset resync_work
                 inc      byte ptr [bx]
                 mov      al,ds:[matching_lines_left]
                 cmp      al,[bx]
-                jne      search_matching_lines_load_9
-                jmpn     search_matching_lines_count
+                jne      shift_second_candidate_window
+                jmpn     decrement_search_lines_left
 
-search_matching_lines_load_9:
+shift_second_candidate_window:
                 mov      bx,offset second_line_window
                 call     shift_line_window
                 mov      bx,word ptr ds:[second_line_poss]
@@ -1236,16 +1242,16 @@ search_matching_lines_load_9:
                 xchg     bx,dx
                 mov      bx,word ptr ds:[second_buffer_end]
                 sub      bx,dx
-                je       search_matching_lines_load_10
-                jmpn     search_matching_lines_load_11
+                je       mark_second_candidate_eof
+                jmpn     shift_first_candidate_window
 
-search_matching_lines_load_10:
+mark_second_candidate_eof:
                 mov      byte ptr ds:[line_match_state],al
                 mov      al,1
                 mov      byte ptr ds:[second_text_end],al
-                jmpn     search_matching_lines_rest_2
+                jmpn     restore_candidate_counters
 
-search_matching_lines_load_11:
+shift_first_candidate_window:
                 mov      bx,offset line_window_descs
                 call     shift_line_window
                 mov      bx,word ptr ds:[first_line_poss]
@@ -1256,16 +1262,16 @@ search_matching_lines_load_11:
                 xchg     bx,dx
                 mov      bx,word ptr ds:[first_buffer_end]
                 sub      bx,dx
-                je       search_matching_lines_load_12
-                jmpn     search_matching_lines_next
+                je       mark_first_candidate_eof
+                jmpn     compare_candidate_text
 
-search_matching_lines_load_12:
+mark_first_candidate_eof:
                 mov      byte ptr ds:[line_match_state],al
                 mov      al,1
                 mov      byte ptr ds:[first_text_end],al
-                jmpn     search_matching_lines_rest_2
+                jmpn     restore_candidate_counters
 
-search_matching_lines_count:
+decrement_search_lines_left:
                 dec      byte ptr [bx]
                 pop      ax
                 xchg     al,ah
@@ -1285,17 +1291,17 @@ search_matching_lines_count:
                 pop      bx
                 ret      
 
-search_matching_lines_rest_4:
+unwind_candidate_search:
                 pop      ax
                 xchg     al,ah
                 sahf     
                 pop      ax
                 sahf     
                 dec      al
-                jne      search_matching_lines_lahf
-                jmpn     search_matching_lines_rest_5
+                jne      save_candidate_search_flags
+                jmpn     restore_candidate_done_flag
 
-search_matching_lines_lahf:
+save_candidate_search_flags:
                 lahf     
                 push     ax
                 sub      al,al
@@ -1315,17 +1321,17 @@ search_matching_lines_lahf:
                 call     wrap_buffer_pos
                 mov      word ptr ds:[saved_second_pos],bx
                 mov      word ptr ds:[second_line_poss],bx
-                jmpn     search_matching_lines_xchg
+                jmpn     test_second_candidate_limit
 
-search_matching_lines_rest_5:
+restore_candidate_done_flag:
                 pop      ax
                 sahf     
                 mov      byte ptr ds:[first_search_exhausted],al
                 or       al,al
-                je       search_matching_lines_next_2
+                je       restore_first_candidate
                 jmpn     return_search_status
 
-search_matching_lines_next_2:
+restore_first_candidate:
                 call     rest_first_pos
                 ret      
 
@@ -1403,7 +1409,7 @@ print_decimal:
                 mov      dx,offset decimal_divisors
                 mov      al,5
 
-print_decimal_save:
+next_decimal_place:
                 push     cx
                 lahf     
                 push     ax
@@ -1421,10 +1427,10 @@ print_decimal_save:
                 mov      bx,word ptr ds:[decimal_remainder]
                 mov      ch,2Fh
 
-print_decimal_advance:
+subtract_decimal_divisor:
                 inc      ch
                 sub      bx,dx
-                jae      print_decimal_advance
+                jae      subtract_decimal_divisor
                 add      bx,dx
                 mov      word ptr ds:[decimal_remainder],bx
                 pop      dx
@@ -1435,7 +1441,7 @@ print_decimal_advance:
                 sahf     
                 pop      cx
                 dec      al
-                jne      print_decimal_save
+                jne      next_decimal_place
                 mov      [bx],al
                 pop      dx
                 ret      
@@ -1472,7 +1478,7 @@ read_desc_line:
                 mov      bx,word ptr ds:[text_buffer_capacity]
                 xchg     bx,dx
 
-read_desc_line_load:
+invoke_input_callback:
                 mov      bx,offset desc_input_return
                 pop      si
                 xchg     bx,si
@@ -1481,27 +1487,27 @@ read_desc_line_load:
 
 ; Indirect input callback returns here; continue line assembly and EOF bookkeeping.
 desc_input_return:
-                jae      desc_input_return_save
-                jmpn     desc_input_return_load
+                jae      store_descriptor_character
+                jmpn     mark_descriptor_input_end
 
-desc_input_return_save:
+store_descriptor_character:
                 push     bx
                 cmp      al,0Ah
-                je       read_desc_line_load
+                je       invoke_input_callback
                 mov      di,cx
                 stosb    
                 inc      cx
                 dec      dx
                 or       dx,dx
-                jne      read_desc_line_load
+                jne      invoke_input_callback
                 pop      dx
                 pop      dx
                 pop      dx
                 mov      bx,word ptr ds:[text_buffer_capacity]
                 dec      bx
-                jmpn     desc_input_return_xchg
+                jmpn     save_descriptor_input_end
 
-desc_input_return_load:
+mark_descriptor_input_end:
                 mov      bx,6
                 pop      dx
                 add      bx,dx
@@ -1512,7 +1518,7 @@ desc_input_return_load:
                 mov      bx,cx
                 sub      bx,dx
 
-desc_input_return_xchg:
+save_descriptor_input_end:
                 xchg     bx,dx
                 mov      bx,2
                 pop      cx
@@ -1538,15 +1544,15 @@ advance_desc_line:
                 mov      bx,[bx]
                 mov      bx,[bx]
                 sub      bx,dx
-                je       advance_desc_line_xchg
-                jmpn     advance_desc_line_load
+                je       use_descriptor_end_position
+                jmpn     use_descriptor_window_start
 
-advance_desc_line_xchg:
+use_descriptor_end_position:
                 xchg     bx,dx
                 mov      word ptr ds:[saved_line_end],bx
-                jmpn     advance_desc_line_load_2
+                jmpn     reset_descriptor_line_count
 
-advance_desc_line_load:
+use_descriptor_window_start:
                 mov      bx,cx
                 mov      bx,[bx]
                 mov      bx,[bx]
@@ -1570,7 +1576,7 @@ advance_desc_line_load:
                 mov      [bx],dx
                 inc      bx
 
-advance_desc_line_load_2:
+reset_descriptor_line_count:
                 mov      bx,cx
                 mov      bx,[bx]
                 sub      al,al
@@ -1583,27 +1589,27 @@ advance_desc_line_load_2:
                 mov      bx,[bx]
                 mov      word ptr ds:[resync_work],bx
 
-advance_desc_line_load_3:
+test_descriptor_line_end:
                 mov      bx,word ptr ds:[saved_line_end]
                 xchg     bx,dx
                 mov      bx,word ptr ds:[resync_work]
                 sub      bx,dx
-                je       advance_desc_line_rest
-                jmpn     advance_desc_line_load_4
+                je       restore_descriptor_registers
+                jmpn     check_descriptor_output_mode
 
-advance_desc_line_rest:
+restore_descriptor_registers:
                 pop      bx
                 pop      dx
                 pop      cx
                 ret      
 
-advance_desc_line_load_4:
+check_descriptor_output_mode:
                 mov      al,ds:[resync_result]
                 cmp      al,1
-                je       advance_desc_line_load_5
-                jmpn     advance_desc_line_load_7
+                je       load_descriptor_buffer_byte
+                jmpn     test_descriptor_eof_flag
 
-advance_desc_line_load_5:
+load_descriptor_buffer_byte:
                 mov      bx,4
                 add      bx,cx
                 mov      bx,[bx]
@@ -1618,38 +1624,38 @@ advance_desc_line_load_5:
                 pop      ax
                 sahf     
                 cmp      al,0Dh
-                je       advance_desc_line_load_6
-                jmpn     advance_desc_line_load_7
+                je       print_descriptor_newline
+                jmpn     test_descriptor_eof_flag
 
-advance_desc_line_load_6:
+print_descriptor_newline:
                 mov      al,0Ah
                 call     output_char
 
-advance_desc_line_load_7:
+test_descriptor_eof_flag:
                 mov      bx,0Ah
                 add      bx,cx
                 mov      bx,[bx]
                 mov      al,[bx]
                 cmp      al,1
-                jne      advance_desc_line_load_8
-                jmpn     advance_desc_line_load_10
+                jne      load_descriptor_input_callback
+                jmpn     advance_descriptor_position
 
-advance_desc_line_load_8:
+load_descriptor_input_callback:
                 mov      bx,0Ch
                 add      bx,cx
                 mov      bx,[bx]
                 push     bx
-                mov      bx,offset return_from_advance_desc_line
+                mov      bx,offset descriptor_callback_return
                 pop      si
                 xchg     bx,si
                 push     si
                 jmp      bx
 
-return_from_advance_desc_line:
-                jb       advance_desc_line_load_9
-                jmpn     advance_desc_line_test
+descriptor_callback_return:
+                jb       update_descriptor_end_position
+                jmpn     test_descriptor_line_feed
 
-advance_desc_line_load_9:
+update_descriptor_end_position:
                 mov      bx,word ptr ds:[resync_work]
                 xchg     bx,dx
                 mov      bx,8
@@ -1663,7 +1669,7 @@ advance_desc_line_load_9:
                 mov      al,1
                 mov      [bx],al
 
-advance_desc_line_load_10:
+advance_descriptor_position:
                 mov      bx,word ptr ds:[resync_work]
                 mov      dx,1
                 push     cx
@@ -1674,11 +1680,11 @@ advance_desc_line_load_10:
                 call     wrap_buffer_pos
                 pop      cx
                 mov      word ptr ds:[resync_work],bx
-                jmpn     advance_desc_line_load_3
+                jmpn     test_descriptor_line_end
 
-advance_desc_line_test:
+test_descriptor_line_feed:
                 cmp      al,0Ah
-                je       advance_desc_line_load_7
+                je       test_descriptor_eof_flag
                 lahf     
                 push     ax
                 mov      bx,4
@@ -1708,7 +1714,7 @@ advance_desc_line_test:
                 call     wrap_buffer_pos
                 pop      cx
                 mov      word ptr ds:[resync_work],bx
-                jmpn     advance_desc_line_load_3
+                jmpn     test_descriptor_line_end
 
 ; Print the lines selected by an output descriptor, wrapping within the text buffer.
 print_desc_lines:
@@ -1730,7 +1736,7 @@ print_desc_lines:
                 mov      bx,word ptr ds:[text_buffer_capacity]
                 mov      cx,bx
 
-print_desc_lines_load:
+print_buffered_line_character:
                 mov      bx,word ptr ds:[first_text_pos]
                 pop      dx
                 push     dx
@@ -1742,14 +1748,14 @@ print_desc_lines_load:
                 pop      ax
                 sahf     
                 cmp      al,0Dh
-                je       print_desc_lines_load_2
-                jmpn     print_desc_lines_load_3
+                je       print_buffered_newline
+                jmpn     advance_buffered_output_pos
 
-print_desc_lines_load_2:
+print_buffered_newline:
                 mov      al,0Ah
                 call     output_char
 
-print_desc_lines_load_3:
+advance_buffered_output_pos:
                 mov      bx,word ptr ds:[first_text_pos]
                 mov      dx,1
                 call     wrap_buffer_pos
@@ -1757,7 +1763,7 @@ print_desc_lines_load_3:
                 xchg     bx,dx
                 mov      bx,word ptr ds:[first_buffer_end]
                 sub      bx,dx
-                jne      print_desc_lines_load
+                jne      print_buffered_line_character
                 pop      dx
                 pop      cx
                 mov      bx,6
@@ -1765,214 +1771,214 @@ print_desc_lines_load_3:
                 mov      bx,[bx]
                 mov      al,[bx]
                 cmp      al,1
-                jne      print_desc_lines_load_4
+                jne      load_output_input_callback
 
-print_desc_lines_return:
+return_descriptor_output:
                 ret      
 
-print_desc_lines_load_4:
+load_output_input_callback:
                 mov      bx,8
                 add      bx,cx
                 mov      bx,[bx]
 
-print_desc_lines_load_5:
-                mov      dx,offset return_from_print_desc_lines
+invoke_output_input_callback:
+                mov      dx,offset output_input_callback_return
                 push     dx
                 jmp      bx
 
-return_from_print_desc_lines:
-                jb       print_desc_lines_return
+output_input_callback_return:
+                jb       return_descriptor_output
                 lahf     
                 push     ax
                 call     output_char
                 pop      ax
                 sahf     
                 cmp      al,0Dh
-                jne      print_desc_lines_load_5
+                jne      invoke_output_input_callback
                 mov      al,0Ah
                 call     output_char
-                jmp      short print_desc_lines_load_5
+                jmp      short invoke_output_input_callback
 
 ; Obtain the next primary text character and apply source/case normalization.
 next_first_char:
                 call     first_pos_remaining
-                je       next_first_char_load
-                jmpn     next_first_char_load_2
+                je       mark_first_text_end
+                jmpn     load_first_buffer_character
 
-next_first_char_load:
+mark_first_text_end:
                 mov      dx,offset first_text_end
                 mov      al,1
                 mov      di,dx
                 stosb    
-                jmpn     next_first_char_load_5
+                jmpn     mark_first_line_pending
 
-next_first_char_load_2:
+load_first_buffer_character:
                 mov      bx,offset text_buffer_storage
                 add      bx,dx
                 mov      al,[bx]
                 rol      al,1
-                jae      next_first_char_ror
-                jmpn     next_first_char_next_2
+                jae      test_first_space
+                jmpn     skip_first_source_character
 
-next_first_char_ror:
+test_first_space:
                 ror      al,1
                 cmp      al,20h
-                jne      next_first_char_test
-                jmpn     next_first_char_load_3
+                jne      test_first_tab
+                jmpn     test_first_source_whitespace
 
-next_first_char_test:
+test_first_tab:
                 cmp      al,9
-                jne      next_first_char_test_2
-                jmpn     next_first_char_load_3
+                jne      test_first_carriage_return
+                jmpn     test_first_source_whitespace
 
-next_first_char_test_2:
+test_first_carriage_return:
                 cmp      al,0Dh
-                je       next_first_char_next
-                jmpn     next_first_char_load_6
+                je       advance_first_line_end
+                jmpn     save_first_normalized_char
 
-next_first_char_next:
+advance_first_line_end:
                 call     first_pos_remaining
                 mov      bx,offset first_line_numbers
-                jne      next_first_char_advance
-                jmpn     next_first_char_load_5
+                jne      increment_first_line_count
+                jmpn     mark_first_line_pending
 
-next_first_char_advance:
+increment_first_line_count:
                 inc      byte ptr [bx]
-                je       next_first_char_advance_2
-                jmpn     next_first_char_load_5
+                je       carry_first_line_count
+                jmpn     mark_first_line_pending
 
-next_first_char_advance_2:
+carry_first_line_count:
                 inc      bx
                 inc      byte ptr [bx]
-                jmpn     next_first_char_load_5
+                jmpn     mark_first_line_pending
 
-next_first_char_load_3:
+test_first_source_whitespace:
                 mov      al,ds:[source_cmp]
                 or       al,al
-                jne      next_first_char_next_2
-                jmpn     next_first_char_load_6
+                jne      skip_first_source_character
+                jmpn     save_first_normalized_char
 
-next_first_char_next_2:
+skip_first_source_character:
                 call     first_pos_remaining
                 mov      bx,offset first_line_numbers
                 mov      dx,offset first_text_end
-                je       next_first_char_load_4
-                jmpn     next_first_char_advance_3
+                je       set_first_source_end
+                jmpn     advance_first_source_line
 
-next_first_char_load_4:
+set_first_source_end:
                 mov      al,1
                 mov      di,dx
                 stosb    
-                jmpn     next_first_char_load_5
+                jmpn     mark_first_line_pending
 
-next_first_char_advance_3:
+advance_first_source_line:
                 inc      byte ptr [bx]
                 jne      next_first_char
                 inc      bx
                 inc      byte ptr [bx]
                 jmp      short next_first_char
 
-next_first_char_load_5:
+mark_first_line_pending:
                 mov      bx,offset first_line_pending
                 mov      al,1
                 mov      [bx],al
-                jmpn     next_first_char_return
+                jmpn     return_first_character
 
-next_first_char_load_6:
+save_first_normalized_char:
                 mov      byte ptr ds:[first_char],al
 
-next_first_char_return:
+return_first_character:
                 ret      
 
 ; Obtain the next secondary text character and apply source/case normalization.
 next_second_char:
                 call     second_pos_remaining
-                je       next_second_char_load
-                jmpn     next_second_char_load_2
+                je       mark_second_text_end
+                jmpn     load_second_buffer_character
 
-next_second_char_load:
+mark_second_text_end:
                 mov      dx,offset second_text_end
                 mov      al,1
                 mov      di,dx
                 stosb    
-                jmpn     next_second_char_load_5
+                jmpn     mark_second_line_pending
 
-next_second_char_load_2:
+load_second_buffer_character:
                 mov      bx,word ptr ds:[second_buffer_base]
                 add      bx,dx
                 mov      al,[bx]
                 rol      al,1
-                jae      next_second_char_ror
-                jmpn     next_second_char_next_2
+                jae      test_second_space
+                jmpn     skip_second_source_character
 
-next_second_char_ror:
+test_second_space:
                 ror      al,1
                 cmp      al,20h
-                jne      next_second_char_test
-                jmpn     next_second_char_load_3
+                jne      test_second_tab
+                jmpn     test_second_source_whitespace
 
-next_second_char_test:
+test_second_tab:
                 cmp      al,9
-                jne      next_second_char_test_2
-                jmpn     next_second_char_load_3
+                jne      test_second_carriage_return
+                jmpn     test_second_source_whitespace
 
-next_second_char_test_2:
+test_second_carriage_return:
                 cmp      al,0Dh
-                je       next_second_char_next
-                jmpn     next_second_char_load_6
+                je       advance_second_line_end
+                jmpn     save_second_normalized_char
 
-next_second_char_next:
+advance_second_line_end:
                 call     second_pos_remaining
                 mov      bx,offset second_line_numbers
-                jne      next_second_char_advance
-                jmpn     next_second_char_load_5
+                jne      increment_second_line_count
+                jmpn     mark_second_line_pending
 
-next_second_char_advance:
+increment_second_line_count:
                 inc      byte ptr [bx]
-                je       next_second_char_advance_2
-                jmpn     next_second_char_load_5
+                je       carry_second_line_count
+                jmpn     mark_second_line_pending
 
-next_second_char_advance_2:
+carry_second_line_count:
                 inc      bx
                 inc      byte ptr [bx]
-                jmpn     next_second_char_load_5
+                jmpn     mark_second_line_pending
 
-next_second_char_load_3:
+test_second_source_whitespace:
                 mov      al,ds:[source_cmp]
                 or       al,al
-                jne      next_second_char_next_2
-                jmpn     next_second_char_load_6
+                jne      skip_second_source_character
+                jmpn     save_second_normalized_char
 
-next_second_char_next_2:
+skip_second_source_character:
                 call     second_pos_remaining
                 mov      bx,offset second_line_numbers
                 mov      dx,offset second_text_end
-                je       next_second_char_load_4
-                jmpn     next_second_char_advance_3
+                je       set_second_source_end
+                jmpn     advance_second_source_line
 
-next_second_char_load_4:
+set_second_source_end:
                 mov      al,1
                 mov      di,dx
                 stosb    
-                jmpn     next_second_char_load_5
+                jmpn     mark_second_line_pending
 
-next_second_char_advance_3:
+advance_second_source_line:
                 inc      byte ptr [bx]
                 jne      next_second_char
                 inc      bx
                 inc      byte ptr [bx]
                 jmp      short next_second_char
 
-next_second_char_load_5:
+mark_second_line_pending:
                 mov      bx,offset second_line_pending
                 mov      al,1
                 mov      [bx],al
-                jmpn     next_second_char_return
+                jmpn     return_second_character
 
-next_second_char_load_6:
+save_second_normalized_char:
                 mov      byte ptr ds:[second_char],al
 
-next_second_char_return:
+return_second_character:
                 ret      
 
 ; Parse a filename token into the common FCB work area.
@@ -2151,6 +2157,7 @@ copy_parsed_fcb_load:
                 jne      copy_parsed_fcb_load
                 ret      
 
+; Count followed by character/handler pairs. Each handler address is a word.
 command_dispatch_table                  label   byte
                 db       5h,"/"
                 dw       offset parse_switch
@@ -2163,6 +2170,7 @@ command_dispatch_table                  label   byte
                 db       "="
                 dw       offset parse_equals
 
+; Switch handlers share the same dispatch convention as command delimiters.
 switch_dispatch_table                   label   byte
                 db       4h,"A"
                 dw       offset set_ascii_switch
@@ -2686,6 +2694,7 @@ output_name_tail                        label   byte
                 db       0h,0h,0h,0h,0h,0h,0h,0h,0h,0h,0h,0h
                 db       0h
 
+; DOS FCBs contain drive/name/extension, file size, and record positions.
 first_fcb                               label   byte
                 db       0h
 
@@ -2720,6 +2729,7 @@ first_buffer_pos                        label   word
 first_pos_high                          label   byte
                 db       0h
 
+; Primary input: four 128-byte DOS records. This initialized storage is retained.
 first_file_buffer                       label   byte
                 db       0h,0h,0h,0h,0h,0h,0h,0h,0h,0h,0h,0h
                 db       0h,0h,0h,0h,0h,0h,0h,0h,0h,0h,0h,0h
@@ -2771,6 +2781,7 @@ output_buffer_pos                       label   word
 output_pos_high                         label   byte
                 db       0h
 
+; Buffered list output: four 128-byte DOS records.
 output_file_buffer                      label   byte
                 db       0h,0h,0h,0h,0h,0h,0h,0h,0h,0h,0h,0h
                 db       0h,0h,0h,0h,0h,0h,0h,0h,0h,0h,0h,0h
@@ -2822,6 +2833,7 @@ second_buffer_pos                       label   word
 second_pos_high                         label   byte
                 db       0h
 
+; Secondary input: four 128-byte DOS records.
 second_file_buffer                      label   byte
                 db       0h,0h,0h,0h,0h,0h,0h,0h,0h,0h,0h,0h
                 db       0h,0h,0h,0h,0h,0h,0h,0h,0h,0h,0h,0h
@@ -4051,6 +4063,7 @@ second_buffer_base                      label   word
 second_base_high                        label   byte
                 db       0h
 
+; Eleven word slots track buffered line positions for resynchronization.
 first_line_poss                         label   word
                 dw       0h
                 dw       0h
@@ -4145,12 +4158,14 @@ saved_first_pos                         label   word
 saved_second_pos                        label   word
                 dw       0h
 
+; Numeric switch value: consecutive matching lines required to resynchronize.
 required_matching_lines                 label   byte
                 db       3h
 
 matching_lines_left                     label   byte
                 db       0h
 
+; /S is initially enabled; /C enables it while setting ignore_case.
 source_cmp                              label   byte
                 db       0FFh
 
@@ -4166,9 +4181,11 @@ force_ascii                             label   byte
 line_match_state                        label   byte
                 db       1h
 
+; Search result: 0 = matching window, 1 = differences, 2 = search failed.
 resync_result                           label   byte
                 db       1h
 
+; Shared byte/word scratch used by line-search and descriptor processing.
 resync_work                             label   byte
                 db       0h,0h
 
@@ -4221,6 +4238,7 @@ binary_second_name                      label   byte
 text_buffer_capacity                    label   word
                 dw       89h
 
+; Circular text storage grows beyond this initialized tail into available memory.
 text_buffer_storage                     label   byte
                 db       0h
 
