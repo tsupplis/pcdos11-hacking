@@ -101,10 +101,10 @@ def validate_reference_records(records, image, name):
 
 def audit(name, check):
     reference = {'ibmfmt': 'format', 'msfmt': 'msformat',
-                 'ibmboot': 'format', 'fmtboot': 'format', 'msboot': 'msformat'}.get(name, name)
+                 'ibmboot': 'format', 'msboot': 'msformat'}.get(name, name)
     extension = '.exe' if name == 'exe2bin' else '.com'
     image = (ROOT / 'reference' / (reference + extension)).read_bytes()
-    boot_only = name in ('ibmboot', 'fmtboot', 'msboot')
+    boot_only = name in ('ibmboot', 'msboot')
     if boot_only:
         image = image[0xBE8:0xDE8]
     built = ROOT / (name + ('.bin' if boot_only else extension))
@@ -160,7 +160,7 @@ def audit(name, check):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('names', nargs='+', choices=['diskcopy', 'diskcomp', 'chkdsk',
-        'mode', 'comp', 'filcom', 'exe2bin', 'ibmfmt', 'msfmt', 'ibmboot', 'fmtboot', 'msboot'])
+        'mode', 'comp', 'filcom', 'exe2bin', 'ibmfmt', 'msfmt', 'ibmboot', 'msboot'])
     parser.add_argument('--check', action='store_true')
     args = parser.parse_args()
     try:
