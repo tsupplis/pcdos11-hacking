@@ -58,7 +58,8 @@ and `blank.img`.
 | `ibmsys.com`   | [ibmsys.asm](ibmsys.asm), [sys.asm](sys.asm) | `sys.com` writing the PC-DOS system files |
 | `mssys.com`    | [mssys.asm](mssys.asm), [sys.asm](sys.asm) | `sys.com` writing the MS-DOS system files |
 
-[origcmd.asm](origcmd.asm) keeps the untouched Microsoft `command.asm` for reference;
+[origcmd.asm](origcmd.asm) selects the historical IBM COMMAND configuration
+(`CMDEXT=FALSE`, `HIGHMEM=FALSE`) using the shared [command.asm](command.asm);
 [io.asm](io.asm) is the original 86-DOS I/O system.
 
 `DOSEXT` is an explicitly opt-in source-level demonstration extension in the
@@ -113,8 +114,8 @@ FILCOM/EXE2BIN output on representative emulator cases.
 file transfers and all 256 disassembler opcode entries against the original.
 These are representative execution checks, not exhaustive hardware testing.
 
-`make check-command-reference` separately builds IBM COMMAND with `CMDEXT=FALSE`
-and `HIGHMEM=FALSE` in a temporary directory and compares it with
+`make check-command-reference` builds [origcmd.asm](origcmd.asm) unchanged in a
+temporary directory and compares its output with
 `reference/command.com`. This historical build is also part of `check-parity`;
 the normal configured COMMAND build retains its enabled extensions.
 

@@ -600,7 +600,7 @@ check-parity: $(UTILITIES) check-format-boot check-utility-maps check-exe2bin ch
 	cmp reference/msformat.com msfmt.com
 	cmp reference/sys.com ibmsys.com
 
-check-command-reference: ibmcmd.asm command.asm reference/command.com tools/check_command_reference.py
+check-command-reference: origcmd.asm command.asm reference/command.com tools/check_command_reference.py
 	python3 tools/check_command_reference.py
 
 check-utility-maps: $(UTILITIES) $(BOOT)
