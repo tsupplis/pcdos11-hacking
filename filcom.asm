@@ -5,14 +5,14 @@
 ; Build: make filcom.com     Verify: make check-utilities
 ; Code, descriptor tables, FCBs, messages and initialized buffers are separated.
 ; Binary mode compares bytes; text mode searches for matching line windows.
-; /A forces text, /B binary, /C ignores case, /S enables source processing.
+; /A forces text, /B binary, /C includes comments, /S enables source processing.
 ; A numeric switch selects the required run of matching lines (default 3).
 ;
 ; The original contains translated 8080-style register and flag sequences.
 ; Preserve LAHF/SAHF, stack exchanges and indirect return continuations exactly.
 ; Text uses both NUL and high-bit terminators; do not normalize these encodings.
 ; Exact addresses and bytes are recorded separately in mappings/filcom.tsv.
-; Byte identity is verified; interactive DOS behavior has not yet been tested.
+; Byte identity and representative DOS-emulator comparisons are verified.
 ; *-------------------------------------------------------------------------
 
 program         segment
@@ -960,7 +960,7 @@ check_matching_line_ends:
                 jmpn     restart_matching_run
 
 check_matching_comment_state:
-                mov      al,ds:[first_comment_state]
+                mov      al,ds:[noncomment_text_seen]
                 or       al,al
                 je       check_matching_first_char
                 jmpn     count_matching_line
@@ -1194,13 +1194,13 @@ restore_first_candidate_flags:
 
 compare_candidate_text:
                 call     init_text_cmp
-                mov      al,ds:[first_comment_state]
+                mov      al,ds:[noncomment_text_seen]
                 or       al,al
-                je       check_candidate_case_mode
+                je       check_candidate_comment_mode
                 jmpn     test_candidate_line_match
 
-check_candidate_case_mode:
-                mov      al,ds:[ignore_case]
+check_candidate_comment_mode:
+                mov      al,ds:[compare_comments]
                 or       al,al
                 jne      test_candidate_line_match
                 jmpn     reset_candidate_match_count
@@ -1799,7 +1799,7 @@ output_input_callback_return:
                 call     output_char
                 jmp      short invoke_output_input_callback
 
-; Obtain the next primary text character and apply source/case normalization.
+; Obtain the next primary text character and apply source normalization.
 next_first_char:
                 call     first_pos_remaining
                 je       mark_first_text_end
@@ -1890,7 +1890,7 @@ save_first_normalized_char:
 return_first_character:
                 ret      
 
-; Obtain the next secondary text character and apply source/case normalization.
+; Obtain the next secondary text character and apply source normalization.
 next_second_char:
                 call     second_pos_remaining
                 je       mark_second_text_end
@@ -2177,7 +2177,7 @@ switch_dispatch_table                   label   byte
                 db       "B"
                 dw       offset set_binary_switch
                 db       "C"
-                dw       offset set_case_switch
+                dw       offset set_comments_switch
                 db       "S"
                 dw       offset set_source_switch
 
@@ -2475,8 +2475,8 @@ set_binary_switch:
                 mov      byte ptr ds:[binary_cmp],1
                 ret      
 
-set_case_switch:
-                mov      byte ptr ds:[ignore_case],1
+set_comments_switch:
+                mov      byte ptr ds:[compare_comments],1
 
 set_source_switch:
                 mov      byte ptr ds:[source_cmp],1
@@ -2650,7 +2650,7 @@ fname_invalid                           label   byte
 fname_delimiter                         label   byte
                 db       0h
 
-first_is_file                           label   byte
+first_is_console                           label   byte
                 db       0h
 
 second_device_state                     label   byte
@@ -3237,7 +3237,7 @@ open_first:
                 push     bx
                 mov      bx,200h
                 mov      word ptr ds:[first_buffer_pos],bx
-                mov      al,ds:[first_is_file]
+                mov      al,ds:[first_is_console]
                 or       al,al
                 jne      create_output_rest_2
                 mov      bx,offset first_fcb
@@ -3279,7 +3279,7 @@ close_second:
 close_first:
                 lahf     
                 push     ax
-                mov      al,ds:[first_is_file]
+                mov      al,ds:[first_is_console]
                 or       al,al
                 jne      close_first_save
                 jmpn     close_first_rest_2
@@ -3495,7 +3495,7 @@ read_first_byte:
                 push     bx
                 push     dx
                 mov      bx,word ptr ds:[first_buffer_pos]
-                mov      al,ds:[first_is_file]
+                mov      al,ds:[first_is_console]
                 or       al,al
                 jne      read_first_byte_load
                 jmpn     read_first_byte_load_3
@@ -3621,23 +3621,23 @@ init_text_cmp:
                 mov      byte ptr ds:[first_text_end],al
                 mov      byte ptr ds:[second_text_end],al
                 mov      byte ptr ds:[first_char],al
-                mov      byte ptr ds:[first_comment_state],al
-                mov      byte ptr ds:[second_comment_state],al
+                mov      byte ptr ds:[noncomment_text_seen],al
+                mov      byte ptr ds:[comment_prefix_checked],al
                 inc      al
                 mov      byte ptr ds:[line_match_state],al
 
 init_text_cmp_next:
                 call     next_first_char
                 call     next_second_char
-                mov      al,ds:[second_comment_state]
+                mov      al,ds:[comment_prefix_checked]
                 or       al,al
                 je       init_text_cmp_advance
                 jmpn     init_text_cmp_load_3
 
 init_text_cmp_advance:
                 inc      al
-                mov      byte ptr ds:[second_comment_state],al
-                mov      al,ds:[ignore_case]
+                mov      byte ptr ds:[comment_prefix_checked],al
+                mov      al,ds:[compare_comments]
                 or       al,al
                 je       init_text_cmp_load
                 jmpn     init_text_cmp_load_3
@@ -3667,7 +3667,7 @@ init_text_cmp_load_4:
                 ret      
 
 init_text_cmp_load_5:
-                mov      al,ds:[ignore_case]
+                mov      al,ds:[compare_comments]
                 or       al,al
                 je       init_text_cmp_load_6
                 jmpn     init_text_cmp_sub_3
@@ -3688,7 +3688,7 @@ init_text_cmp_load_7:
                 jmpn     init_text_cmp_load_10
 
 init_text_cmp_load_8:
-                mov      al,ds:[ignore_case]
+                mov      al,ds:[compare_comments]
                 or       al,al
                 je       init_text_cmp_load_9
                 jmpn     init_text_cmp_sub_3
@@ -3738,7 +3738,7 @@ init_text_cmp_sub_2:
 
 init_text_cmp_next_3:
                 call     increment_word
-                mov      al,ds:[ignore_case]
+                mov      al,ds:[compare_comments]
                 or       al,al
                 je       init_text_cmp_load_12
                 jmpn     init_text_cmp_next
@@ -3751,13 +3751,13 @@ init_text_cmp_load_12:
 
 init_text_cmp_load_13:
                 mov      al,1
-                mov      byte ptr ds:[first_comment_state],al
+                mov      byte ptr ds:[noncomment_text_seen],al
                 jmpn     init_text_cmp_next
 
 init_text_cmp_sub_3:
                 sub      al,al
                 mov      byte ptr ds:[line_match_state],al
-                mov      al,ds:[ignore_case]
+                mov      al,ds:[compare_comments]
                 or       al,al
                 je       init_text_cmp_load_14
                 jmpn     init_text_cmp_load_17
@@ -3776,7 +3776,7 @@ init_text_cmp_load_15:
 
 init_text_cmp_load_16:
                 mov      al,1
-                mov      byte ptr ds:[first_comment_state],al
+                mov      byte ptr ds:[noncomment_text_seen],al
 
 init_text_cmp_load_17:
                 mov      al,ds:[first_line_pending]
@@ -4165,11 +4165,11 @@ required_matching_lines                 label   byte
 matching_lines_left                     label   byte
                 db       0h
 
-; /S is initially enabled; /C enables it while setting ignore_case.
+; /S is initially enabled; /C also enables it and includes comments.
 source_cmp                              label   byte
                 db       0FFh
 
-ignore_case                             label   byte
+compare_comments                             label   byte
                 db       0h
 
 binary_cmp                              label   byte
@@ -4195,10 +4195,10 @@ diffs_seen                              label   byte
 saved_line_end                          label   word
                 dw       0h
 
-first_comment_state                     label   byte
+noncomment_text_seen                     label   byte
                 db       0h
 
-second_comment_state                    label   byte
+comment_prefix_checked                    label   byte
                 db       0h
 
 first_diff_heading                      label   byte

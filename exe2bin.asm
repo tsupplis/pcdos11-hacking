@@ -13,7 +13,7 @@
 ; The data frame overlaps the final ten code bytes within that paragraph.
 ; Header size declares 1228 bytes; 52 final zero bytes are retained as overlay.
 ; All MZ header words, both relocation entries and padding are explicit.
-; Byte identity is verified; DOS execution behavior needs separate testing.
+; Byte identity and representative DOS-emulator conversions are verified.
 ; *-------------------------------------------------------------------------
 
 program         segment
