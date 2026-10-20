@@ -743,7 +743,10 @@ banner_text                             label   byte
 banner_return:
                 ret      
 
-; Search buffered lines for the requested run of matches after a difference.
+; Compare the current text lines, then search ahead when they differ.
+; Paired position/count windows retain candidates without rereading the files.
+; A candidate must match required_matching_lines consecutive lines before the
+; caller can report the skipped text and resume at a common position.
 resync_lines:
                 sub      al,al
                 mov      byte ptr ds:[resync_result],al
@@ -1091,7 +1094,9 @@ first_search_exhausted                  label   byte
 second_search_exhausted                 label   byte
                 db       0h
 
-; Try candidate line pairs while saving positions needed to undo a failed search.
+; Try candidate pairs from both line windows, extending the look-ahead search.
+; Save each trial position so a failed candidate can be undone. On a match,
+; retain the selected positions; on exhaustion, let the caller refill/advance.
 search_matching_lines:
                 call     save_search_poss
                 mov      al,5
@@ -1343,6 +1348,8 @@ return_search_status:
                 ret      
 
 ; Save line-window positions on the stack beneath the caller return address.
+; The restore routines deliberately discard some slots and restore others: this
+; preserves the selected search position on one side while unwinding the trial.
 save_search_poss:
                 pop      dx
                 mov      bx,word ptr ds:[first_line_numbers]
@@ -3610,7 +3617,11 @@ report_disk_full_load:
 report_disk_full_resume:
                 jmpn     output_write_error
 
-; Initialize text state and split available memory into two circular buffers.
+; Compare normalized characters from the two current buffered lines.
+; Reset per-line flags, skip source whitespace, and handle semicolon comments
+; according to compare_comments. line_match_state starts at 1 and is cleared
+; on a difference; consume the rest of both lines before returning.
+; Buffer allocation happens earlier in cmp_files, not in this routine.
 init_text_cmp:
                 mov      bx,0
                 mov      word ptr ds:[first_line_numbers],bx
@@ -3864,6 +3875,9 @@ rest_cmp_chars:
                 ret      
 
 ; Save both normalized characters and arrange their restoration with a synthetic return.
+; Stack order is saved first character/flags, saved second character/flags,
+; rest_cmp_chars, then the original caller continuation. The caller therefore
+; continues first; its eventual RET restores the saved characters and flags.
 save_cmp_chars:
                 pop      dx
                 mov      al,ds:[first_char]
@@ -3881,7 +3895,9 @@ save_cmp_chars:
                 push     dx
                 ret      
 
-; Shift the line window according to the required resynchronization match count.
+; Shift both arrays of a position/count window to retain recent candidates.
+; Copy backwards so overlapping entries survive; required_matching_lines
+; determines the retained span. The descriptor supplies the two array pointers.
 shift_line_window:
                 push     dx
                 push     cx

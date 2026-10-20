@@ -460,10 +460,11 @@ empty.img:
 #-------------------------------------------------------------------------
 
 .PHONY: utilities check-utilities check-format-boot check-utility-maps inject-format-boot check-exe2bin check-utility-runtime
-utilities: 
+utilities: diskcopy.com diskcomp.com chkdsk.com mode.com comp.com filcom.com \
+	exe2bin.exe ibmfmt.com msfmt.com ibmedlin.com msedlin.com
 
 check-utilities: utilities check-format-boot check-utility-maps check-exe2bin check-utility-runtime
-	cmp reference/diskcopy.com diskcopy.com
+	cmp reference/chkdsk.com chkdsk.com
 	cmp reference/diskcopy.com diskcopy.com
 	cmp reference/diskcomp.com diskcomp.com
 	cmp reference/edlin.com ibmedlin.com
