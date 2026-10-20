@@ -92,3 +92,6 @@ format-injected.com
 /exe2bin.exe
 /exbimage.exe
 /exbtest.bin
+
+/ibmboot.bin
+/ibmboot.exe

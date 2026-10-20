@@ -1,8 +1,2 @@
-; IBM FORMAT boot-sector configuration; build: make fmtboot.bin.
-FALSE   EQU     0
-TRUE    EQU     NOT FALSE
-
-MSVER   EQU     FALSE
-IBMVER  EQU     TRUE
-
-        include bootsect.asm
+; Compatibility wrapper; IBM configuration is in ibmboot.asm.
+        include ibmboot.asm

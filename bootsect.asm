@@ -1,4 +1,4 @@
-; Shared standalone boot-sector assembly; fmtboot.asm / msboot.asm select names.
+; Shared standalone boot-sector assembly; ibmboot.asm / msboot.asm select names.
 program segment
         assume cs:program, ds:program
         org 0
