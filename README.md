@@ -78,15 +78,15 @@ IBM and Microsoft FORMAT share one implementation selected by their wrappers.
 
 | Binary | Source | Description |
 |--------|--------|-------------|
-| `ibmedlin.com` | [ibmedlin.asm](ibmedlin.asm), [edlin101.asm](edlin101.asm) | Byte-exact IBM Personal Computer EDITOR (EDLIN), Version 1.00 |
-| `msedlin.com`  | [msedlin.asm](msedlin.asm), [edlin102.asm](edlin102.asm) | Byte-exact Microsoft EDLIN, Version 1.02 |
+| `ibmedlin.com` | [ibmedlin.asm](ibmedlin.asm), [edlin101.asm](edlin101.asm) | IBM Personal Computer EDITOR (EDLIN), Version 1.00 |
+| `msedlin.com`  | [msedlin.asm](msedlin.asm), [edlin102.asm](edlin102.asm) | Microsoft EDLIN, Version 1.02 |
 | `diskcopy.com` | [diskcopy.asm](diskcopy.asm) | Diskette copying, including single-drive swaps and target formatting |
 | `diskcomp.com` | [diskcomp.asm](diskcomp.asm) | Diskette comparison with buffered reads and geometry detection |
 | `chkdsk.com` | [chkdsk.asm](chkdsk.asm) | Disk allocation and FAT12 consistency checks |
 | `comp.com` | [comp.asm](comp.asm) | IBM file comparison utility |
 | `mode.com` | [mode.asm](mode.asm) | Display, printer, serial-port configuration and printer redirection |
-| `ibmfmt.com` | [ibmfmt.asm](ibmfmt.asm), [format.asm](format.asm), [fmtboot.inc](fmtboot.inc) | IBM FORMAT; rebuilt output corresponds to `reference/format.com` |
-| `msfmt.com` | [msfmt.asm](msfmt.asm), [format.asm](format.asm), [fmtboot.inc](fmtboot.inc) | Microsoft FORMAT; rebuilt output corresponds to `reference/msformat.com` |
+| `ibmfmt.com` | [ibmfmt.asm](ibmfmt.asm), [format.asm](format.asm), [fmtboot.inc](fmtboot.inc) | IBM format; rebuilt output corresponds to `reference/format.com` |
+| `msfmt.com` | [msfmt.asm](msfmt.asm), [format.asm](format.asm), [fmtboot.inc](fmtboot.inc) | Microsoft format; rebuilt output corresponds to `reference/msformat.com` |
 | `filcom.com` | [filcom.asm](filcom.asm) | Microsoft binary/text comparison with line resynchronization |
 | `exe2bin.exe` | [exe2bin.asm](exe2bin.asm) | EXE-to-binary converter, preserving the complete original MZ header, relocations and trailing bytes |
 
