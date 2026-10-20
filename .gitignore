@@ -97,3 +97,6 @@ format-injected.com
 # DEBUG reconstruction outputs
 /debug.com
 /debug.exe
+
+# Required verified instruction boundaries for source-map audits.
+!/mappings/*.tsv

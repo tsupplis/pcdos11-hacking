@@ -104,6 +104,7 @@ segment, origin and encoding macros before including `fmtboot.inc`.
 
 Run `make -B check-utilities` to rebuild and compare the utilities and boot sectors.
 Exact byte coverage and source locations are recorded in [mappings/](mappings/).
+These tables retain verified instruction boundaries and are inputs to the audits.
 [tools/utility_smoke.py](tools/utility_smoke.py) also compares original and rebuilt
 FILCOM/EXE2BIN output on representative emulator cases.
 [tools/debug_smoke.py](tools/debug_smoke.py) checks DEBUG commands, G/T execution,
@@ -217,7 +218,7 @@ Original DOS utility baselines are kept separately in `reference/`.
 |-------|-------|
 | Build chain | `masm.exe` (IBM Personal Computer MACRO Assembler, Version 2.00; PC-DOS), `msmasm.exe` (Microsoft MACRO Assembler, Version 1.10, patched; used for the build and on MS-DOS images), `link.exe` (IBM Personal Computer Linker, Version 1.10; PC-DOS), `mslink.exe` (Microsoft Object Linker, Version 1.10; MS-DOS), `lib.exe` (Microsoft Library Manager, Version 2.00; PC-DOS), `mslib.exe` (Microsoft Librarian, Version 2.00; MS-DOS), `cref.exe` (Microsoft Cross Reference, Version 1.00; PC-DOS), `mscref.exe` (Microsoft Cross Reference, Version 1.00; MS-DOS), `exe2bin.exe` (bootstrap copy; the rebuilt output is listed above) |
 | Bootstrap tools | `asm.com`, `hex2bin.com`, `trans.com` |
-| Original utility references (`reference/`) | `chkdsk.com`, `comp.com`, `diskcomp.com`, `diskcopy.com`, `edlin.com`, `msedlin.com`, `exe2bin.exe`, `filcom.com`, `format.com`, `msformat.com`, `mode.com` (byte-exact rebuild baselines), and `debug.com` (byte-exact rebuild baseline) |
+| Original utility references (`reference/`) | `chkdsk.com`, `comp.com`, `diskcomp.com`, `diskcopy.com`, `edlin.com`, `msedlin.com`, `exe2bin.exe`, `filcom.com`, `format.com`, `msformat.com`, `mode.com`, `debug.com` (byte-exact rebuild baselines) |
 | BASIC | `basic.com`, `basica.com` (IBM BASIC/BASICA, Version A1.10; require an IBM PC with the BASIC ROM, e.g. `rom/ibm-basic-1.10.rom`; PC-DOS images only), `msbasic.com` (Microsoft BASIC, Version 5.50, [Reconstructed from Microsoft Sources](https://github.com/tsupplis/cpm86-msbasic)), `gwbasic.exe` (GW-BASIC, Version 1.14; MS-DOS images only) |
 
 ### Emulation
