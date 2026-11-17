@@ -289,7 +289,11 @@ TAB:
 ;address of command. PERR prints error for no such command.
 
 COMTAB:
+	IF BOOTMON
+	DW	handoff		;B - wrapper boots DOS directly
+	ELSE
 	DW	BOOT		;B - reboot (INT 19h)
+	ENDIF
 	DW	PERR		;C
 	DW	DUMP		;D
 	DW	ENTER		;E
@@ -304,7 +308,11 @@ COMTAB:
 	DW	PERR		;N
 	DW	OUTPUT		;O
 	DW	PERR		;P
+	IF BOOTMON
+	DW	PERR		;Q - unavailable before DOS
+	ELSE
 	DW	QUIT		;Q - quit to DOS
+	ENDIF
 	DW	REG		;R
 	DW	SEARCH		;S
 	DW	TRACE		;T
@@ -1208,11 +1216,21 @@ FLAGTAB:
 	DW	0
 	DB	"NC"
 
-HEADER:	DB	13,10,10,"SCP 8086 Monitor 1.9  (? for help)",13,8AH
+	IF BOOTMON
+HEADER:	DB	13,10,10,"SCP 8086 Boot Monitor 1.9  (? for help, B for DOS)",13,8AH
+	ELSE
+HEADER:	DB	13,10,10,"SCP 8086 DOS Monitor 1.9  (? for help)",13,8AH
+	ENDIF
+	IFE BOOTMON
 BYEMES:	DB	13,10,"Returning to DOS...",13,8AH
+	ENDIF
 HELMES:
 	DB	13,10,"Commands (addresses and values in hex):",13,10
+	IF BOOTMON
+	DB	"  B                      Boot DOS",13,10
+	ELSE
 	DB	"  B                      Reboot (INT 19h)",13,10
+	ENDIF
 	DB	"  D [addr] [Llen|end]    Dump memory (hex+ASCII)",13,10
 	DB	"  E addr [bytes]         Enter/edit memory",13,10
 	DB	"  F addr Llen|end bytes  Fill memory",13,10
@@ -1220,7 +1238,9 @@ HELMES:
 	DB	"  I port                 Input byte from port",13,10
 	DB	"  M src Llen|end dst     Move (block copy)",13,10
 	DB	"  O port byte            Output byte to port",13,10
+	IFE BOOTMON
 	DB	"  Q                      Quit to DOS",13,10
+	ENDIF
 	DB	"  R [reg]                Show/set registers or flags (R F)",13,10
 	DB	"  S addr Llen|end bytes  Search memory",13,10
 	DB	"  T [count]              Trace (single-step)",13,10
@@ -1239,6 +1259,7 @@ HELP:
 
 ;Reboot — fire BIOS bootstrap loader (INT 19h)
 
+	IFE BOOTMON
 BOOT:
 	INT	19H		;BIOS bootstrap: reboot from first drive
 	RET			;Should never return
@@ -1267,3 +1288,4 @@ QUIT:
 	MOV	SI,OFFSET BYEMES
 	CALL	PRINTMES
 	INT	20H			;Terminate — return to DOS
+	ENDIF

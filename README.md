@@ -6,22 +6,24 @@ Original MS-DOS and CP/M-86 were barely more than program launchers as kernels b
 
 ## Screenshots
 
-Both flavours booting under PCE/ibmpc, with the added `ver.com` command and the extended disk content:
+DOS and the boot-time monitor running under PCE/ibmpc:
 
-<table>
-<tr>
-<td align="center"><img src="images/pcdos.png" alt="IBM PC-DOS 1.10C boot and directory listing" width="100%"></td>
-<td align="center"><img src="images/msdos.png" alt="Microsoft DOS 1.25C boot and directory listing" width="100%"></td>
-</tr>
-<tr>
-<td align="center"><b>IBM PC-DOS 1.10C</b> (<code>pcdos_full.img</code>)</td>
-<td align="center"><b>Microsoft DOS 1.25C</b> (<code>msdos_full.img</code>)</td>
-</tr>
-</table>
+<p align="center">
+<img src="images/msdos.png" alt="Microsoft DOS boot and directory listing" width="48%">
+<img src="images/pcdos.png" alt="IBM PC-DOS boot and directory listing" width="48%">
+<br><sub>Microsoft DOS 1.25C &nbsp;·&nbsp; IBM PC-DOS 1.10C</sub><br>
+<img src="images/mon.png" alt="SCP 8086 boot-time monitor" width="48%">
+<br><sub>SCP 8086 Monitor 1.9</sub>
+</p>
 
 As an example of applications running on PC-DOS 1.10 `vi`-like editor running on PC-DOS 1.1 (you can find the sources and binaries at ([CP/M-86 and PC-DOS 1.1 vi](https://github.com/tsupplis/cpm86-vi)). It is a port of STevie. A Screen editor is one of the missing parts of those old OSes. You can use the aztec 4.2 c compiler part of ([CP/M-86 and PC-DOS 1.1 cross development](https://github.com/tsupplis/cpm86-crossdev)) to develop, port applications to both CP/M-86 and PC-DOS 1.10 in C, Pascal or Assembler. vi.com is included in the demos.img disk image.
 
-![vi-like editor editing assembly source](images/editor.png)
+<table>
+<tr>
+<td align="center" width="50%"><img src="images/msbasic.png" alt="Microsoft BASIC running under DOS" width="100%"><br><sub>Microsoft BASIC</sub></td>
+<td align="center" width="50%"><img src="images/editor.png" alt="vi-like editor editing assembly source" width="100%"><br><sub>vi-like editor</sub></td>
+</tr>
+</table>
 
 ## Distribution Content
 
@@ -35,11 +37,11 @@ plus `turbo.img` and `demos.img`. The DOS variants build on top of `*_base.img`.
 | `pcdos_base.img` | PC-DOS | `ibmbio.com`, `ibmdos.com`, `command.com` only (minimal bootable system) |
 | `pcdos_dist.img` | PC-DOS | Base + PC-DOS distribution utilities (rebuilt where available) and IBM BASIC samples |
 | `pcdos_full.img` | PC-DOS | Base + distribution utilities, IBM assembler tools, IBM/Microsoft BASIC, SCP tools and `mem.com` |
-| `pcdos_diag.img` | PC-DOS | Base + diagnostic utilities, including rebuilt CHKDSK/FORMAT/SYS/EDLIN and DEBUG |
+| `pcdos_diag.img` | PC-DOS | Boot-time monitor + diagnostic utilities, including rebuilt CHKDSK/FORMAT/SYS/EDLIN and DEBUG |
 | `msdos_base.img` | MS-DOS | `io.sys`, `msdos.sys`, `command.com` only |
 | `msdos_dist.img` | MS-DOS | Base + the MS-DOS 1.25 style tool set and the SCP tools (`asm.com`, `hex2bin.com`, `trans.com`) |
 | `msdos_full.img` | MS-DOS | Base + distribution utilities, Microsoft assembler tools, GW-BASIC, SCP tools and diagnostic helpers |
-| `msdos_diag.img` | MS-DOS | Base + the small diagnostic set |
+| `msdos_diag.img` | MS-DOS | Boot-time monitor + the small diagnostic set |
 | `turbo.img` | - | Turbo Pascal 1.00A files on a formatted data disk (see [Turbo Pascal](#turbo-pascal)) |
 | `demos.img` | - | Small demo programs (msbasic, vi, mem, ballc, hello80.asm, graph.bas...) |
 
@@ -162,14 +164,12 @@ mistaking relocated high-resident code for free memory.
 | `graph.bas` | [graph.bas](samples/graph.bas) | BASICA demo plotting `f(x) = cosine(x)` in `SCREEN 2` (640x200), with arrowed axes (`demos.img`) |
 | `ball.bas`, `ballc.com` | [ball.bas](samples/ball.bas), [ballc.asm](ballc.asm) | BASICA and MASM ports of the [cpm86-hacking](https://github.com/tsupplis/cpm86-hacking) `ball.c` bouncing-ball demo, 320x200 4-color CGA (`demos.img`) |
 
+
+
 <table>
 <tr>
-<td align="center"><img src="images/cosine.png" alt="graph.bas plotting f(x) = cosine(x)" width="100%"></td>
-<td align="center"><img src="images/ballc.png" alt="ballc bouncing ball demo" width="100%"></td>
-</tr>
-<tr>
-<td align="center"><b>graph.bas</b></td>
-<td align="center"><b>ballc.bas / ballc.com</b></td>
+<td align="center" width="50%"><img src="images/cosine.png" alt="graph.bas plotting cosine" width="100%"><br><sub>graph.bas</sub></td>
+<td align="center" width="50%"><img src="images/ballc.png" alt="Bouncing-ball demo" width="100%"><br><sub>ballc.bas / ballc.com</sub></td>
 </tr>
 </table>
 
@@ -208,11 +208,46 @@ All addresses and values are hexadecimal. Ranges can use an end address or `L`+l
 `G` and `T` use the 8086 trap flag (INT 1) and INT 3 breakpoints; vectors are saved on entry and
 restored on `Q`.
 
+### Boot-time monitor
+
+`make pcdos_diag.img msdos_diag.img` builds the diagnostic disks with the boot-time monitor and DOS utilities. The wrappers select `BOOTMON=0` for DOS and `BOOTMON=1` for boot-time use;
+the DOS monitor retains its existing behaviour and binary layout.
+
+| Source | Output | Role |
+|--------|--------|------|
+| `monboot.asm` | `monboot.bin` | 512-byte first-stage loader for 320 KB drive A: |
+| `monwrap.asm` + `mon.asm` | `monitor.bin` | Boot environment, shared monitor source, and DOS handoff |
+| `Makefile` | `pcdos_diag.img`, `msdos_diag.img` | Allocates `MONITOR.BIN`, preserves the DOS sector, and installs the first stage |
+
+The loader reads the contiguous 8 KiB `MONITOR.BIN` file into physical
+`8000h–9FFFh`. The wrapper enters the monitor with segment registers set to
+zero and a valid stack. Its original DOS boot sector occupies the file's last
+512 bytes. `B` calls the wrapper directly to restore the saved interrupt vectors, copy that
+sector to `0000:7C00`, and start the normal DOS loader. `Q` is hidden from help
+and rejected in this build. No INT 19h/20h interception is needed. DOS may then reclaim
+the monitor's memory; this is a boot-time monitor, not a resident DOS debugger.
+Do not move, replace, or defragment `MONITOR.BIN`: the first-stage loader stores
+its fixed sector location (LBA 624..639). Rebuild the image to update it.
+
+The existing monitor's `G` implementation resumes saved CS:IP and treats its
+arguments as breakpoints. Set `R IP` (and `R CS` if needed) before `G` when
+starting new code. The boot wrapper preserves this behaviour.
+
+Run `make diag` to build `pcdos_diag.img` and start PCE through the `diag`
+launcher and `diag.cfg`, following the existing `pcdos`/`msdos` convention.
+Press `B` at the monitor prompt to start DOS from the same floppy.
+
+The Makefile uses the same `dd`, `mformat`, and mtools image-building tools
+as the other disks. A temporary filler file places `MONITOR.BIN` in the
+last 8 KiB; the filler is then deleted. The saved DOS sector is written
+into its final sector, and the monitor boot sector is installed last.
+
 ### Turbo Pascal
 
-Turbo Pascal 1.00A starting up on the system:
-
-![Turbo Pascal 1.00A startup](images/turbo.png)
+<p align="center">
+<img src="images/turbo.png" alt="Turbo Pascal startup" width="48%">
+<br><sub>Turbo Pascal 1.00A</sub>
+</p>
 
 `turbo.img` packages the files from `turbo/` on `empty.img`:
 

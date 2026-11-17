@@ -96,3 +96,8 @@ date10.exe
 /empty.img
 /pcdos.img
 /msdos.img
+/monitor.bin
+/monwrap.raw
+/monwrap.exe
+/monboot.bin
+/monboot.exe

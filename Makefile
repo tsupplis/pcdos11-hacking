@@ -1,5 +1,5 @@
 .PHONY: check-parity check-format-boot check-utility-maps inject-format-boot \
-	check-exe2bin check-utility-runtime check-debug check-command-reference check-images all clean test dist
+	check-exe2bin check-utility-runtime check-debug check-command-reference check-images diag all clean test dist
 
 DIST_DISKS=pcdos_full.img pcdos_base.img pcdos_dist.img pcdos_diag.img \
      msdos_full.img msdos_base.img msdos_dist.img msdos_diag.img \
@@ -110,24 +110,37 @@ msdos_dist.img: msdos_base.img $(UTILITIES)
 	dd if=msdos.img of=$@ bs=512 count=1 conv=notrunc
 	mdir -w -i $@ ::
 
-msdos_diag.img: msdos_base.img $(UTILITIES)
+# Allocate MONITOR.BIN in the last 8 KiB; delete the temporary filler afterwards.
+msdos_diag.img: msdos_base.img empty.img monboot.bin monitor.bin \
+    autoexec.bat chkdsk.com msfmt.com mssys.com debug.com dosmon.com msedlin.com mem.com ver.com pce/pceinit.com pce/pceexit.com
 	cp msdos_base.img $@
-	# Temporarily install the BPB for mtools, preserving the rest of the image.
+	# Install the BPB while mtools updates both FAT copies.
 	dd if=empty.img of=$@ bs=512 count=1 conv=notrunc
+	@set -e; pad=$$(mktemp); trap 'rm -f "$$pad"' EXIT HUP INT TERM; \
+	bio=$$(wc -c < ibmbio.com); dos=$$(wc -c < msdos.com); cmd=$$(wc -c < mscmd.com); \
+	clusters=$$((307 - (bio+1023)/1024 - (dos+1023)/1024 - (cmd+1023)/1024)); \
+	test $$clusters -gt 0; \
+	dd if=/dev/zero of="$$pad" bs=1024 count=$$clusters; \
+	mcopy -i $@ "$$pad" ::MONPAD.BIN; \
+	mcopy -i $@ monitor.bin ::MONITOR.BIN; \
+	mdel -i $@ ::MONPAD.BIN
 	mcopy  -i $@ autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ chkdsk.com ::CHKDSK.COM
 	mcopy  -i $@ msfmt.com ::FORMAT.COM
 	mcopy  -i $@ mssys.com ::SYS.COM
 	mcopy  -i $@ debug.com ::DEBUG.COM
-	mcopy  -i $@ mon.com ::MON.COM
+	mcopy  -i $@ dosmon.com ::DOSMON.COM
 	mcopy  -i $@ msedlin.com ::EDLIN.COM
 	mcopy  -i $@ mem.com ::MEM.COM
 	mcopy  -i $@ ver.com ::VER.COM
 	mcopy  -i $@ pce/pceinit.com ::PCEINIT.COM
 	mcopy  -i $@ pce/pceexit.com ::PCEEXIT.COM
 	mattrib -i $@ -a ::"*.*"
-	# Install only the DOS boot sector, preserving the filesystem and image size.
-	dd if=msdos.img of=$@ bs=512 count=1 conv=notrunc
+	mattrib -i $@ +r +h +s ::MONITOR.BIN
+	# Save the original DOS boot sector in the monitor file's last sector.
+	dd if=msdos.img of=$@ bs=512 count=1 seek=639 conv=notrunc
+	# Install the monitor boot sector without truncating the filesystem.
+	dd if=monboot.bin of=$@ bs=512 count=1 conv=notrunc
 	mdir -w -i $@ ::
 
 msdos_full.img: msdos_base.img $(UTILITIES) $(UPX_UTILITIES)
@@ -196,25 +209,37 @@ pcdos_dist.img: pcdos_base.img $(UTILITIES)
 	dd if=pcdos.img of=$@ bs=512 count=1 conv=notrunc
 	mdir -w -i $@ ::
 
-pcdos_diag.img: pcdos_base.img \
-    ibmedlin.com mon.com mem.com ver.com debug.com chkdsk.com ibmfmt.com ibmsys.com
+# Allocate MONITOR.BIN in the last 8 KiB; delete the temporary filler afterwards.
+pcdos_diag.img: pcdos_base.img empty.img monboot.bin monitor.bin \
+    autoexec.bat chkdsk.com ibmfmt.com ibmsys.com debug.com dosmon.com ibmedlin.com mem.com ver.com pce/pceinit.com pce/pceexit.com
 	cp pcdos_base.img $@
-	# Temporarily install the BPB for mtools, preserving the rest of the image.
+	# Install the BPB while mtools updates both FAT copies.
 	dd if=empty.img of=$@ bs=512 count=1 conv=notrunc
+	@set -e; pad=$$(mktemp); trap 'rm -f "$$pad"' EXIT HUP INT TERM; \
+	bio=$$(wc -c < ibmbio.com); dos=$$(wc -c < ibmdos.com); cmd=$$(wc -c < ibmcmd.com); \
+	clusters=$$((307 - (bio+1023)/1024 - (dos+1023)/1024 - (cmd+1023)/1024)); \
+	test $$clusters -gt 0; \
+	dd if=/dev/zero of="$$pad" bs=1024 count=$$clusters; \
+	mcopy -i $@ "$$pad" ::MONPAD.BIN; \
+	mcopy -i $@ monitor.bin ::MONITOR.BIN; \
+	mdel -i $@ ::MONPAD.BIN
 	mcopy  -i $@ autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ chkdsk.com ::CHKDSK.COM
 	mcopy  -i $@ ibmfmt.com ::FORMAT.COM
 	mcopy  -i $@ ibmsys.com ::SYS.COM
 	mcopy  -i $@ debug.com ::DEBUG.COM
-	mcopy  -i $@ mon.com ::MON.COM
+	mcopy  -i $@ dosmon.com ::DOSMON.COM
 	mcopy  -i $@ ibmedlin.com ::EDLIN.COM
 	mcopy  -i $@ mem.com ::MEM.COM
 	mcopy  -i $@ ver.com ::VER.COM
 	mcopy  -i $@ pce/pceinit.com ::PCEINIT.COM
 	mcopy  -i $@ pce/pceexit.com ::PCEEXIT.COM
 	mattrib -i $@ -a ::"*.*"
-	# Install only the DOS boot sector, preserving the filesystem and image size.
-	dd if=pcdos.img of=$@ bs=512 count=1 conv=notrunc
+	mattrib -i $@ +r +h +s ::MONITOR.BIN
+	# Save the original DOS boot sector in the monitor file's last sector.
+	dd if=pcdos.img of=$@ bs=512 count=1 seek=639 conv=notrunc
+	# Install the monitor boot sector without truncating the filesystem.
+	dd if=monboot.bin of=$@ bs=512 count=1 conv=notrunc
 	mdir -w -i $@ ::
 
 pcdos_full.img: pcdos_base.img $(UTILITIES) $(UPX_UTILITIES) 
@@ -426,14 +451,39 @@ date10.exe: date10.obj
 date10.obj: date10.asm 
 	emu2 bin/msmasm.exe date10,date10,date10,date10 || rm -f date10.obj
 
-mon.com: mon.exe exe2bin.exe
-	emu2 exe2bin.exe mon.exe mon.com
+dosmon.com: dosmon.exe exe2bin.exe
+	emu2 exe2bin.exe dosmon.exe dosmon.com
 
-mon.exe: mon.obj
-	emu2 bin/link.exe mon,mon,mon,mon,
+dosmon.exe: dosmon.obj
+	emu2 bin/link.exe dosmon,dosmon,dosmon,dosmon,
 
-mon.obj: dosmon.asm mon.asm
-	emu2 bin/msmasm.exe dosmon,mon,mon,mon || rm -f mon.obj
+dosmon.obj: dosmon.asm mon.asm
+	emu2 bin/msmasm.exe dosmon,dosmon,dosmon,dosmon || rm -f dosmon.obj
+
+dosmon.obj: dosmon.asm mon.asm
+	emu2 bin/msmasm.exe dosmon,dosmon,dosmon,dosmon || rm -f dosmon.obj
+
+# Boot wrapper uses absolute offsets at 8000h; remove EXE2BIN's origin padding.
+monitor.bin: monitor.raw
+	dd if=monitor.raw of=monitor.bin bs=32768 skip=1
+
+monitor.raw: monitor.exe
+	emu2 bin/exe2bin.exe monitor.exe monitor.raw
+
+monitor.exe: monitor.obj
+	emu2 bin/link.exe monitor,monitor,monitor,monitor,
+
+monitor.obj: monitor.asm mon.asm
+	emu2 bin/msmasm.exe monitor,monitor,monitor,monitor || rm -f monitor.obj
+
+monboot.bin: monboot.exe
+	emu2 bin/exe2bin.exe monboot.exe monboot.bin
+
+monboot.exe: monboot.obj
+	emu2 bin/link.exe monboot,monboot,monboot,monboot,
+
+monboot.obj: monboot.asm
+	emu2 bin/msmasm.exe monboot,monboot,monboot,monboot || rm -f monboot.obj
 
 ibmedlin.com: ibmedlin.exe exe2bin.exe
 	emu2 exe2bin.exe ibmedlin.exe ibmedlin.com
@@ -674,6 +724,7 @@ inject-format-boot: ibmfmt.com
 	python3 tools/format_boot.py inject ibmfmt.com "$(BOOT_IMAGE)" --output format-injected.com
 
 clean:
+	rm -f monboot.bin monitor.bin monitor.raw
 	rm -f $(UTILITIES) $(BOOT) $(CORE)
 	rm -f *.com
 	rm -f *.exe
@@ -691,3 +742,6 @@ pcdos: all
 
 msdos: all
 	./msdos
+
+diag: pcdos_diag.img
+	./diag
