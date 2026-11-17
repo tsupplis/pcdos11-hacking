@@ -91,3 +91,8 @@ date10.exe
 /hello.asm
 /upx/**
 
+
+# Generated floppy templates
+/empty.img
+/pcdos.img
+/msdos.img

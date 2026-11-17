@@ -43,8 +43,17 @@ plus `turbo.img` and `demos.img`. The DOS variants build on top of `*_base.img`.
 | `turbo.img` | - | Turbo Pascal 1.00A files on a formatted data disk (see [Turbo Pascal](#turbo-pascal)) |
 | `demos.img` | - | Small demo programs (msbasic, vi, mem, ballc, hello80.asm, graph.bas...) |
 
-Master (pre-formatted, empty file system) images live in `disks/`: `pcdos.img`, `msdos.img`
-and `blank.img`.
+Empty 320 KB floppy templates are generated from scratch with `dd` and
+`mformat -i`: `empty.img` is a formatted data disk; `pcdos.img` and `msdos.img`
+use the rebuilt IBM and Microsoft boot sectors respectively. The build patches
+those sectors for double-sided media, then installs the system files in boot
+order when producing the base images. No master disk images are required.
+During population the build temporarily uses the mformat BPB, so mtools updates
+both FAT copies; the historical boot sector is restored after copying files.
+`make check-images` checks the templates and both base images for geometry,
+boot-sector bytes, directory order, FAT chains, and system-file contents.
+All generated templates and distribution images are ignored by Git and removed
+by `make clean`. Run `make pcdos.img msdos.img empty.img` to build just the templates.
 
 ### Rebuilt System Components
 
@@ -205,7 +214,7 @@ Turbo Pascal 1.00A starting up on the system:
 
 ![Turbo Pascal 1.00A startup](images/turbo.png)
 
-`turbo.img` packages the files from `turbo/` on `disks/formatted.img`:
+`turbo.img` packages the files from `turbo/` on `empty.img`:
 
 | Files | Description |
 |-------|-------------|

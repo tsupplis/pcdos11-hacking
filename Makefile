@@ -1,5 +1,5 @@
 .PHONY: check-parity check-format-boot check-utility-maps inject-format-boot \
-	check-exe2bin check-utility-runtime check-debug check-command-reference all clean test dist
+	check-exe2bin check-utility-runtime check-debug check-command-reference check-images all clean test dist
 
 DIST_DISKS=pcdos_full.img pcdos_base.img pcdos_dist.img pcdos_diag.img \
      msdos_full.img msdos_base.img msdos_dist.img msdos_diag.img \
@@ -29,32 +29,65 @@ disks.zip: $(DIST_DISKS) LICENSE.md
 #  Images
 #-------------------------------------------------------------------------
 
-msdos_base.img: disks/msdos.img $(CORE)
-	cp disks/msdos.img $@
-	mattrib -i $@ -h -s ::COMMAND.COM ::MSDOS.SYS ::IO.SYS
-	mdel -i $@ ::COMMAND.COM ::MSDOS.SYS ::IO.SYS
+# DOS 1.1 320 KiB: 40 cylinders, 2 heads, 8 sectors/track; 112 root
+# entries, two 1-sector FATs, 2-sector clusters, media FFh. No volume label:
+# the boot loader requires the system files in the first two root entries.
+# Populate DOS images with the mformat BPB temporarily installed: without a
+# BPB, mtools updates only FAT 1. Restore the historical boot sector last.
+empty.img: Makefile
+	# Create a zero-filled 320 KiB image (640 sectors of 512 bytes).
+	dd if=/dev/zero of=$@ bs=512 count=640
+	# Format the existing image as DOS 1.1 FAT12 with the explicit geometry above.
+	mformat -i $@ -t 40 -h 2 -s 8 -c 2 -r 7 -L 1 -R 1 -d 2 -m 255 -N 0 ::
+
+# Install the historical sector after mformat so its BPB cannot overwrite
+# the DOS 1.x loader. Patch the start word exactly as FORMAT does for 2 heads.
+pcdos.img: empty.img ibmboot.bin
+	cp empty.img $@
+	# Install only the DOS boot sector, preserving the filesystem and image size.
+	dd if=ibmboot.bin of=$@ bs=512 count=1 conv=notrunc
+	# Write octal bytes 003,001 at offset 3: loader word 0103h for double-sided media.
+	printf '\003\001' | dd of=$@ bs=1 seek=3 conv=notrunc
+
+msdos.img: empty.img msboot.bin
+	cp empty.img $@
+	# Install only the DOS boot sector, preserving the filesystem and image size.
+	dd if=msboot.bin of=$@ bs=512 count=1 conv=notrunc
+	# Write octal bytes 003,001 at offset 3: loader word 0103h for double-sided media.
+	printf '\003\001' | dd of=$@ bs=1 seek=3 conv=notrunc
+
+msdos_base.img: msdos.img $(CORE)
+	cp msdos.img $@
+	# Temporarily install the BPB for mtools, preserving the rest of the image.
+	dd if=empty.img of=$@ bs=512 count=1 conv=notrunc
 	mcopy  -i $@ ibmbio.com ::IO.SYS
 	mcopy  -i $@ msdos.com ::MSDOS.SYS
 	mcopy  -i $@ mscmd.com ::COMMAND.COM
 	mattrib -i $@ -a ::"*.*"
 	mattrib -i $@ +h +s ::MSDOS.SYS
 	mattrib -i $@ +h +s ::IO.SYS
+	# Install only the DOS boot sector, preserving the filesystem and image size.
+	dd if=msdos.img of=$@ bs=512 count=1 conv=notrunc
 	mdir -w -i $@ ::
 
-pcdos_base.img: disks/pcdos.img $(CORE)
-	cp disks/pcdos.img $@
-	mattrib -i $@ -h -s ::COMMAND.COM ::IBMDOS.COM ::IBMBIO.COM
-	mdel -i $@ ::COMMAND.COM ::IBMDOS.COM ::IBMBIO.COM
+pcdos_base.img: pcdos.img $(CORE)
+	cp pcdos.img $@
+	# Temporarily install the BPB for mtools, preserving the rest of the image.
+	dd if=empty.img of=$@ bs=512 count=1 conv=notrunc
 	mcopy  -i $@ ibmbio.com ::IBMBIO.COM
 	mcopy  -i $@ ibmdos.com ::IBMDOS.COM
 	mcopy  -i $@ ibmcmd.com ::COMMAND.COM
 	mattrib -i $@ -a ::"*.*"
 	mattrib -i $@ +h +s ::IBMDOS.COM
 	mattrib -i $@ +h +s ::IBMBIO.COM
+	# Install only the DOS boot sector, preserving the filesystem and image size.
+	dd if=pcdos.img of=$@ bs=512 count=1 conv=notrunc
 	mdir -w -i $@ ::
 
 msdos_dist.img: msdos_base.img $(UTILITIES)
 	cp msdos_base.img $@
+	# Temporarily install the BPB for mtools, preserving the rest of the image.
+	dd if=empty.img of=$@ bs=512 count=1 conv=notrunc
 	mcopy  -i $@ bin/msmasm.exe ::MASM.EXE
 	mcopy  -i $@ bin/mslink.exe ::LINK.EXE
 	mcopy  -i $@ bin/mslib.exe ::LIB.EXE
@@ -73,10 +106,14 @@ msdos_dist.img: msdos_base.img $(UTILITIES)
 	mcopy  -i $@ hex2bin.com ::HEX2BIN.COM
 	mcopy  -i $@ trans.com ::TRANS.COM
 	mattrib -i $@ -a ::"*.*"
+	# Install only the DOS boot sector, preserving the filesystem and image size.
+	dd if=msdos.img of=$@ bs=512 count=1 conv=notrunc
 	mdir -w -i $@ ::
 
 msdos_diag.img: msdos_base.img $(UTILITIES)
 	cp msdos_base.img $@
+	# Temporarily install the BPB for mtools, preserving the rest of the image.
+	dd if=empty.img of=$@ bs=512 count=1 conv=notrunc
 	mcopy  -i $@ autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ chkdsk.com ::CHKDSK.COM
 	mcopy  -i $@ msfmt.com ::FORMAT.COM
@@ -89,10 +126,14 @@ msdos_diag.img: msdos_base.img $(UTILITIES)
 	mcopy  -i $@ pce/pceinit.com ::PCEINIT.COM
 	mcopy  -i $@ pce/pceexit.com ::PCEEXIT.COM
 	mattrib -i $@ -a ::"*.*"
+	# Install only the DOS boot sector, preserving the filesystem and image size.
+	dd if=msdos.img of=$@ bs=512 count=1 conv=notrunc
 	mdir -w -i $@ ::
 
 msdos_full.img: msdos_base.img $(UTILITIES) $(UPX_UTILITIES)
 	cp msdos_base.img $@
+	# Temporarily install the BPB for mtools, preserving the rest of the image.
+	dd if=empty.img of=$@ bs=512 count=1 conv=notrunc
 	mcopy  -i $@ autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/msmasm.exe ::MASM.EXE
 	mcopy  -i $@ bin/mslink.exe ::LINK.EXE
@@ -116,11 +157,15 @@ msdos_full.img: msdos_base.img $(UTILITIES) $(UPX_UTILITIES)
 	mcopy  -i $@ pce/pceinit.com ::PCEINIT.COM
 	mcopy  -i $@ pce/pceexit.com ::PCEEXIT.COM
 	mattrib -i $@ -a ::"*.*"
+	# Install only the DOS boot sector, preserving the filesystem and image size.
+	dd if=msdos.img of=$@ bs=512 count=1 conv=notrunc
 	mdir -w -i $@ ::
 
 
 pcdos_dist.img: pcdos_base.img $(UTILITIES)
 	cp pcdos_base.img $@
+	# Temporarily install the BPB for mtools, preserving the rest of the image.
+	dd if=empty.img of=$@ bs=512 count=1 conv=notrunc
 	mcopy  -i $@ bin/link.exe ::LINK.EXE
 	mcopy  -i $@ reference/basic.com ::BASIC.COM
 	mcopy  -i $@ reference/basica.com ::BASICA.COM
@@ -147,11 +192,15 @@ pcdos_dist.img: pcdos_base.img $(UTILITIES)
 	mcopy  -i $@ samples/samples.bas ::SAMPLES.BAS
 	mcopy  -i $@ samples/space.bas ::SPACE.BAS
 	mattrib -i $@ -a ::"*.*"
+	# Install only the DOS boot sector, preserving the filesystem and image size.
+	dd if=pcdos.img of=$@ bs=512 count=1 conv=notrunc
 	mdir -w -i $@ ::
 
 pcdos_diag.img: pcdos_base.img \
     ibmedlin.com mon.com mem.com ver.com debug.com chkdsk.com ibmfmt.com ibmsys.com
 	cp pcdos_base.img $@
+	# Temporarily install the BPB for mtools, preserving the rest of the image.
+	dd if=empty.img of=$@ bs=512 count=1 conv=notrunc
 	mcopy  -i $@ autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ chkdsk.com ::CHKDSK.COM
 	mcopy  -i $@ ibmfmt.com ::FORMAT.COM
@@ -164,10 +213,14 @@ pcdos_diag.img: pcdos_base.img \
 	mcopy  -i $@ pce/pceinit.com ::PCEINIT.COM
 	mcopy  -i $@ pce/pceexit.com ::PCEEXIT.COM
 	mattrib -i $@ -a ::"*.*"
+	# Install only the DOS boot sector, preserving the filesystem and image size.
+	dd if=pcdos.img of=$@ bs=512 count=1 conv=notrunc
 	mdir -w -i $@ ::
 
 pcdos_full.img: pcdos_base.img $(UTILITIES) $(UPX_UTILITIES) 
 	cp pcdos_base.img $@
+	# Temporarily install the BPB for mtools, preserving the rest of the image.
+	dd if=empty.img of=$@ bs=512 count=1 conv=notrunc
 	mcopy  -i $@ autoexec.bat ::AUTOEXEC.BAT
 	mcopy  -i $@ bin/masm.exe ::MASM.EXE
 	mcopy  -i $@ bin/link.exe ::LINK.EXE
@@ -193,10 +246,12 @@ pcdos_full.img: pcdos_base.img $(UTILITIES) $(UPX_UTILITIES)
 	mcopy  -i $@ pce/pceexit.com ::PCEEXIT.COM
 	mcopy  -i $@ mem.com ::MEM.COM
 	mattrib -i $@ -a ::"*.*"
+	# Install only the DOS boot sector, preserving the filesystem and image size.
+	dd if=pcdos.img of=$@ bs=512 count=1 conv=notrunc
 	mdir -w -i $@ ::
 
-turbo.img: disks/formatted.img
-	cp disks/formatted.img $@
+turbo.img: empty.img
+	cp empty.img $@
 	mcopy  -i $@ turbo/turbo.com ::TURBO.COM
 	mcopy  -i $@ turbo/error.doc ::ERROR.DOC
 	mcopy  -i $@ turbo/turbomsg.ovr ::TURBOMSG.OVR
@@ -210,8 +265,8 @@ turbo.img: disks/formatted.img
 	mattrib -i $@ -a ::"*.*"
 	mdir -w -i $@ ::
 
-demos.img: disks/formatted.img $(UTILITIES) $(UPX_UTILITIES) $(DEMOS)
-	cp disks/formatted.img $@
+demos.img: empty.img $(UTILITIES) $(UPX_UTILITIES) $(DEMOS)
+	cp empty.img $@
 	mcopy  -i $@ samples/graph.bas ::GRAPH.BAS
 	mcopy  -i $@ mshello.bas ::HELLO.BAS
 	mcopy  -i $@ ballc.com ::BALLC.COM
@@ -456,8 +511,6 @@ hex2bin.com: hex2bin.asm
 	emu2 bin/asm.com hex2bin.  z
 	emu2 bin/hex2bin.com hex2bin
 
-empty.img:
-	dd if=/dev/zero of=a.img bs=327680 count=1
 
 mode.com: mode.exe
 	emu2 bin/exe2bin.exe mode.exe mode.com
@@ -607,6 +660,9 @@ check-utility-maps: $(UTILITIES) $(BOOT)
 	python3 tools/asm_byte_map.py --check diskcopy diskcomp chkdsk mode comp filcom \
 		debug exe2bin ibmfmt msfmt ibmboot msboot msedlin ibmedlin mssys ibmsys
 
+check-images: pcdos_base.img msdos_base.img tools/imgcheck.py
+	python3 tools/imgcheck.py
+
 check-format-boot: $(BOOT) tools/format_boot.py
 	python3 tools/format_boot.py check reference/format.com ibmboot.bin
 	python3 tools/format_boot.py check reference/msformat.com msboot.bin
@@ -627,7 +683,7 @@ clean:
 	rm -f *.log
 	rm -f pcdos_*.img empty.img
 	rm -f msdos_*.img
-	rm -f turbo.img demos.img
+	rm -f turbo.img demos.img pcdos.img msdos.img
 	rm -rf upx
 
 pcdos: all
