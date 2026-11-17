@@ -97,7 +97,7 @@ date10.exe
 /pcdos.img
 /msdos.img
 /monitor.bin
-/monwrap.raw
-/monwrap.exe
+/monitor.raw
+/monitor.exe
 /monboot.bin
 /monboot.exe
