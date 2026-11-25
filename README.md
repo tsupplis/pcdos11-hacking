@@ -387,7 +387,16 @@ the default drive (Microsoft) or on drive A: (IBM).
 ## Build
 
 - Use Makefile on Linux, macOS
-- Use Makefile.dos on Win32, DOS (builds only PC-DOS configs)
+- From the project root under DOS, run `NMAKE -F MAKEFILE.DOS ALL` with
+  Microsoft NMAKE on PATH and the supplied tools in `BIN`. Use a DOS build
+  environment with subdirectories, pipes and redirection. For a clean build, start from a fresh
+  source checkout. Microsoft NMAKE 1.00.05 does not accept `/A`.
+- Native targets are `system` (both kernels, shells, BIOS and boot sectors),
+  `utils`, `samples` (including the SCP tools), and `monitors`. The monitor
+  rule uses rebuilt DEBUG and `MONCUT.SCR` to write the 8 KiB payload after
+  the 32 KiB origin padding. Keep the script's CR delimiters.
+- Image packaging and reference comparisons run on the host. The PCE helpers
+  use their separate NASM build.
 
 ## MASM Fix
 

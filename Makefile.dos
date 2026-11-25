@@ -1,10 +1,17 @@
-all: ibmdos.com ibmbio.com ibmcmd.com ibmsys.com ibmedlin.com \
-     msdos.com mscmd.com mssys.com msedlin.com \
-     asm.com hex2bin.com trans.com hello.com \
-     mem.com cls.com ver.com ballc.com
+all: system utils samples monitors
+
+system: ibmbio.com ibmdos.com ibmcmd.com msdos.com mscmd.com ibmboot.bin msboot.bin
+
+utils: ibmsys.com mssys.com ibmedlin.com msedlin.com ibmfmt.com msfmt.com \
+       chkdsk.com diskcopy.com diskcomp.com mode.com comp.com filcom.com \
+       debug.com exe2bin.exe ver.com mem.com cls.com time10.com date10.com
+
+samples: asm.com hex2bin.com trans.com hello.com ballc.com
+
+monitors: dosmon.com monboot.bin monitor.bin
 
 ibmbio.com: ibmbio.exe
-	echo 60|bin\exe2bin.exe ibmbio.exe ibmbio.com
+	bin\exe2bin.exe ibmbio.exe ibmbio.com < base60.txt
 
 ibmbio.exe: ibmbio.obj
 	bin\link.exe ibmbio,ibmbio,ibmbio,ibmbio,
@@ -72,7 +79,7 @@ ibmedlin.com: ibmedlin.exe
 ibmedlin.exe: ibmedlin.obj
 	bin\link.exe ibmedlin,ibmedlin,ibmedlin,ibmedlin, 
 
-ibmedlin.obj: ibmedlin.asm edlin102.asm
+ibmedlin.obj: ibmedlin.asm edlin101.asm
 	bin\msmasm.exe ibmedlin,ibmedlin,ibmedlin,ibmedlin
 
 msedlin.com: msedlin.exe
@@ -136,7 +143,171 @@ hex2bin.com: hex2bin.asm
 	bin\asm.com hex2bin.  z
 	bin\hex2bin.com hex2bin
 
+time10.com: time10.exe exe2bin.exe
+	exe2bin.exe time10.exe time10.com
+
+time10.exe: time10.obj
+	bin\link.exe time10,time10,time10,time10,
+
+time10.obj: time10.asm
+	bin\msmasm.exe time10,time10,time10,time10
+
+date10.com: date10.exe exe2bin.exe
+	exe2bin.exe date10.exe date10.com
+
+date10.exe: date10.obj
+	bin\link.exe date10,date10,date10,date10,
+
+date10.obj: date10.asm 
+	bin\msmasm.exe date10,date10,date10,date10
+
+dosmon.com: dosmon.exe exe2bin.exe
+	exe2bin.exe dosmon.exe dosmon.com
+
+dosmon.exe: dosmon.obj
+	bin\link.exe dosmon,dosmon,dosmon,dosmon,
+
+dosmon.obj: dosmon.asm mon.asm
+	bin\msmasm.exe dosmon,dosmon,dosmon,dosmon
+
+monitor.bin: monitor.raw debug.com moncut.scr
+	debug.com monitor.raw < moncut.scr
+
+monitor.raw: monitor.exe
+	bin\exe2bin.exe monitor.exe monitor.raw
+
+monitor.exe: monitor.obj
+	bin\link.exe monitor,monitor,monitor,monitor,
+
+monitor.obj: monitor.asm mon.asm
+	bin\msmasm.exe monitor,monitor,monitor,monitor
+
+monboot.bin: monboot.exe
+	bin\exe2bin.exe monboot.exe monboot.bin
+
+monboot.exe: monboot.obj
+	bin\link.exe monboot,monboot,monboot,monboot,
+
+monboot.obj: monboot.asm
+	bin\msmasm.exe monboot,monboot,monboot,monboot
+
+hello.asm: hello.z80 trans.com
+	trans.com hello.z80
+
+mode.com: mode.exe
+	bin\exe2bin.exe mode.exe mode.com
+
+mode.exe: mode.obj
+	bin\link.exe mode,mode,mode,mode,
+
+mode.obj: mode.asm
+	bin\msmasm.exe mode,mode,mode,mode
+
+comp.com: comp.exe
+	bin\exe2bin.exe comp.exe comp.com
+
+comp.exe: comp.obj
+	bin\link.exe comp,comp,comp,comp,
+
+comp.obj: comp.asm
+	bin\msmasm.exe comp,comp,comp,comp
+
+exe2bin.exe: exbimage.exe
+	bin\exe2bin.exe exbimage.exe exe2bin.exe
+
+exbimage.exe: exbimage.obj
+	bin\link.exe exbimage,exbimage,exbimage,exbimage,
+
+exbimage.obj: exe2bin.asm
+	bin\msmasm.exe exe2bin,exbimage,exbimage,exbimage
+
+debug.com: debug.exe
+	bin\exe2bin.exe debug.exe debug.com
+
+debug.exe: debug.obj
+	bin\link.exe debug,debug,debug,debug,
+
+debug.obj: debug.asm
+	bin\msmasm.exe debug,debug,debug,debug
+
+filcom.com: filcom.exe
+	bin\exe2bin.exe filcom.exe filcom.com
+
+filcom.exe: filcom.obj
+	bin\link.exe filcom,filcom,filcom,filcom,
+
+filcom.obj: filcom.asm
+	bin\msmasm.exe filcom,filcom,filcom,filcom
+
+diskcopy.com: diskcopy.exe
+	bin\exe2bin.exe diskcopy.exe diskcopy.com
+
+diskcopy.exe: diskcopy.obj
+	bin\link.exe diskcopy,diskcopy,diskcopy,diskcopy,
+
+diskcopy.obj: diskcopy.asm
+	bin\msmasm.exe diskcopy,diskcopy,diskcopy,diskcopy
+
+diskcomp.com: diskcomp.exe
+	bin\exe2bin.exe diskcomp.exe diskcomp.com
+
+diskcomp.exe: diskcomp.obj
+	bin\link.exe diskcomp,diskcomp,diskcomp,diskcomp,
+
+diskcomp.obj: diskcomp.asm
+	bin\msmasm.exe diskcomp,diskcomp,diskcomp,diskcomp
+
+chkdsk.com: chkdsk.exe
+	bin\exe2bin.exe chkdsk.exe chkdsk.com
+
+chkdsk.exe: chkdsk.obj
+	bin\link.exe chkdsk,chkdsk,chkdsk,chkdsk,
+
+chkdsk.obj: chkdsk.asm
+	bin\msmasm.exe chkdsk,chkdsk,chkdsk,chkdsk
+
+ibmfmt.com: ibmfmt.exe
+	bin\exe2bin.exe ibmfmt.exe ibmfmt.com
+
+ibmfmt.exe: ibmfmt.obj
+	bin\link.exe ibmfmt,ibmfmt,ibmfmt,ibmfmt,
+
+ibmfmt.obj: ibmfmt.asm format.asm fmtboot.inc
+	bin\msmasm.exe ibmfmt,ibmfmt,ibmfmt,ibmfmt
+
+msfmt.com: msfmt.exe
+	bin\exe2bin.exe msfmt.exe msfmt.com
+
+msfmt.exe: msfmt.obj
+	bin\link.exe msfmt,msfmt,msfmt,msfmt,
+
+msfmt.obj: msfmt.asm format.asm fmtboot.inc
+	bin\msmasm.exe msfmt,msfmt,msfmt,msfmt
+
+ibmboot.bin: ibmboot.exe
+	bin\exe2bin.exe ibmboot.exe ibmboot.bin
+
+ibmboot.exe: ibmboot.obj
+	bin\link.exe ibmboot,ibmboot,ibmboot,ibmboot,
+
+ibmboot.obj: ibmboot.asm bootsect.asm fmtboot.inc
+	bin\msmasm.exe ibmboot,ibmboot,ibmboot,ibmboot
+
+msboot.bin: msboot.exe
+	bin\exe2bin.exe msboot.exe msboot.bin
+
+msboot.exe: msboot.obj
+	bin\link.exe msboot,msboot,msboot,msboot,
+
+msboot.obj: msboot.asm bootsect.asm fmtboot.inc
+	bin\msmasm.exe msboot,msboot,msboot,msboot
+
 clean:
+	-del ibmboot.bin
+	-del msboot.bin
+	-del monitor.bin
+	-del monboot.bin
+	-del monitor.raw
 	-del *.com
 	-del *.exe
 	-del *.obj
