@@ -73,11 +73,18 @@ by `make clean`. Run `make pcdos.img msdos.img empty.img` to build just the temp
 (`CMDEXT=FALSE`, `HIGHMEM=FALSE`) using the shared [command.asm](command.asm);
 [io.asm](io.asm) is the original 86-DOS I/O system.
 
-`DOSEXT` is an explicitly opt-in source-level demonstration extension in the
-DOS wrappers.  It adds only `INT 21h` / `AH=30h`: the MS-DOS configuration
-reports version 1.25 and OEM `FFh` (Microsoft), while PC-DOS reports 1.10 and
-OEM `00h` (IBM); both use an unassigned serial number.  Leave it `FALSE` for
-the historical dispatcher.
+With `DOSEXT=TRUE`, the kernel enables command-line editing and the
+`INT 21h` version query (`AH=30h`). MS-DOS reports 1.25 and OEM `FFh`
+(Microsoft), and PC-DOS reports 1.10 and OEM `00h` (IBM). Both use an
+unassigned serial number. Set `DOSEXT=FALSE` for the historical editor and
+dispatcher.
+
+**Command-line editing.** Left/Right move the cursor, Home/End jump to either
+end, and Ins toggles insert (default) and overwrite. Del removes the character
+under the cursor, Backspace removes the preceding one, and Enter submits the
+whole line. At an empty prompt, Up recalls the last nonblank interactive line.
+On PC-DOS, F1/F2/F3 copy from that same line. Blank input, Ctrl-C and batch
+commands preserve it.
 
 `edlin101.asm` also reconstructs the 86-DOS/Microsoft EDLIN 1.01 variant when
 built with `MSVER`. EDLIN 1.02 changes the default `S`/`R` range: without a
