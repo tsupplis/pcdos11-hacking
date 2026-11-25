@@ -100,24 +100,24 @@ ZEROEXT EQU     FALSE
 ;
 ; AH=30h returns an OEM *number* in BH, not a string.  00h identifies IBM
 ; PC-DOS; FFh is Microsoft's conventional MS-DOS identity.
-        IF      IBMVER
+	IF      IBMVER
 DOSVERSION EQU   0A01H           ; AH=10 (minor), AL=1 (major): 1.10
 DOSOEM     EQU   00H             ; IBM PC-DOS
-        ELSE
+	ELSE
 DOSVERSION EQU   1901H           ; AH=25 (minor), AL=1 (major): 1.25
 DOSOEM     EQU   0FFH            ; Microsoft MS-DOS
-        ENDIF
+	ENDIF
 
 MAXCALL EQU     36
 ;
 ; The 1.25 dispatcher historically accepts functions 00h through 2Fh.
 ; DOSEXT is an explicitly opt-in demo facility supplied by the wrapper.
 ; It adds only AH=30h; leaving it FALSE retains the historical limit.
-        IF      DOSEXT
+	IF      DOSEXT
 MAXCOM  EQU     48
-        ELSE
+	ELSE
 MAXCOM  EQU     47
-        ENDIF
+	ENDIF
 INTBASE EQU     80H
 INTTAB  EQU     20H
 ENTRYPOINTSEG   EQU     0CH
@@ -1466,6 +1466,13 @@ DWRITE:
 
 ABORT:
 	LDS     SI,CS:DWORD PTR [SPSAVE]
+	IF      DOSEXT
+	MOV     AX,[SI.CSSAVE]
+	CMP     AX,CS:[EDITOWNER]
+	JNE     EDITKEEPOWNER
+	MOV     BYTE PTR CS:[EDITLENGTH],0
+EDITKEEPOWNER:
+	ENDIF
 	MOV     DS,[SI.CSSAVE]
 	XOR     AX,AX
 	MOV     ES,AX
@@ -2822,6 +2829,9 @@ BUFIN:  ;System call 10
 	MOV     ES,AX
 	MOV     SI,DX
 	MOV     CH,0
+	IF      DOSEXT
+	CALL    EDITPREP
+	ENDIF
 	LODSW
 	OR      AL,AL
 	JZ      RET17
@@ -2844,16 +2854,35 @@ NEWLIN:
 	MOV     AH,CH
 	MOV     BH,CH
 	MOV     DH,CH
+	IF      DOSEXT
+	MOV     BYTE PTR CS:[EDITINSERT],0FFH
+	ENDIF
 GETCH:
 	CALL    IN
 	CMP     AL,"F"-"@"      ;Ignore ^F
 	JZ      GETCH
+	IF      DOSEXT
+	OR      AL,AL                   ; PC BIOS extended scan-code prefix
+	JNZ     EDITASCII
+	JMP     EDITKEY
+EDITASCII:
+	ENDIF
 	CMP     AL,CS:ESCCHAR
 	JZ      ESC
+	IF      DOSEXT
+	CMP     AL,7FH
+	JZ      EDBACKJ
+	CMP     AL,8
+	JNZ     EDCHKCR
+EDBACKJ:
+	JMP     EDITBACK
+EDCHKCR:
+	ELSE
 	CMP     AL,7FH
 	JZ      BACKSP
 	CMP     AL,8
 	JZ      BACKSP
+	ENDIF
 	CMP     AL,13
 	JZ      ENDLIN
 	CMP     AL,10
@@ -2861,12 +2890,18 @@ GETCH:
 	CMP     AL,CANCEL
 	JZ      KILNEW
 SAVCH:
+	IF      DOSEXT
+	CALL    EDITPUT
+	JC      BUFFUL
+	CMP     BYTE PTR CS:[EDITINSERT],0
+	ELSE
 	CMP     DH,DL
 	JAE     BUFFUL
 	STOSB
 	INC     DH
 	CALL    BUFOUT
 	OR      AH,AH
+	ENDIF
 	JNZ     GETCH
 	CMP     BH,BL
 	JAE     GETCH
@@ -2881,6 +2916,9 @@ BUFFUL:
 
 ESC:
 	CALL    IN
+	IF      DOSEXT
+EDITOLDKEY:
+	ENDIF
 	MOV     CL,ESCTABLEN
 	PUSH    DI
 	MOV     DI,OFFSET DOSGROUP:ESCTAB
@@ -2891,9 +2929,16 @@ ESC:
 	JMP     [BP+OFFSET DOSGROUP:ESCFUNC]
 
 ENDLIN:
+	IF      DOSEXT
+	CALL    EDITFINISH
+	MOV     AL,13
+	ENDIF
 	STOSB
 	CALL    OUT
 	POP     DI
+	IF      DOSEXT
+	CALL    EDITREMEMBER
+	ENDIF
 	MOV     [DI-1],DH
 	INC     DH
 COPYNEW:
@@ -2912,8 +2957,15 @@ CRLF:
 	JMP     OUT
 
 PHYCRLF:
+	IF      DOSEXT
+	CALL    EDITFINISH
+	ENDIF
 	CALL    CRLF
+	IF      DOSEXT
+	JMP     GETCH
+	ELSE
 	JMP     SHORT GETCH
+	ENDIF
 
 KILNEW:
 	MOV     AL,"\"
@@ -2926,6 +2978,9 @@ PUTNEW:
 	JMP     NEWLIN
 
 BACKSP:
+	IF      DOSEXT
+	JMP     EDITBACK
+	ENDIF
 	OR      DH,DH
 	JZ      OLDBAK
 	CALL    BACKUP
@@ -3002,6 +3057,19 @@ COPYSTR:
 COPYONE:
 	MOV     CL,1
 COPYEACH:
+	IF      DOSEXT
+	MOV     BYTE PTR CS:[EDITINSERT],0
+EDITCOPY:
+	CMP     BH,BL
+	JAE     GETCH2
+	MOV     AL,[SI]
+	CALL    EDITPUT
+	JC      GETCH2
+	INC     SI
+	INC     BH
+	LOOP    EDITCOPY
+	JMP     SHORT GETCH2
+	ENDIF
 	MOV     AH,0
 	CMP     DH,DL
 	JZ      GETCH2
@@ -3055,6 +3123,9 @@ NOTFND:
 	JMP     GETCH
 
 REEDIT:
+	IF      DOSEXT
+	CALL    EDITFINISH
+	ENDIF
 	MOV     AL,"@"
 	CALL    OUT
 	POP     DI
@@ -3069,6 +3140,13 @@ REEDIT:
 	JMP     PUTNEW
 
 ENTERINS:
+	IF      DOSEXT
+	IF      TOGLINS
+	NOT     BYTE PTR CS:[EDITINSERT]
+	ELSE
+	MOV     BYTE PTR CS:[EDITINSERT],0FFH
+	ENDIF
+	ENDIF
 	IF      TOGLINS
 	NOT     AH
 	JMP     GETCH
@@ -3078,6 +3156,9 @@ ENTERINS:
 	JMP     GETCH
 
 EXITINS:
+	IF      DOSEXT
+	MOV     BYTE PTR CS:[EDITINSERT],0
+	ENDIF
 	MOV     AH,0
 	JMP     GETCH
 	ENDIF
@@ -3103,6 +3184,406 @@ ESCFUNC DW      GETCH
 CTRLZ:
 	MOV     AL,"Z"-"@"
 	JMP     SAVCH
+	ENDIF
+	IF      DOSEXT
+; Initialize the function-key template from completed keyboard input.
+; The command processor also uses its input buffer to execute batch lines.
+; DS:SI addresses the 0Ah buffer. Leave internal console reads alone.
+EDITPREP:
+	MOV     AX,DS
+	MOV     BP,CS
+	CMP     AX,BP
+	JE      EDPDONE
+	CMP     BYTE PTR [SI],0
+	JE      EDPDONE
+	MOV     BYTE PTR [SI+1],0
+	MOV     BYTE PTR [SI+2],13
+	CMP     AX,WORD PTR CS:EDITBUFFER+2
+	JNE     EDPDONE
+	LEA     AX,[SI+2]
+	CMP     AX,WORD PTR CS:EDITBUFFER
+	JNE     EDPDONE
+	PUSH    DS
+	PUSH    SI
+	LDS     SI,CS:DWORD PTR [SPSAVE]
+	MOV     AX,[SI.CSSAVE]
+	POP     SI
+	POP     DS
+	CMP     AX,CS:EDITOWNER
+	JNE     EDPDONE
+	MOV     CL,CS:EDITLENGTH
+	CMP     CL,[SI]
+	JAE     EDPDONE
+	MOV     [SI+1],CL
+	PUSH    ES
+	PUSH    DS
+	POP     ES
+	LEA     DI,[SI+2]
+	PUSH    SI
+	MOV     SI,OFFSET DOSGROUP:EDITHISTORY
+EDPCOPY:
+	JCXZ    EDPEND
+	MOV     AL,CS:[SI]
+	INC     SI
+	STOSB
+	LOOP    EDPCOPY
+EDPEND:
+	MOV     AL,13
+	STOSB
+	POP     SI
+	POP     ES
+EDPDONE:
+	RET
+
+EDITKEY:
+	CALL    IN
+	CMP     AL,4BH
+	JE      EDITLEFT
+	CMP     AL,4DH
+	JE      EDITRIGHT
+	CMP     AL,47H
+	JE      EDITHOME
+	CMP     AL,4FH
+	JE      EDITEND
+	CMP     AL,53H
+	JE      EDITDELKEY
+	CMP     AL,48H
+	JE      EDITUP
+	CMP     AL,52H
+	JNE     EDITOTHER
+	NOT     BYTE PTR CS:[EDITINSERT]
+	JMP     GETCH
+EDITOTHER:
+	IF      IBMVER
+	JMP     EDITOLDKEY              ; DOS template keys F1-F7
+	ELSE
+	JMP     GETCH                   ; native ESC sequences use ESCTAB
+	ENDIF
+
+EDITLEFT:
+	CMP     DI,OFFSET DOSGROUP:INBUF
+	JE      EDITNEXT
+	MOV     BP,DI
+	DEC     BP
+	JMP     SHORT EDITSEEK
+EDITHOME:
+	MOV     BP,OFFSET DOSGROUP:INBUF
+EDITSEEK:
+	CALL    EDITRETREAT
+EDITNEXT:
+	JMP     GETCH
+
+EDITRIGHT:
+	CALL    EDITLIMIT
+	CMP     DI,BP
+	JE      EDITNEXT
+	CALL    EDITSTEP
+	JMP     SHORT EDITNEXT
+EDITEND:
+	CALL    EDITFINISH
+	JMP     SHORT EDITNEXT
+EDITDELKEY:
+	JMP     EDITDELETE
+EDITUP:
+	OR      DH,DH
+	JNZ     EDITNEXT
+	MOV     AX,DS
+	MOV     BP,CS
+	CMP     AX,BP                   ; internal console reads use kernel DS
+	JE      EDITNEXT
+	XOR     AX,AX
+	MOV     AL,BH
+	SUB     SI,AX
+	XOR     BH,BH
+	MOV     CL,BL
+	CALL    EDITCOPYRECALL
+	MOV     BH,BL
+	JMP     EDITNEXT
+EDITCOPYRECALL:
+	JCXZ    EDITRECALLDONE
+EDITRECALL:
+	LODSB
+	STOSB
+	CALL    BUFOUT
+	INC     DH
+	LOOP    EDITRECALL
+EDITRECALLDONE:
+	RET
+
+; DS:SI, CX = text and length. ZF set if empty or entirely spaces/tabs.
+EDITISBLANK:
+	OR      CX,CX
+	JZ      EDITBLANKDONE
+EDITBLANKCHAR:
+	LODSB
+	CMP     AL,' '
+	JE      EDITBLANKNEXT
+	CMP     AL,9
+	JNE     EDITBLANKDONE
+EDITBLANKNEXT:
+	LOOP    EDITBLANKCHAR
+EDITBLANKDONE:
+	RET
+
+; DS:DI is the caller's text area. INBUF still holds the submitted text.
+EDITREMEMBER:
+	MOV     AX,DS
+	MOV     BP,CS
+	CMP     AX,BP
+	JE      EDITREMEMBERDONE
+	PUSH    DS
+	PUSH    DI
+	PUSH    CX
+	MOV     AX,DS
+	PUSH    CS
+	POP     DS
+	MOV     SI,OFFSET DOSGROUP:INBUF
+	MOV     CL,DH
+	PUSH    AX
+	CALL    EDITISBLANK
+	POP     AX
+	JZ      EDITREMEMBEREND
+	MOV     WORD PTR CS:EDITBUFFER+2,AX
+	MOV     WORD PTR CS:EDITBUFFER,DI
+	PUSH    DS
+	PUSH    SI
+	LDS     SI,CS:DWORD PTR [SPSAVE]
+	MOV     AX,[SI.CSSAVE]
+	POP     SI
+	POP     DS
+	MOV     CS:EDITOWNER,AX
+	MOV     CS:EDITLENGTH,DH
+	MOV     CL,DH
+	MOV     SI,OFFSET DOSGROUP:INBUF
+	MOV     DI,OFFSET DOSGROUP:EDITHISTORY
+	REP     MOVSB
+EDITREMEMBEREND:
+	POP     CX
+	POP     DI
+	POP     DS
+EDITREMEMBERDONE:
+	RET
+
+EDITLIMIT:
+	XOR     AX,AX
+	MOV     AL,DH
+	ADD     AX,OFFSET DOSGROUP:INBUF
+	MOV     BP,AX
+	RET
+EDITSTEP:
+	MOV     AL,ES:[DI]
+	INC     DI
+	CALL    BUFOUT
+	RET
+EDITFINISH:
+	CALL    EDITLIMIT
+EDITTOEND:
+	CMP     DI,BP
+	JAE     EDITATEND
+	CALL    EDITSTEP
+	JMP     SHORT EDITTOEND
+EDITATEND:
+	RET
+
+; Measure the prefix ending at DI. AX counts physical cells, CL follows
+; DOS CARPOS. DEL is output without advancing the logical column.
+EDITWIDTH:
+	PUSH    SI
+	MOV     SI,OFFSET DOSGROUP:INBUF
+	MOV     CL,CS:[STARTPOS]
+	XOR     AX,AX
+WIDTHLOOP:
+	CMP     SI,DI
+	JAE     WIDTHDONE
+	MOV     CH,ES:[SI]
+	INC     SI
+	CMP     CH,9
+	JNE     WIDTHCHAR
+	MOV     CH,CL
+	AND     CH,7
+	SUB     CL,CH
+	ADD     CL,8
+	ADD     AX,8
+	SUB     AL,CH
+	SBB     AH,0
+	JMP     SHORT WIDTHLOOP
+WIDTHCHAR:
+	INC     AX
+	CMP     CH,7FH
+	JE      WIDTHLOOP
+	INC     CL
+	CMP     CH,' '
+	JAE     WIDTHLOOP
+	INC     AX
+	INC     CL
+	JMP     SHORT WIDTHLOOP
+WIDTHDONE:
+	XOR     CH,CH
+	POP     SI
+	RET
+
+; Seek backwards from DI to BP, keeping the prompt and logical tab stops.
+EDITRETREAT:
+	PUSH    CX
+	CALL    EDITWIDTH
+	PUSH    AX
+	MOV     DI,BP
+	CALL    EDITWIDTH
+	MOV     CS:[CARPOS],CL
+	POP     CX
+	SUB     CX,AX
+	JCXZ    RETREATDONE
+	CALL    EDITBACKCELLS
+RETREATDONE:
+	POP     CX
+	RET
+
+EDITBACK:
+	CMP     DI,OFFSET DOSGROUP:INBUF
+	JE      EDITDONE
+	MOV     BP,DI
+	DEC     BP
+	CALL    EDITRETREAT
+EDITDELETE:
+	CALL    EDITLIMIT
+	CMP     DI,BP
+	JE      EDITDONE
+	CALL    EDITOLDWIDTH
+	PUSH    AX                      ; old screen extent
+	PUSH    DI                      ; cursor after deletion
+DELETESHIFT:
+	INC     DI
+	CMP     DI,BP
+	JAE     DELETEPAINT
+	MOV     AL,ES:[DI]
+	MOV     ES:[DI-1],AL
+	JMP     SHORT DELETESHIFT
+DELETEPAINT:
+	DEC     DH
+	POP     DI
+	MOV     BP,DI
+	POP     AX
+	CALL    EDITPAINT
+EDITDONE:
+	JMP     GETCH
+
+; Store AL. Carry means capacity exhausted. Fast path echoes an append once.
+EDITPUT:
+	PUSH    AX
+	CALL    EDITLIMIT
+	CMP     DI,BP
+	POP     AX
+	JB      EDITMIDDLE
+	CMP     DH,DL
+	JAE     EDITFULL
+	STOSB
+	INC     DH
+	CALL    BUFOUT
+	CLC
+	RET
+EDITFULL:
+	STC
+	RET
+EDITMIDDLE:
+	PUSH    AX
+	CALL    EDITOLDWIDTH
+	XCHG    BP,AX                   ; BP = old extent, AX = end pointer
+	CMP     BYTE PTR CS:[EDITINSERT],0
+	JE      EDITREPLACE
+	CMP     DH,DL
+	JB      EDITROOM
+	POP     AX
+	JMP     SHORT EDITFULL
+EDITROOM:
+	INC     DH
+	PUSH    BX
+	MOV     BX,AX
+INSERTSHIFT:
+	MOV     AL,ES:[BX-1]
+	MOV     ES:[BX],AL
+	DEC     BX
+	CMP     BX,DI
+	JA      INSERTSHIFT
+	POP     BX
+EDITREPLACE:
+	POP     AX
+	MOV     ES:[DI],AL
+	MOV     AX,BP
+	MOV     BP,DI
+	INC     BP                      ; cursor after inserted/replaced byte
+	CALL    EDITPAINT
+	CLC
+	RET
+
+; BP = old end pointer. Preserve the editor and template-copy loop registers.
+EDITOLDWIDTH:
+	PUSH    DI
+	PUSH    CX
+	MOV     DI,BP
+	CALL    EDITWIDTH
+	POP     CX
+	POP     DI
+	RET
+
+; Physical cursor is at DI, before the changed suffix. Prefix is unchanged.
+; AX = old extent, BP = desired cursor. Repaint suffix and erase stale cells.
+EDITPAINT:
+	PUSH    CX
+	PUSH    BP
+	PUSH    AX
+	CALL    EDITFINISH
+	CALL    EDITWIDTH
+	POP     CX
+	SUB     CX,AX
+	JBE     PAINTSEEK
+	PUSH    CX
+	PUSH    WORD PTR CS:[CARPOS]
+PAINTERASE:
+	MOV     AL,' '
+	CALL    OUT
+	LOOP    PAINTERASE
+	POP     AX
+	MOV     CS:[CARPOS],AL
+	POP     CX
+	CALL    EDITBACKCELLS
+PAINTSEEK:
+	POP     BP
+	CALL    EDITRETREAT
+	POP     CX
+	RET
+
+; PC BIOS cursor positioning preserves wrapped text and the active page.
+EDITBACKCELLS:
+	PUSH    AX
+	PUSH    BX
+	PUSH    CX
+	PUSH    DX
+	PUSH    BP
+	MOV     BP,CX
+	MOV     AH,0FH
+	INT     10H
+	MOV     BL,AH                   ; columns; BH is the active page
+	MOV     AH,03H
+	INT     10H
+	MOV     AL,DH
+	MUL     BL
+	XOR     DH,DH
+	ADD     AX,DX
+	SUB     AX,BP
+	JNC     BACKONSCREEN
+	XOR     AX,AX
+BACKONSCREEN:
+	DIV     BL
+	MOV     DH,AL
+	MOV     DL,AH
+	MOV     AH,02H
+	INT     10H
+	POP     BP
+	POP     DX
+	POP     CX
+	POP     BX
+	POP     AX
+	RET
 	ENDIF
 BUFOUT:
 	CMP     AL," "
@@ -3760,6 +4241,13 @@ IONAME:
 DIVMES  DB      13,10,"Divide overflow",13,10,"$"
 CARPOS  DB      0
 STARTPOS DB     0
+	IF      DOSEXT
+; One completed nonblank line, private to the caller CS and 0Ah buffer.
+EDITOWNER DW    0
+EDITBUFFER DD   0
+EDITLENGTH DB   0
+EDITINSERT DB   0
+	ENDIF
 PFLAG   DB      0
 DIRTYDIR DB     0       	;Dirty buffer flag
 NUMDRV  DB      0       ;Number of drives
@@ -3790,7 +4278,12 @@ DATA    SEGMENT WORD
 ; Init code overlaps with data area below
 
 	ORG     0
+	IF      DOSEXT
+EDITHISTORY DB  254 DUP (?)
+INBUF   DB      255 DUP (?)     ; maximum 0Ah line including CR
+	ELSE
 INBUF   DB      128 DUP (?)
+	ENDIF
 CONBUF  DB      131 DUP (?)     	;The rest of INBUF and console buffer
 LASTENT DW      ?
 EXITHOLD DB     4 DUP (?)

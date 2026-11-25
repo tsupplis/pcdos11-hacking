@@ -460,9 +460,6 @@ dosmon.exe: dosmon.obj
 dosmon.obj: dosmon.asm mon.asm
 	emu2 bin/msmasm.exe dosmon,dosmon,dosmon,dosmon || rm -f dosmon.obj
 
-dosmon.obj: dosmon.asm mon.asm
-	emu2 bin/msmasm.exe dosmon,dosmon,dosmon,dosmon || rm -f dosmon.obj
-
 # Boot wrapper uses absolute offsets at 8000h; remove EXE2BIN's origin padding.
 monitor.bin: monitor.raw
 	dd if=monitor.raw of=monitor.bin bs=32768 skip=1
